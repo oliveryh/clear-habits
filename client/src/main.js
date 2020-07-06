@@ -6,12 +6,19 @@ import vuetify from './plugins/vuetify';
 
 import { CHECK_AUTH } from "./store/actions.type";
 import ApiService from "./common/api.service";
+import JwtService from "@/common/jwt.service";
 import ErrorFilter from "./common/error.filter";
 
 Vue.config.productionTip = false;
 Vue.filter("error", ErrorFilter);
 
 ApiService.init();
+
+// Guard protected routes and forward to login page
+router.beforeEach((to, from, next) => {
+  if (!['login', 'register'].includes(to.name) && !JwtService.getToken()) next({ name: 'login' })
+  else next()
+});  
 
 // Ensure we checked auth before each page load.
 router.beforeEach((to, from, next) =>

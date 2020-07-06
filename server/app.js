@@ -1,41 +1,79 @@
-var fs = require('fs'),
-    http = require('http'),
-    path = require('path'),
-    methods = require('methods'),
-    express = require('express'),
-    bodyParser = require('body-parser'),
-    session = require('express-session'),
-    cors = require('cors'),
-    passport = require('passport'),
-    errorhandler = require('errorhandler'),
-    mongoose = require('mongoose');
+///////////
+// START //
+///////////
 
-var isProduction = process.env.NODE_ENV === 'production';
-
-// Create global app object
+// create global app object
+var express = require('express');
 var app = express();
 
+////////////
+// MODELS //
+////////////
+
+var mongoose = require('mongoose');
+require('./models/User');
+require('./config/passport');
+
+////////////////
+// MIDDLEWARE //
+////////////////
+
+// cross site access
+var cors = require('cors');
 app.use(cors());
 
-// Normal express config defaults
+// HTTP request logger
 app.use(require('morgan')('dev'));
+
+// parse incoming request bodies (req.body) in middleware before handlers
+var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+// use PUT / DELETE where the client doesn't allow it
 app.use(require('method-override')());
+
+// serve static files
 app.use(express.static(__dirname + '/public'));
 
+// session
+var session = require('express-session');
 app.use(session({ secret: 'conduit', cookie: { maxAge: 60000 }, resave: false, saveUninitialized: false  }));
 
-if (!isProduction) {
-  app.use(errorhandler());
-}
+// production and development logging handling
+var errorhandler = require('errorhandler');
+var isProduction = process.env.NODE_ENV === 'production';
 
 if(isProduction){
+
+  // connect to external mongodb
   mongoose.connect(process.env.MONGODB_URI);
+
+  // no stacktraces leaked to user
+  app.use(function(err, req, res, next) {
+    res.status(err.status || 500);
+    res.json({'errors': {
+      message: err.message,
+      error: {}
+    }});
+  });
+
 } else {
+
+  // connect to local mongodb
   mongoose.connect('mongodb://localhost/conduit');
   mongoose.set('debug', true);
+
+  // print stack trace to output
+  app.use(errorhandler());
+  app.use(function(err, req, res, next) {
+    res.status(err.status || 500);
+    res.json({'errors': {
+      message: err.message,
+      error: err
+    }});
+  });
+
 }
 
 app.use(require('./routes'));
@@ -47,32 +85,9 @@ app.use(function(req, res, next) {
   next(err);
 });
 
-/// error handlers
-
-// development error handler
-// will print stacktrace
-if (!isProduction) {
-  app.use(function(err, req, res, next) {
-    console.log(err.stack);
-
-    res.status(err.status || 500);
-
-    res.json({'errors': {
-      message: err.message,
-      error: err
-    }});
-  });
-}
-
-// production error handler
-// no stacktraces leaked to user
-app.use(function(err, req, res, next) {
-  res.status(err.status || 500);
-  res.json({'errors': {
-    message: err.message,
-    error: {}
-  }});
-});
+//////////////////
+// START SERVER //
+//////////////////
 
 // finally, let's start our server...
 var server = app.listen( process.env.PORT || 3000, function(){

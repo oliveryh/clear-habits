@@ -1,0 +1,180 @@
+- hosts: webserver
+  remote_user: ansible
+  become: yes
+  become_method: sudo
+  vars:
+    - app_dir: /app
+  tasks:
+
+    ############# 
+    # STRUCTURE #
+    #############
+
+    - name: app.directory
+      file: 
+        path: "{{ app_dir }}"
+        state: directory
+        mode: 0777
+
+    #######
+    # GIT #
+    #######
+
+    - name: git.install
+      apt:
+        name: git
+
+    - name: git.clone
+      git:
+        repo: https://github.com/oliveryh/clear-habits
+        dest: "{{ app_dir }}/repo"
+        version: develop
+        force: yes
+      become_user: ansible
+
+    #######
+    # NPM #
+    #######
+
+    - name: npm.install
+      apt: name={{ item }} update_cache=yes state=latest
+      with_items:
+        - nodejs
+        - npm
+        - curl
+        - build-essential # allows npm to build
+
+    - name: npm.server.install
+      npm:
+        path: "{{ app_dir }}/repo/server"
+      become_user: ansible
+
+    - name: npm.client.install
+      npm:
+        path: "{{ app_dir }}/repo/client"
+      become_user: ansible
+
+    - name: npm.client.build.env.requisite
+      ipify_facts:
+
+    - name: npm.client.build.env
+      template: 
+        src: .env.production.j2
+        dest: "{{ app_dir }}/repo/client/.env.production"
+      become_user: ansible
+      vars:
+        ip_address: "{{ ipify_public_ip }}"
+
+    - name: npm.client.build
+      command: npm run build
+      args:
+        chdir: "{{ app_dir }}/repo/client"
+      become_user: ansible
+
+    ###########
+    # MONGODB #
+    ###########
+      
+    - name: mongodb.key
+      apt_key:
+        url: https://www.mongodb.org/static/pgp/server-4.2.asc
+        state: present
+
+    - name: mongodb.listfile
+      apt_repository:
+        filename: '/etc/apt/sources.list.d/mongodb-org-4.2.list'
+        repo: 'deb http://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.2 multiverse'
+        state: present
+        update_cache: yes
+
+    - name: mongodb.install
+      apt:
+        name: mongodb-org
+        state: present
+        update_cache: yes
+
+    - name: mongodb.start
+      service:
+        name: mongod
+        state: started
+    
+    #######
+    # PM2 #
+    #######
+
+    - name: pm2.install
+      npm:
+        name: pm2
+        global: yes
+        production: yes
+
+    - name: pm2.server.start
+      command: pm2 start app.js --name server -f
+      args:
+        chdir: "{{ app_dir }}/repo/server"
+      become_user: ansible
+
+    - name: pm2.save
+      command: pm2 save
+      become_user: ansible
+
+    - name: pm2.service.enable
+      command: pm2 startup systemd -u ansible --hp /home/ansible
+      environment:
+        PATH: "{{ ansible_env.PATH }}"
+
+    - name: pm2.service.stop
+      command: ps aux | grep pm2 | grep -v grep | awk '{print $2}' | xargs kill -9
+      become_user: ansible
+
+    - name: pm2.service.start
+      service: 
+        name: pm2-ansible
+        state: started
+
+    #########
+    # NGINX #
+    #########
+    
+    - name: nginx.install
+      apt:
+        name: nginx
+
+    - name: nginx.firewall.ssh
+      ufw:
+        rule: allow
+        port: '22'
+
+    - name: nginx.firewall.http
+      ufw:
+        rule: allow
+        name: Nginx HTTP
+
+    - name: nginx.firewall.enable
+      ufw:
+        state: enabled
+
+    - name: nginx.config.create
+      copy:
+        src: ./nginx.conf
+        dest: /etc/nginx/sites-available/app
+
+    - name: nginx.config.enable
+      file:
+        src: /etc/nginx/sites-available/app
+        dest: /etc/nginx/sites-enabled/app
+        state: link
+
+    - name: nginx.config.default.disable
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent  
+
+    - name: nginx.update
+      shell:
+        cmd: update-rc.d nginx enable
+
+    - name: nginx.restart
+      service:
+        name: nginx
+        state: restarted

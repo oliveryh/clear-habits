@@ -41,7 +41,7 @@
 </template>
 
 <script>
-import { LOGOUT } from '@/store/actions.type'
+import { A_AUTH_LOGOUT } from '@/store/actions.type'
 import { mapState } from 'vuex';
 
 export default {
@@ -53,7 +53,7 @@ export default {
   },
   methods: {
     logout() {
-      this.$store.dispatch(LOGOUT)
+      this.$store.dispatch(A_AUTH_LOGOUT)
         .then(() => this.$router.push({ name: 'login' }))
     }
   }

@@ -4,7 +4,7 @@ import router from "./router";
 import store from "./store";
 import vuetify from './plugins/vuetify';
 
-import { CHECK_AUTH } from "./store/actions.type";
+import { A_AUTH_CHECK } from "./store/actions.type";
 import ApiService from "./common/api.service";
 import JwtService from "@/common/jwt.service";
 import ErrorFilter from "./common/error.filter";
@@ -22,7 +22,7 @@ router.beforeEach((to, from, next) => {
 
 // Ensure we checked auth before each page load.
 router.beforeEach((to, from, next) =>
-  Promise.all([store.dispatch(CHECK_AUTH)]).then(next)
+  Promise.all([store.dispatch(A_AUTH_CHECK)]).then(next)
 );
 
 new Vue({

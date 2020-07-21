@@ -90,7 +90,7 @@
 
 <script>
 import { mapState } from "vuex";
-import { REGISTER } from '@/store/actions.type'
+import { A_AUTH_REGISTER } from '@/store/actions.type'
 
 export default {
     name: 'Register',
@@ -130,7 +130,7 @@ export default {
     methods: {
         onSubmit() {
             if (this.$refs.form.validate()) {
-                this.$store.dispatch(REGISTER, {
+                this.$store.dispatch(A_AUTH_REGISTER, {
                 email: this.email,
                 password: this.password,
                 username: this.username

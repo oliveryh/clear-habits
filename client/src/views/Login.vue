@@ -84,7 +84,7 @@
 
 <script>
 import { mapState } from "vuex";
-import { LOGIN } from '@/store/actions.type'
+import { A_AUTH_LOGIN } from '@/store/actions.type'
 
 export default {
     name: 'Login',
@@ -120,7 +120,7 @@ export default {
     methods: {
         onSubmit() {
             if (this.$refs.form.validate()) {
-                this.$store.dispatch(LOGIN, {
+                this.$store.dispatch(A_AUTH_LOGIN, {
                 email: this.email,
                 password: this.password,
                 }).then(() => this.$router.push({ name: 'home' }))

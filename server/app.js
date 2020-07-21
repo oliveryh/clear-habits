@@ -12,6 +12,7 @@ var app = express();
 
 var mongoose = require('mongoose');
 require('./models/User');
+require('./models/Task');
 require('./config/passport');
 
 ////////////////

@@ -1,3 +1,7 @@
-export const SET_AUTH = "setAuth";
-export const PURGE_AUTH = "purgeAuth";
-export const SET_ERROR = "setError";
+export const M_AUTH_SET = "mutationAuthSet";
+export const M_AUTH_PURGE = "mutationAuthPurge";
+export const M_ERROR_SET = "mutationErrorSet";
+export const M_TASK_RETRIEVE = "mutationTaskRetrieve";
+export const M_TASK_CREATE = "mutationTaskCreate";
+export const M_TASK_UPDATE = "mutationTaskUpdate";
+export const M_TASK_DELETE = "mutationTaskDelete";

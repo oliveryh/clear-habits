@@ -1,0 +1,8 @@
+export const A_AUTH_CHECK = "actionAuthCheck";
+export const A_AUTH_REGISTER = "actionAuthRegister";
+export const A_AUTH_LOGIN = "actionAuthLogin";
+export const A_AUTH_LOGOUT = "actionAuthLogout";
+export const A_TASK_RETRIEVE = "actionTaskRetrieve";
+export const A_TASK_CREATE = "actionTaskCreate";
+export const A_TASK_UPDATE = "actionTaskUpdate";
+export const A_TASK_DELETE = "actionTaskDelete";

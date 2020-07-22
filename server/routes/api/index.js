@@ -1,20 +1,20 @@
-var router = require('express').Router();
+var router = require('express').Router()
 
-router.use('/', require('./users'));
-router.use('/tasks', require('./tasks'));
+router.use('/', require('./users'))
+router.use('/tasks', require('./tasks'))
 
-router.use(function(err, req, res, next){
-  if(err.name === 'ValidationError'){
+router.use(function (err, req, res, next) {
+  if (err.name === 'ValidationError') {
     return res.status(422).json({
-      errors: Object.keys(err.errors).reduce(function(errors, key){
-        errors[key] = err.errors[key].message;
+      errors: Object.keys(err.errors).reduce(function (errors, key) {
+        errors[key] = err.errors[key].message
 
-        return errors;
-      }, {})
-    });
+        return errors
+      }, {}),
+    })
   }
 
-  return next(err);
-});
+  return next(err)
+})
 
-module.exports = router;
+module.exports = router

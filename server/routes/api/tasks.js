@@ -82,6 +82,65 @@ router.put('/:task', auth.required, function (req, res, next) {
     .catch(next)
 })
 
+router.put('/:task/start', auth.required, function (req, res, next) {
+  User.findById(req.payload.id)
+    .then(function (user) {
+      if (!user) {
+        return res.sendStatus(401)
+      }
+
+      // authorized if user is author of task
+      if (req.task.author._id.toString() === req.payload.id.toString()) {
+        if (!req.task.timerActive) {
+          req.task.timerActive = true
+          req.task.timerStartedAt = Date.now()
+        }
+
+        req.task
+          .save()
+          .then(function (task) {
+            return res.json(task)
+          })
+          .catch(next)
+      } else {
+        return res.sendStatus(401)
+      }
+    })
+    .catch(next)
+})
+
+router.put('/:task/stop', auth.required, function (req, res, next) {
+  User.findById(req.payload.id)
+    .then(function (user) {
+      if (!user) {
+        return res.sendStatus(401)
+      }
+
+      // authorized if user is author of task
+      if (req.task.author._id.toString() === req.payload.id.toString()) {
+        if (req.task.timerActive) {
+          numSeconds = parseInt((Date.now() - req.task.timerStartedAt) / 1000)
+
+          console.log(numSeconds)
+
+          req.task.timerActive = false
+          req.task.timerTrackedTime += numSeconds
+          req.task.timerStartedAt = null
+        }
+
+        req.task
+          .save()
+          .then(function (task) {
+            return res.json(task)
+          })
+          .catch(next)
+      } else {
+        return res.sendStatus(401)
+      }
+    })
+    .catch(next)
+})
+
 // delete a task
 router.delete('/:task', auth.required, function (req, res, next) {
   User.findById(req.payload.id).then(function (user) {

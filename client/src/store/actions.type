@@ -6,3 +6,5 @@ export const A_TASK_RETRIEVE = "actionTaskRetrieve";
 export const A_TASK_CREATE = "actionTaskCreate";
 export const A_TASK_UPDATE = "actionTaskUpdate";
 export const A_TASK_DELETE = "actionTaskDelete";
+export const A_TASK_TIMER_START = "actionTaskTimerStart";
+export const A_TASK_TIMER_STOP = "actionTaskTimerStop";

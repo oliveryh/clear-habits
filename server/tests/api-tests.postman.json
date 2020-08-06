@@ -424,6 +424,142 @@
 					"response": []
 				},
 				{
+					"name": "Start Timer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "de4b00fb-eeb7-4da7-bd68-9e4d0981c162",
+								"exec": [
+									"var responseJSON = JSON.parse(responseBody);",
+									"tests['Response contains \"timerActive\" property'] = responseJSON.hasOwnProperty('timerActive');",
+									"",
+									"tests['Response contains \"timerStartedAt\" property'] = responseJSON.hasOwnProperty('timerStartedAt');",
+									"",
+									"tests['Response contains \"timerTrackedTime\" property'] = responseJSON.hasOwnProperty('timerTrackedTime');",
+									"",
+									"tests['timerTrackedTime attribute defaults to 0'] = responseJSON.timerTrackedTime == 0;",
+									"",
+									"tests['timerActive attribute is true'] = responseJSON.timerActive == true;",
+									"",
+									"tests['timerStartedAt attribute is not null'] = responseJSON.timerStartedAt != null;"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"type": "text",
+								"value": "XMLHttpRequest"
+							}
+						],
+						"url": {
+							"raw": "{{apiUrl}}/tasks/:id/start",
+							"host": [
+								"{{apiUrl}}"
+							],
+							"path": [
+								"tasks",
+								":id",
+								"start"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{taskId1}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Stop Timer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "9601f63a-6ed0-4e51-8507-6760a05e61f3",
+								"exec": [
+									"var responseJSON = JSON.parse(responseBody);",
+									"tests['Response contains \"timerActive\" property'] = responseJSON.hasOwnProperty('timerActive');",
+									"",
+									"tests['Response contains \"timerStartedAt\" property'] = responseJSON.hasOwnProperty('timerStartedAt');",
+									"",
+									"tests['Response contains \"timerTrackedTime\" property'] = responseJSON.hasOwnProperty('timerTrackedTime');",
+									"",
+									"tests['timerActive attribute is false'] = responseJSON.timerActive == false;",
+									"",
+									"tests['timerStartedAt attribute is null'] = responseJSON.timerStartedAt == null;"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"type": "text",
+								"value": "XMLHttpRequest"
+							}
+						],
+						"url": {
+							"raw": "{{apiUrl}}/tasks/:id/stop",
+							"host": [
+								"{{apiUrl}}"
+							],
+							"path": [
+								"tasks",
+								":id",
+								"stop"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{taskId1}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Create Task Empty Description",
 					"event": [
 						{

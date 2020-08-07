@@ -116,7 +116,12 @@ export default {
       }
     },
     timerStart() {
-      this.timerInterval = setInterval(() => (this.timerTrackedTime += 1), 1000)
+      if (!this.timerInterval) {
+        this.timerInterval = setInterval(
+          () => (this.timerTrackedTime += 1),
+          1000,
+        )
+      }
     },
     timerStop() {
       clearInterval(this.timerInterval)

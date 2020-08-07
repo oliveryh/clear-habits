@@ -33,11 +33,9 @@ const actions = {
         })
     })
   },
-  [A_TASK_CREATE](context, description) {
+  [A_TASK_CREATE](context, task) {
     return new Promise(resolve => {
-      ApiService.post('tasks', {
-        description: description,
-      })
+      ApiService.post('tasks', task)
         .then(({ data }) => {
           context.commit(M_TASK_CREATE, data)
           resolve(data)

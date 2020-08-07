@@ -1,22 +1,26 @@
 <template>
   <div>
-    <v-container style="max-width: 500px">
-      <div class="text-body-1">You have {{ remainingTasks }} tasks to complete</div>
+    <v-container>
+      <h3 class="font-weight-light">{{ date }}</h3>
       <br />
-      <v-text-field v-model="newTask" label="Remember the milk" solo @keydown.enter="taskCreate"></v-text-field>
-      <v-card v-if="tasks.length > 0">
-        <v-slide-y-transition class="py-0" group tag="v-list">
-          <template v-for="(task, i) in tasks">
-            <v-divider v-if="i !== 0" :key="`${i}-divider`"></v-divider>
-            <Task :key="task._id" :task="task"></Task>
-          </template>
-        </v-slide-y-transition>
-      </v-card>
+      <v-text-field
+        outlined
+        v-model="newTask"
+        label="Remember the milk"
+        solo
+        @keydown.enter="taskCreate"
+      ></v-text-field>
+      <v-slide-y-transition group tag="v-row">
+        <template transition="slide-y-transition" v-for="task in filteredTasks">
+          <v-col cols="12" :key="task._id" :v-for="task in filteredTasks">
+            <Task :key="task._id" :task="task" />
+          </v-col>
+        </template>
+      </v-slide-y-transition>
     </v-container>
   </div>
 </template>
 <script>
-import { mapState } from 'vuex'
 import Task from '@/components/Task.vue'
 import { A_TASK_RETRIEVE, A_TASK_CREATE } from '@/store/actions.type'
 
@@ -25,19 +29,20 @@ export default {
   data: () => ({
     newTask: null,
   }),
+  props: {
+    date: {
+      type: String,
+    },
+    tasks: {
+      type: Array,
+    },
+  },
   components: {
     Task,
   },
   computed: {
-    ...mapState({
-      username: state => state.auth.user.username,
-      tasks: state => state.home.tasks,
-    }),
-    completedTasks() {
-      return this.tasks.filter(task => task.complete).length
-    },
-    remainingTasks() {
-      return this.tasks.length - this.completedTasks
+    filteredTasks() {
+      return this.tasks.filter(task => task.date == this.date)
     },
   },
   mounted() {
@@ -45,7 +50,11 @@ export default {
   },
   methods: {
     taskCreate() {
-      this.$store.dispatch(A_TASK_CREATE, this.newTask)
+      var task = {
+        description: this.newTask,
+        date: this.date,
+      }
+      this.$store.dispatch(A_TASK_CREATE, task)
       this.newTask = null
     },
     taskRetrieve() {
@@ -54,3 +63,9 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+.col {
+  padding: 5px 0px;
+}
+</style>

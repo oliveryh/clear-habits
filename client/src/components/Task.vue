@@ -1,39 +1,55 @@
 <template>
-  <v-list-item :key="task._id">
-    <v-checkbox
-      v-model="task.complete"
-      @change="taskUpdate(task)"
-      :color="task.complete && 'grey' || 'primary'"
-    ></v-checkbox>
+  <v-card outlined class="rounded-card">
+    <v-card-title :class="task.complete && 'grey--text' || 'primary--text'">
+      <div
+        @click="editedTask=task"
+        v-if="editedTask == null || editedTask._id !== task._id"
+        class="card-title"
+      >{{ task.description }}</div>
+      <v-form ref="form" :lazy-validation="true" v-else v-on:submit.prevent>
+        <v-text-field
+          class="ml-4"
+          :rules="taskRules"
+          v-model="task.description"
+          @keyup.enter="validateEdit() && taskUpdate(task)"
+        ></v-text-field>
+      </v-form>
+    </v-card-title>
 
-    <div
-      :class="task.complete && 'grey--text' || 'primary--text'"
-      class="ml-4"
-      v-text="task.description"
-      @click="editedTask=task"
-      v-if="editedTask == null || editedTask._id !== task._id"
-    ></div>
-    <v-form ref="form" :lazy-validation="true" v-else v-on:submit.prevent>
-      <v-text-field
-        class="ml-4"
-        :rules="taskRules"
-        v-model="task.description"
-        @keyup.enter="validateEdit() && taskUpdate(task)"
-      ></v-text-field>
-    </v-form>
-    <v-spacer></v-spacer>
-    <v-btn outlined rounded v-if="task.timerActive" color="orange" @click="taskTimerStop(task)">
-      <v-icon left>mdi-stop</v-icon>
-      {{ hours }}:{{ minutes | zeroPad }}:{{ seconds | zeroPad }}
-    </v-btn>
-    <v-btn outlined rounded v-else color="green" @click="taskTimerStart(task)">
-      <v-icon left>mdi-play</v-icon>
-      {{ hours }}:{{ minutes | zeroPad }}:{{ seconds | zeroPad }}
-    </v-btn>
-    <v-btn icon rounded color="red" @click="taskDelete(task)">
-      <v-icon>mdi-close</v-icon>
-    </v-btn>
-  </v-list-item>
+    <v-card-actions style="height: 55px">
+      <v-btn
+        outlined
+        rounded
+        class="timer-button"
+        v-if="task.timerActive"
+        color="orange"
+        @click="taskTimerStop(task)"
+      >
+        <v-icon left>mdi-stop</v-icon>
+        {{ hours }}:{{ minutes | zeroPad }}:{{ seconds | zeroPad }}
+      </v-btn>
+      <v-btn
+        outlined
+        rounded
+        class="timer-button"
+        v-else
+        color="green"
+        @click="taskTimerStart(task)"
+      >
+        <v-icon left>mdi-play</v-icon>
+        {{ hours }}:{{ minutes | zeroPad }}:{{ seconds | zeroPad }}
+      </v-btn>
+      <v-spacer></v-spacer>
+      <v-checkbox
+        v-model="task.complete"
+        @change="taskUpdate(task)"
+        :color="task.complete && 'grey' || 'primary'"
+      ></v-checkbox>
+      <v-btn icon rounded color="red" @click="taskDelete(task)">
+        <v-icon>mdi-close</v-icon>
+      </v-btn>
+    </v-card-actions>
+  </v-card>
 </template>
 
 <script>
@@ -130,4 +146,11 @@ export default {
 </script>
 
 <style scoped>
+.rounded-card {
+  border-radius: 20px;
+}
+
+.timer-button {
+  padding: 0px 12px !important;
+}
 </style>

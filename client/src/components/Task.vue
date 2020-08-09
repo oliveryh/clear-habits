@@ -95,7 +95,7 @@ export default {
       return parseInt(this.timerTrackedTime / 3600)
     },
     minutes() {
-      return parseInt((this.timerTrackedTime % 36000) / 60)
+      return parseInt((this.timerTrackedTime % 3600) / 60)
     },
     seconds() {
       return parseInt(this.timerTrackedTime % 60)

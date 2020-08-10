@@ -13,11 +13,14 @@ import {
   M_TASK_DELETE,
   M_TASK_RETRIEVE,
   M_TASK_UPDATE,
+  M_CONTROL_ZOOM_ENABLE,
+  M_CONTROL_ZOOM_DISABLE,
 } from './mutations.type'
 
 const state = {
   errors: null,
   tasks: [],
+  dateZoomed: null,
 }
 
 const actions = {
@@ -89,7 +92,6 @@ const actions = {
           resolve(data)
         })
         .catch(({ response }) => {
-          console.log(response)
           context.commit(M_ERROR_SET, response.data.errors)
         })
     })
@@ -123,6 +125,12 @@ const mutations = {
   [M_TASK_DELETE](state, data) {
     let i = state.tasks.map(task => task._id).indexOf(data._id)
     state.tasks.splice(i, 1)
+  },
+  [M_CONTROL_ZOOM_ENABLE](state, date) {
+    state.dateZoomed = date
+  },
+  [M_CONTROL_ZOOM_DISABLE](state) {
+    state.dateZoomed = null
   },
 }
 

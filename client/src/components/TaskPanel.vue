@@ -34,7 +34,10 @@
         </v-col>
       </v-row>
       <v-row style="align-content: center" no-gutters>
-        <v-col v-for="date in dateSpread" :key="date" class="custom7cols">
+        <v-col v-if="dateZoomed">
+          <ch-task-list :date="dateZoomed" :dateZoomed="dateZoomed" :tasks="tasks" />
+        </v-col>
+        <v-col v-else v-for="date in dateSpread" :key="date" class="mx-2">
           <ch-task-list :date="date" :tasks="tasks" />
         </v-col>
       </v-row>
@@ -58,6 +61,7 @@ export default {
   computed: {
     ...mapState({
       tasks: state => state.home.tasks,
+      dateZoomed: state => state.home.dateZoomed,
     }),
     completedTasks() {
       return this.tasks.filter(task => task.complete).length

@@ -121,8 +121,6 @@ router.put('/:task/stop', auth.required, function (req, res, next) {
         if (req.task.timerActive) {
           numSeconds = parseInt((Date.now() - req.task.timerStartedAt) / 1000)
 
-          console.log(numSeconds)
-
           req.task.timerActive = false
           req.task.timerTrackedTime += numSeconds
           req.task.timerStartedAt = null

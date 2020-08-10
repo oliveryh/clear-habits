@@ -2,7 +2,7 @@
   <div>
     <v-container fluid>
       <v-row justify="center">
-        <v-col cols="12" sm="6" md="4">
+        <v-col cols="12" md="3">
           <v-menu
             ref="datePicker"
             v-model="datePicker"
@@ -29,16 +29,19 @@
             </v-date-picker>
           </v-menu>
         </v-col>
-        <v-col cols="12" sm="6" md="4">
+        <v-col cols="12" md="3">
           <h3>{{ remainingTasks }} Task(s) to complete</h3>
+        </v-col>
+        <v-col cols="12" md="3">
+          <v-switch v-model="hideCompleted" inset label="Hide Completed Tasks"></v-switch>
         </v-col>
       </v-row>
       <v-row style="align-content: center" no-gutters>
         <v-col v-if="dateZoomed">
-          <ch-task-list :date="dateZoomed" :dateZoomed="dateZoomed" :tasks="tasks" />
+          <ch-task-list :date="dateZoomed" :dateZoomed="dateZoomed" :tasks="filteredTasks" />
         </v-col>
         <v-col v-else v-for="date in dateSpread" :key="date" class="mx-2">
-          <ch-task-list :date="date" :tasks="tasks" />
+          <ch-task-list :date="date" :tasks="filteredTasks" />
         </v-col>
       </v-row>
     </v-container>
@@ -57,12 +60,20 @@ export default {
   data: () => ({
     startDate: '2020-08-03',
     datePicker: false,
+    hideCompleted: true,
   }),
   computed: {
     ...mapState({
       tasks: state => state.home.tasks,
       dateZoomed: state => state.home.dateZoomed,
     }),
+    filteredTasks() {
+      var tasks_filtered = this.tasks
+      if (this.hideCompleted) {
+        tasks_filtered = tasks_filtered.filter(task => task.complete == false)
+      }
+      return tasks_filtered
+    },
     completedTasks() {
       return this.tasks.filter(task => task.complete).length
     },

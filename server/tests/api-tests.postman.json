@@ -756,7 +756,7 @@
 					"response": []
 				},
 				{
-					"name": "Edit Description",
+					"name": "Update fields",
 					"event": [
 						{
 							"listen": "test",
@@ -768,6 +768,7 @@
 									"tests['Response contains \"descriptiom\" property'] = responseJSON.hasOwnProperty('description');",
 									"tests['Response contains \"completed\" property'] = responseJSON.hasOwnProperty('complete');",
 									"tests['Description attribute has changed'] = responseJSON.description == \"here is a new description\";",
+									"tests['timerTrackedTime attribute has changed'] = responseJSON.timerTrackedTime == 3600;",
 									""
 								],
 								"type": "text/javascript"
@@ -800,7 +801,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"description\": \"here is a new description\"\n}",
+							"raw": "{\n    \"description\": \"here is a new description\",\n    \"timerTrackedTime\": 3600\n}",
 							"options": {
 								"raw": {
 									"language": "json"

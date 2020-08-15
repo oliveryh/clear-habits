@@ -1,6 +1,6 @@
 <template>
   <div>
-    <ch-task-list />
+    <ch-task-panel />
     <v-snackbar v-model="snackbar" color="error" v-if="errors">
       <p style="margin: 0;" v-for="(v, k) in errors" :key="k">{{ k }} {{ v }}</p>
       <template v-slot:action="{ attrs }">
@@ -11,12 +11,12 @@
 </template>
 <script>
 import { mapState } from 'vuex'
-import ChTaskList from '@/components/TaskList.vue'
+import ChTaskPanel from '@/components/TaskPanel.vue'
 
 export default {
   name: 'Home',
   components: {
-    ChTaskList,
+    ChTaskPanel,
   },
   data: () => ({
     snackbar: false,

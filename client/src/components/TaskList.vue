@@ -1,101 +1,100 @@
 <template>
   <div>
-    <v-container style="max-width: 500px">
-      <div class="text-body-1">You have {{ remainingTasks }} tasks to complete</div>
-      <br />
-      <v-text-field v-model="newTask" label="Remember the milk" solo @keydown.enter="taskCreate"></v-text-field>
-      <v-card v-if="tasks.length > 0">
-        <v-slide-y-transition class="py-0" group tag="v-list">
-          <template v-for="(task, i) in tasks">
-            <v-divider v-if="i !== 0" :key="`${i}-divider`"></v-divider>
-
-            <v-list-item :key="task._id">
-              <v-checkbox
-                v-model="task.complete"
-                @change="taskUpdate(task)"
-                :color="task.complete && 'grey' || 'primary'"
-              ></v-checkbox>
-
-              <div
-                :class="task.complete && 'grey--text' || 'primary--text'"
-                class="ml-4"
-                v-text="task.description"
-                @click="editedTask=task"
-                v-if="editedTask == null || editedTask._id !== task._id"
-              ></div>
-              <v-form ref="form" :lazy-validation="true" v-else v-on:submit.prevent>
-                <v-text-field
-                  class="ml-4"
-                  :rules="taskRules"
-                  v-model="task.description"
-                  @keyup.enter="validateEdit() && taskUpdate(task)"
-                ></v-text-field>
-              </v-form>
-              <v-spacer></v-spacer>
-
-              <v-btn icon color="red" @click="taskDelete(task)">
-                <v-icon>mdi-close</v-icon>
-              </v-btn>
-            </v-list-item>
-          </template>
-        </v-slide-y-transition>
-      </v-card>
+    <v-container>
+      <v-row>
+        <v-col col="12" class="d-flex">
+          <h3 class="font-weight-light">{{ date }}</h3>
+          <v-spacer></v-spacer>
+          <v-btn @click="zoomOut()" v-if="dateZoomed" icon>
+            <v-icon>mdi-magnify-minus-outline</v-icon>
+          </v-btn>
+          <v-btn @click="zoomIn()" v-else icon>
+            <v-icon>mdi-magnify-plus-outline</v-icon>
+          </v-btn>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-text-field
+          outlined
+          v-model="newTask"
+          label="Remember the milk"
+          solo
+          @keydown.enter="taskCreate"
+        ></v-text-field>
+      </v-row>
+      <v-row>
+        <v-col col="12">
+          <v-slide-y-transition group tag="v-row">
+            <template transition="slide-y-transition" v-for="task in filteredTasks">
+              <v-col cols="12" :key="task._id" :v-for="task in filteredTasks">
+                <Task :key="task._id" :task="task" />
+              </v-col>
+            </template>
+          </v-slide-y-transition>
+        </v-col>
+      </v-row>
     </v-container>
   </div>
 </template>
 <script>
-import { mapState } from 'vuex'
+import Task from '@/components/Task.vue'
+import { A_TASK_RETRIEVE, A_TASK_CREATE } from '@/store/actions.type'
 import {
-  A_TASK_RETRIEVE,
-  A_TASK_CREATE,
-  A_TASK_UPDATE,
-  A_TASK_DELETE,
-} from '@/store/actions.type'
+  M_CONTROL_ZOOM_ENABLE,
+  M_CONTROL_ZOOM_DISABLE,
+} from '@/store/mutations.type'
 
 export default {
   name: 'TaskList',
   data: () => ({
     newTask: null,
-    editedTask: null,
-    taskRules: [v => !!v || 'Description required'],
   }),
-  computed: {
-    ...mapState({
-      username: state => state.auth.user.username,
-      tasks: state => state.home.tasks,
-    }),
-    completedTasks() {
-      return this.tasks.filter(task => task.complete).length
+  props: {
+    date: {
+      type: String,
     },
-    remainingTasks() {
-      return this.tasks.length - this.completedTasks
+    tasks: {
+      type: Array,
+    },
+    dateZoomed: {
+      type: String,
+    },
+  },
+  components: {
+    Task,
+  },
+  computed: {
+    filteredTasks() {
+      return this.tasks.filter(task => task.date == this.date)
     },
   },
   mounted() {
     this.taskRetrieve()
   },
   methods: {
-    validateEdit() {
-      if (this.$refs.form[0].validate()) {
-        this.editedTask = null
-        return true
-      } else {
-        return false
-      }
-    },
     taskCreate() {
-      this.$store.dispatch(A_TASK_CREATE, this.newTask)
+      var task = {
+        description: this.newTask,
+        date: this.date,
+      }
+      this.$store.dispatch(A_TASK_CREATE, task)
       this.newTask = null
     },
     taskRetrieve() {
       this.$store.dispatch(A_TASK_RETRIEVE)
     },
-    taskUpdate(task) {
-      this.$store.dispatch(A_TASK_UPDATE, task)
+    zoomOut() {
+      this.$store.commit(M_CONTROL_ZOOM_DISABLE)
     },
-    taskDelete(task) {
-      this.$store.dispatch(A_TASK_DELETE, task)
+    zoomIn() {
+      this.$store.commit(M_CONTROL_ZOOM_ENABLE, this.date)
     },
   },
 }
 </script>
+
+<style scoped>
+.col {
+  padding: 5px 0px;
+}
+</style>

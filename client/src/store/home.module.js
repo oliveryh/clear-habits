@@ -4,6 +4,8 @@ import {
   A_TASK_DELETE,
   A_TASK_RETRIEVE,
   A_TASK_UPDATE,
+  A_TASK_TIMER_START,
+  A_TASK_TIMER_STOP,
 } from './actions.type'
 import {
   M_ERROR_SET,
@@ -11,11 +13,14 @@ import {
   M_TASK_DELETE,
   M_TASK_RETRIEVE,
   M_TASK_UPDATE,
+  M_CONTROL_ZOOM_ENABLE,
+  M_CONTROL_ZOOM_DISABLE,
 } from './mutations.type'
 
 const state = {
   errors: null,
   tasks: [],
+  dateZoomed: null,
 }
 
 const actions = {
@@ -31,11 +36,9 @@ const actions = {
         })
     })
   },
-  [A_TASK_CREATE](context, description) {
+  [A_TASK_CREATE](context, task) {
     return new Promise(resolve => {
-      ApiService.post('tasks', {
-        description: description,
-      })
+      ApiService.post('tasks', task)
         .then(({ data }) => {
           context.commit(M_TASK_CREATE, data)
           resolve(data)
@@ -57,6 +60,30 @@ const actions = {
         })
     })
   },
+  [A_TASK_TIMER_START](context, task) {
+    return new Promise(resolve => {
+      ApiService.put(`tasks/${task._id}/start`, task)
+        .then(({ data }) => {
+          context.commit(M_TASK_UPDATE, data)
+          resolve(data)
+        })
+        .catch(({ response }) => {
+          context.commit(M_ERROR_SET, response.data.errors)
+        })
+    })
+  },
+  [A_TASK_TIMER_STOP](context, task) {
+    return new Promise(resolve => {
+      ApiService.put(`tasks/${task._id}/stop`, task)
+        .then(({ data }) => {
+          context.commit(M_TASK_UPDATE, data)
+          resolve(data)
+        })
+        .catch(({ response }) => {
+          context.commit(M_ERROR_SET, response.data.errors)
+        })
+    })
+  },
   [A_TASK_DELETE](context, task) {
     return new Promise(resolve => {
       ApiService.delete(`tasks/${task._id}`, task)
@@ -65,7 +92,6 @@ const actions = {
           resolve(data)
         })
         .catch(({ response }) => {
-          console.log(response)
           context.commit(M_ERROR_SET, response.data.errors)
         })
     })
@@ -89,13 +115,23 @@ const mutations = {
       }
 
       task.complete = data.complete
+      task.date = data.date
       task.description = data.description
+      task.timerActive = data.timerActive
+      task.timerStartedAt = data.timerStartedAt
+      task.timerTrackedTime = data.timerTrackedTime
       return task
     })
   },
   [M_TASK_DELETE](state, data) {
     let i = state.tasks.map(task => task._id).indexOf(data._id)
     state.tasks.splice(i, 1)
+  },
+  [M_CONTROL_ZOOM_ENABLE](state, date) {
+    state.dateZoomed = date
+  },
+  [M_CONTROL_ZOOM_DISABLE](state) {
+    state.dateZoomed = null
   },
 }
 

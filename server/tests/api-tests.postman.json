@@ -767,8 +767,10 @@
 									"",
 									"tests['Response contains \"descriptiom\" property'] = responseJSON.hasOwnProperty('description');",
 									"tests['Response contains \"completed\" property'] = responseJSON.hasOwnProperty('complete');",
+									"tests['Response contains \"date\" property'] = responseJSON.hasOwnProperty('date');",
 									"tests['Description attribute has changed'] = responseJSON.description == \"here is a new description\";",
 									"tests['timerTrackedTime attribute has changed'] = responseJSON.timerTrackedTime == 3600;",
+									"tests['date attribute has changed'] = responseJSON.date == '2020-06-18';",
 									""
 								],
 								"type": "text/javascript"
@@ -801,7 +803,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"description\": \"here is a new description\",\n    \"timerTrackedTime\": 3600\n}",
+							"raw": "{\n    \"description\": \"here is a new description\",\n    \"timerTrackedTime\": 3600,\n    \"date\": \"2020-06-18\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"

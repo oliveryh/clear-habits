@@ -115,6 +115,7 @@ const mutations = {
       }
 
       task.complete = data.complete
+      task.date = data.date
       task.description = data.description
       task.timerActive = data.timerActive
       task.timerStartedAt = data.timerStartedAt

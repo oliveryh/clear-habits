@@ -67,6 +67,7 @@ router.put('/:task', auth.required, function (req, res, next) {
 
         if (typeof req.body.description !== 'undefined') {
           req.task.description = req.body.description
+          req.task.date = req.body.date
           req.task.timerTrackedTime = req.body.timerTrackedTime
         }
 

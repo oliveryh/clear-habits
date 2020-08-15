@@ -10,19 +10,20 @@ The motivation of this project is to take the components from the best task mana
 
 The application has the following basic features:
 
-- Create a task
-- Update a task
-- Delete a task
+- CRUD operations on a task
+- Track time spent on a task
+- Categorise tasks by date
+- Focus on a particular date (for mobile)
 
 ### Future Features
 
 Future features will include the ability to:
 
-- Assign a task to a particular date
 - Get statistics on number of tasks complete per date, time spent on tasks
 - Ability to categorise tasks
-- Stopwatch timer for tasks
 - Recurring tasks
+- Set expected time taken
+- Drag and drop tasks across dates
 
 ## Inspiration
 

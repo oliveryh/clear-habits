@@ -8,3 +8,4 @@ export const A_TASK_UPDATE = "actionTaskUpdate";
 export const A_TASK_DELETE = "actionTaskDelete";
 export const A_TASK_TIMER_START = "actionTaskTimerStart";
 export const A_TASK_TIMER_STOP = "actionTaskTimerStop";
+export const A_TASK_REORDER = "actionTaskReorder";

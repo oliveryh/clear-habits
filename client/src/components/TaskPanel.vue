@@ -1,55 +1,44 @@
 <template>
   <div>
-    <v-container fluid>
-      <v-row justify="center">
-        <v-col cols="12" md="3">
-          <v-menu
-            ref="datePicker"
-            v-model="datePicker"
-            :close-on-content-click="false"
-            :return-value.sync="date"
-            transition="scale-transition"
-            offset-y
-            min-width="290px"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              <v-text-field
-                v-model="startDate"
-                label="Start date"
-                prepend-icon="mdi-calendar"
-                readonly
-                v-bind="attrs"
-                v-on="on"
-              ></v-text-field>
-            </template>
-            <v-date-picker v-model="startDate">
-              <v-spacer></v-spacer>
-              <v-btn text color="primary" @click="datePicker = false">Cancel</v-btn>
-              <v-btn text color="primary" @click="$refs.datePicker.save(date)">OK</v-btn>
-            </v-date-picker>
-          </v-menu>
-        </v-col>
-        <v-col cols="12" md="3">
-          <h3>{{ remainingTasks }} Task(s) to complete</h3>
-        </v-col>
-        <v-col cols="12" md="3">
-          <v-switch v-model="hideCompleted" inset label="Hide Completed Tasks"></v-switch>
-        </v-col>
-      </v-row>
-      <v-row style="align-content: center" no-gutters>
-        <v-col v-if="dateZoomed">
-          <ch-task-list :date="dateZoomed" :dateZoomed="dateZoomed" :tasks="filteredTasks" />
-        </v-col>
-        <v-col v-else v-for="date in dateSpread" :key="date" class="mx-2">
-          <ch-task-list :date="date" :tasks="filteredTasks" />
-        </v-col>
-      </v-row>
-    </v-container>
+    <div class="row">
+      <div class="col-12 col-md-4 q-pa-md">
+        <q-input filled v-model="startDate" mask="####-##-##" label="Start date">
+          <template v-slot:append>
+            <q-icon name="mdi-calendar" class="cursor-pointer">
+              <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
+                <q-date
+                  v-model="startDate"
+                  first-day-of-week="1"
+                  @input="() => $refs.qDateProxy.hide()"
+                  mask="YYYY-MM-DD"
+                />
+              </q-popup-proxy>
+            </q-icon>
+          </template>
+        </q-input>
+      </div>
+      <div class="col-12 col-md-4 align-center q-pa-md">
+        <h6 class="q-my-none">{{ remainingTasks }} Task(s) to complete</h6>
+      </div>
+      <div class="col-12 col-md-4 align-center q-pa-md">
+        <q-toggle v-model="hideCompleted" label="Hide Completed"></q-toggle>
+      </div>
+    </div>
+    {{ date }}
+    <div class="row" style="text-align: center">
+      <div v-if="dateZoomed" class="col">
+        <ch-task-list :date="dateZoomed" :dateZoomed="dateZoomed" :tasks="getTaskList(dateZoomed)" />
+      </div>
+      <div v-else v-for="date in dateSpread" :key="date" class="custom7cols">
+        <ch-task-list :date="date" :tasks="getTaskList(date)" />
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import { mapState } from 'vuex'
+import { A_TASK_RETRIEVE } from '@/store/actions.type'
 import ChTaskList from '@/components/TaskList.vue'
 
 export default {
@@ -62,30 +51,44 @@ export default {
     datePicker: false,
     hideCompleted: true,
   }),
+  mounted() {
+    this.taskRetrieve()
+  },
   computed: {
     ...mapState({
-      tasks: state => state.home.tasks,
-      dateZoomed: state => state.home.dateZoomed,
+      tasks: (state) => state.home.tasks,
+      dateZoomed: (state) => state.home.dateZoomed,
     }),
     filteredTasks() {
       var tasks_filtered = this.tasks
       if (this.hideCompleted) {
-        tasks_filtered = tasks_filtered.filter(task => task.complete == false)
+        tasks_filtered = tasks_filtered.filter((task) => task.complete == false)
       }
       return tasks_filtered
     },
     completedTasks() {
-      return this.tasks.filter(task => task.complete).length
+      return this.tasks.filter((task) => task.complete).length
     },
     remainingTasks() {
       return this.tasks.length - this.completedTasks
     },
     dateSpread() {
-      return Array.from(Array(7).keys()).map(num =>
+      return Array.from(Array(7).keys()).map((num) =>
         new Date(new Date(this.startDate).getTime() + num * 86400000)
           .toISOString()
           .substring(0, 10),
       )
+    },
+  },
+  methods: {
+    getTaskList(date) {
+      var tasks = this.filteredTasks
+        .filter((task) => task.date == date)
+        .sort((a, b) => a['order'] - b['order'])
+      return tasks
+    },
+    taskRetrieve() {
+      this.$store.dispatch(A_TASK_RETRIEVE)
     },
   },
 }
@@ -93,8 +96,12 @@ export default {
 
 <style scoped>
 .custom7cols {
-  width: 14%;
-  max-width: 14%;
-  flex-basis: 14%;
+  width: 14.28%;
+  max-width: 14.28%;
+  flex-basis: 14.28%;
+}
+.align-center {
+  display: flex;
+  align-items: center;
 }
 </style>

@@ -1,129 +1,88 @@
 <template>
   <div>
-    <v-card outlined class="rounded-card">
-      <v-card-title :class="task.complete && 'grey--text' || 'primary--text'">
-        <div class="card-title">{{ task.description }}</div>
-      </v-card-title>
-
-      <v-card-actions style="height: 55px">
-        <v-btn
-          outlined
-          rounded
-          class="timer-button"
+    <q-card>
+      <q-card-section>
+        <div class="text-h6 text-left">{{ task.description }}</div>
+      </q-card-section>
+      <q-card-actions align="left">
+        <q-btn
+          color="red"
+          outline
           v-if="task.timerActive"
-          color="orange"
           @click="taskTimerStop(task)"
-        >
-          <v-icon left>mdi-stop</v-icon>
-          {{ secondsToString }}
-        </v-btn>
-        <v-btn
-          outlined
-          rounded
-          class="timer-button"
-          v-else
+          icon="mdi-stop"
+          :label="secondsToString"
+        ></q-btn>
+        <q-btn
           color="green"
+          outline
+          v-else
           @click="taskTimerStart(task)"
-        >
-          <v-icon left>mdi-play</v-icon>
-          {{ secondsToString }}
-        </v-btn>
-        <v-spacer></v-spacer>
-        <v-checkbox
-          v-model="task.complete"
-          @change="taskUpdate(task)"
-          :color="task.complete && 'grey' || 'primary'"
-        ></v-checkbox>
-        <v-btn icon rounded color="red" @click="taskDelete(task)">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-        <v-btn icon rounded @click="editorOpen()">
-          <v-icon>mdi-pencil</v-icon>
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-    <v-dialog v-if="editedTask != null" v-model="editorDialog" max-width="392">
-      <v-card>
-        <v-card-title class="headline">Edit Card</v-card-title>
+          icon="mdi-play"
+          :label="secondsToString"
+        ></q-btn>
+        <q-space />
+        <q-btn-group flat>
+          <q-btn
+            v-if="task.complete"
+            flat
+            color="orange"
+            @click="task.complete = false; taskUpdate(task)"
+            icon="mdi-undo-variant"
+          ></q-btn>
+          <q-btn
+            v-else
+            flat
+            color="green"
+            @click="task.complete = true; taskUpdate(task)"
+            icon="mdi-check"
+          ></q-btn>
 
-        <v-card-text>
-          <v-form ref="form" @submit.prevent>
-            <v-container>
-              <v-row>
-                <v-col cols="12">
-                  <v-menu
-                    v-model="dateDialog"
-                    :close-on-content-click="false"
-                    :nudge-right="40"
-                    transition="scale-transition"
-                    offset-y
-                    min-width="290px"
-                  >
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-text-field
-                        v-model="editedTask.date"
-                        label="Date"
-                        prepend-icon="mdi-calendar"
-                        readonly
-                        v-bind="attrs"
-                        v-on="on"
-                      ></v-text-field>
-                    </template>
-                    <v-date-picker v-model="editedTask.date" @input="dateDialog = false"></v-date-picker>
-                  </v-menu>
-                </v-col>
-                <v-col cols="12">
-                  <v-text-field
-                    :rules="taskRules"
-                    label="Description"
-                    prepend-icon="mdi-pencil"
-                    v-model="editedTask.description"
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="12">
-                  <v-menu
-                    ref="timeDialog"
-                    v-model="timeDialog"
-                    :close-on-content-click="false"
-                    :nudge-right="40"
-                    :return-value.sync="time"
-                    transition="scale-transition"
-                    offset-y
-                    max-width="290px"
-                    min-width="290px"
-                  >
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-text-field
-                        v-model="editedTaskTime"
-                        label="Time taken"
-                        prepend-icon="mdi-clock"
-                        readonly
-                        v-bind="attrs"
-                        v-on="on"
-                      ></v-text-field>
-                    </template>
-                    <v-time-picker
-                      v-if="timeDialog"
-                      v-model="editedTaskTime"
-                      label="Time Taken"
-                      full-width
-                      format="24hr"
-                      @click:minute="$refs.timeDialog.save(time)"
-                    ></v-time-picker>
-                  </v-menu>
-                </v-col>
-              </v-row>
-            </v-container>
-          </v-form>
-        </v-card-text>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="green darken-1" text @click="editorDialog = false; timerSet()">Cancel</v-btn>
-          <v-btn color="green darken-1" text @click="editorSave()">Save</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+          <q-btn flat color="red" @click="taskDelete(task)" icon="mdi-close"></q-btn>
+          <q-btn flat color="grey" @click="editorOpen()" icon="mdi-pencil"></q-btn>
+        </q-btn-group>
+      </q-card-actions>
+    </q-card>
+    <q-dialog v-if="editedTask != null" v-model="editorDialog">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Edit Card</div>
+          <q-form ref="form" @submit.prevent>
+            <q-input v-model="editedTask.description" r></q-input>
+            <q-input v-model="editedTask.date" mask="####-##-##">
+              <template v-slot:append>
+                <q-icon name="event" class="cursor-pointer">
+                  <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
+                    <q-date v-model="editedTask.date" mask="YYYY-MM-DD" first-day-of-week="1">
+                      <div class="row items-center justify-end">
+                        <q-btn v-close-popup label="Close" color="primary" flat />
+                      </div>
+                    </q-date>
+                  </q-popup-proxy>
+                </q-icon>
+              </template>
+            </q-input>
+            <q-input v-model="editedTaskTime" mask="time" :rules="['time']">
+              <template v-slot:append>
+                <q-icon name="access_time" class="cursor-pointer">
+                  <q-popup-proxy transition-show="scale" transition-hide="scale">
+                    <q-time v-model="editedTaskTime" format24h>
+                      <div class="row items-center justify-end">
+                        <q-btn v-close-popup label="Close" color="primary" flat />
+                      </div>
+                    </q-time>
+                  </q-popup-proxy>
+                </q-icon>
+              </template>
+            </q-input>
+          </q-form>
+        </q-card-section>
+        <q-card-actions align="right" class="text-primary">
+          <q-btn flat label="Cancel" @click="editorDialog = false; timerSet()" />
+          <q-btn flat label="Save" @click="editorSave()" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
@@ -143,19 +102,17 @@ export default {
     },
   },
   data: () => ({
-    taskRules: [v => !!v || 'Description required'],
+    taskRules: [(v) => !!v || 'Description required'],
     timerTrackedTime: null,
     timerInterval: null,
     editorDialog: false,
     editedTask: null,
-    dateDialog: null,
-    timeDialog: null,
   }),
   created() {
     this.timerSet()
   },
   filters: {
-    zeroPad: function(value, num) {
+    zeroPad: function (value, num) {
       num = typeof num !== 'undefined' ? num : 2
       return value.toString().padStart(num, '0')
     },
@@ -242,28 +199,14 @@ export default {
       this.editorDialog = true
     },
     editorSave() {
-      if (this.editorValidate()) {
-        this.taskUpdate(this.editedTask)
-        this.editorDialog = false
-      }
-    },
-    editorValidate() {
-      if (this.$refs.form.validate()) {
-        return true
-      } else {
-        return false
-      }
+      this.$refs.form.validate().then((success) => {
+        if (success) {
+          console.log(this.editedTask)
+          this.editorDialog = false
+          this.taskUpdate(this.editedTask)
+        }
+      })
     },
   },
 }
 </script>
-
-<style scoped>
-.rounded-card {
-  border-radius: 25px;
-}
-
-.timer-button {
-  padding: 0px 12px !important;
-}
-</style>

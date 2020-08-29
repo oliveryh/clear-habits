@@ -1,53 +1,68 @@
 <template>
-  <div>
-    <v-container>
-      <v-row>
-        <v-col col="12" class="d-flex">
-          <h3 class="font-weight-light">{{ date }}</h3>
-          <v-spacer></v-spacer>
-          <v-btn @click="zoomOut()" v-if="dateZoomed" icon>
-            <v-icon>mdi-magnify-minus-outline</v-icon>
-          </v-btn>
-          <v-btn @click="zoomIn()" v-else icon>
-            <v-icon>mdi-magnify-plus-outline</v-icon>
-          </v-btn>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-text-field
-          outlined
-          v-model="newTask"
-          label="Remember the milk"
-          solo
-          @keydown.enter="taskCreate"
-        ></v-text-field>
-      </v-row>
-      <v-row>
-        <v-col col="12">
-          <v-slide-y-transition group tag="v-row">
-            <template transition="slide-y-transition" v-for="task in filteredTasks">
-              <v-col cols="12" :key="task._id" :v-for="task in filteredTasks">
-                <Task :key="task._id" :task="task" />
-              </v-col>
-            </template>
-          </v-slide-y-transition>
-        </v-col>
-      </v-row>
-    </v-container>
+  <div class="q-pa-sm">
+    <div class="row">
+      <div class="col">
+        <h5 class="text-weight-light q-my-none float-left">{{ date }}</h5>
+        <q-btn
+          @click="zoomOut()"
+          v-if="dateZoomed"
+          round
+          dense
+          flat
+          icon="mdi-magnify-minus-outline"
+          class="float-right"
+          size="md"
+        ></q-btn>
+        <q-btn
+          @click="zoomIn()"
+          v-else
+          round
+          dense
+          flat
+          icon="mdi-magnify-plus-outline"
+          class="float-right"
+          size="md"
+        ></q-btn>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col col-12">
+        <q-input filled v-model="newTask" label="New Task" @keydown.enter="taskCreate"></q-input>
+      </div>
+    </div>
+    <div class="row">
+      <draggable
+        :emptyInsertThreshold="75"
+        v-model="filteredTasks"
+        group="tasks"
+        @change="taskChange"
+      >
+        <div class="col col-12" :key="task._id" v-for="task in filteredTasks">
+          <Task :key="task._id" :task="task" />
+        </div>
+      </draggable>
+    </div>
   </div>
 </template>
 <script>
 import Task from '@/components/Task.vue'
-import { A_TASK_RETRIEVE, A_TASK_CREATE } from '@/store/actions.type'
+import draggable from 'vuedraggable'
+import {
+  A_TASK_CREATE,
+  A_TASK_UPDATE,
+  A_TASK_REORDER,
+} from '@/store/actions.type'
 import {
   M_CONTROL_ZOOM_ENABLE,
   M_CONTROL_ZOOM_DISABLE,
+  M_TASK_UPDATE,
 } from '@/store/mutations.type'
 
 export default {
   name: 'TaskList',
   data: () => ({
     newTask: null,
+    tasks: null,
   }),
   props: {
     date: {
@@ -62,14 +77,24 @@ export default {
   },
   components: {
     Task,
+    draggable,
   },
   computed: {
-    filteredTasks() {
-      return this.tasks.filter(task => task.date == this.date)
+    filteredTasks: {
+      get() {
+        return this.tasks
+      },
+      set(reorderedTasks) {
+        for (let i = 0; i < reorderedTasks.length; i++) {
+          reorderedTasks[i].order = i
+        }
+
+        this.$store.dispatch(A_TASK_REORDER, {
+          newDate: this.date,
+          tasks: reorderedTasks,
+        })
+      },
     },
-  },
-  mounted() {
-    this.taskRetrieve()
   },
   methods: {
     taskCreate() {
@@ -80,14 +105,21 @@ export default {
       this.$store.dispatch(A_TASK_CREATE, task)
       this.newTask = null
     },
-    taskRetrieve() {
-      this.$store.dispatch(A_TASK_RETRIEVE)
-    },
     zoomOut() {
       this.$store.commit(M_CONTROL_ZOOM_DISABLE)
     },
     zoomIn() {
       this.$store.commit(M_CONTROL_ZOOM_ENABLE, this.date)
+    },
+    taskUpdate(task) {
+      this.$store.dispatch(A_TASK_UPDATE, task)
+    },
+    taskChange(evt) {
+      if ('added' in evt) {
+        var task = evt.added.element
+        task.date = this.date
+        this.$store.commit(M_TASK_UPDATE, task)
+      }
     },
   },
 }

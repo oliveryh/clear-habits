@@ -19,6 +19,11 @@
     </q-header>
 
     <q-page-container>
+      <q-tabs>
+        <q-route-tab icon="mdi-home" to="/" exact />
+        <q-route-tab icon="mdi-chart-bar" to="/stats" exact />
+      </q-tabs>
+
       <router-view />
     </q-page-container>
   </q-layout>

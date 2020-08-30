@@ -201,7 +201,6 @@ export default {
     editorSave() {
       this.$refs.form.validate().then((success) => {
         if (success) {
-          console.log(this.editedTask)
           this.editorDialog = false
           this.taskUpdate(this.editedTask)
         }

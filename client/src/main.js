@@ -9,9 +9,6 @@ import JwtService from '@/common/jwt.service'
 import ErrorFilter from './common/error.filter'
 import './quasar'
 
-// Quasar.lang.set(Quasar.lang.enGb)
-// Quasar.iconSet.set(Quasar.iconSet.materialIconsOutlined)
-
 Vue.config.productionTip = false
 Vue.filter('error', ErrorFilter)
 
@@ -28,6 +25,18 @@ router.beforeEach((to, from, next) => {
 router.beforeEach((to, from, next) =>
   Promise.all([store.dispatch(A_AUTH_CHECK)]).then(next),
 )
+
+Vue.mixin({
+  methods: {
+    dateSpread(startDate) {
+      return Array.from(Array(7).keys()).map(num =>
+        new Date(new Date(startDate).getTime() + num * 86400000)
+          .toISOString()
+          .substring(0, 10),
+      )
+    },
+  },
+})
 
 new Vue({
   router,

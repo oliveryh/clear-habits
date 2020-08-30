@@ -29,7 +29,7 @@
       <div v-if="dateZoomed" class="col">
         <ch-task-list :date="dateZoomed" :dateZoomed="dateZoomed" :tasks="getTaskList(dateZoomed)" />
       </div>
-      <div v-else v-for="date in dateSpread" :key="date" class="custom7cols">
+      <div v-else v-for="date in dateSpread(startDate)" :key="date" class="custom7cols">
         <ch-task-list :date="date" :tasks="getTaskList(date)" />
       </div>
     </div>
@@ -71,13 +71,6 @@ export default {
     },
     remainingTasks() {
       return this.tasks.length - this.completedTasks
-    },
-    dateSpread() {
-      return Array.from(Array(7).keys()).map((num) =>
-        new Date(new Date(this.startDate).getTime() + num * 86400000)
-          .toISOString()
-          .substring(0, 10),
-      )
     },
   },
   methods: {

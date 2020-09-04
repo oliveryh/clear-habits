@@ -2,20 +2,7 @@
   <div>
     <div class="row">
       <div class="col-12 col-md-4 q-pa-md">
-        <q-input filled v-model="startDate" mask="####-##-##" label="Start date">
-          <template v-slot:append>
-            <q-icon name="mdi-calendar" class="cursor-pointer">
-              <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
-                <q-date
-                  v-model="startDate"
-                  first-day-of-week="1"
-                  @input="() => $refs.qDateProxy.hide()"
-                  mask="YYYY-MM-DD"
-                />
-              </q-popup-proxy>
-            </q-icon>
-          </template>
-        </q-input>
+        <ch-week-selector v-model="startDate"></ch-week-selector>
       </div>
       <div class="col-12 col-md-4 align-center q-pa-md">
         <h6 class="q-my-none">{{ remainingTasks }} Task(s) to complete</h6>
@@ -37,18 +24,19 @@
 </template>
 
 <script>
+import ChTaskList from '@/components/TaskList.vue'
+import ChWeekSelector from '@/components/WeekSelector.vue'
 import { mapState } from 'vuex'
 import { A_TASK_RETRIEVE } from '@/store/actions.type'
-import ChTaskList from '@/components/TaskList.vue'
 
 export default {
   name: 'TaskPanel',
   components: {
     ChTaskList,
+    ChWeekSelector,
   },
   data: () => ({
-    startDate: '2020-08-03',
-    datePicker: false,
+    startDate: null,
     hideCompleted: true,
   }),
   mounted() {

@@ -2,20 +2,7 @@
   <div>
     <div class="row">
       <div class="col-12 col-md-4 q-pa-md">
-        <q-input filled v-model="startDate" mask="####-##-##" label="Start date">
-          <template v-slot:append>
-            <q-icon name="mdi-calendar" class="cursor-pointer">
-              <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
-                <q-date
-                  v-model="startDate"
-                  first-day-of-week="1"
-                  @input="() => $refs.qDateProxy.hide()"
-                  mask="YYYY-MM-DD"
-                />
-              </q-popup-proxy>
-            </q-icon>
-          </template>
-        </q-input>
+        <ch-week-selector v-model="startDate"></ch-week-selector>
       </div>
     </div>
     <div class="row">
@@ -31,6 +18,7 @@
 <script>
 import ChChartCount from '@/components/ChartCount.vue'
 import ChChartTime from '@/components/ChartTime.vue'
+import ChWeekSelector from '@/components/WeekSelector.vue'
 import { mapState } from 'vuex'
 import { A_STATS_RETRIEVE } from '@/store/actions.type'
 
@@ -39,14 +27,14 @@ export default {
   components: {
     ChChartCount,
     ChChartTime,
+    ChWeekSelector,
   },
   mounted() {
     this.statsRetrieve()
   },
   data() {
     return {
-      startDate: '2020-08-03',
-      datePicker: false,
+      startDate: null,
     }
   },
   computed: {

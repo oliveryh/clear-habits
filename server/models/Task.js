@@ -11,7 +11,9 @@ var TaskSchema = new mongoose.Schema(
     date: {
       type: String,
       default: new Date().toISOString().substring(0, 10),
+      required: [true, "can't be blank"],
     },
+    order: { type: mongoose.Schema.Types.Number, default: 0 },
   },
   { timestamps: true },
 )

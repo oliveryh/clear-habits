@@ -1,6 +1,6 @@
 # Clear Habits
 
-A modern task manager based on tracking progress and time with a clean UI
+A modern task manager based on tracking progress and time with a clean UI.
 
 ## Motivation
 
@@ -12,18 +12,19 @@ The application has the following basic features:
 
 - CRUD operations on a task
 - Track time spent on a task
-- Categorise tasks by date
+- Kanban view across dates with drag and drop
+- Statistics view on number of completed tasks and time taken
 - Focus on a particular date (for mobile)
 
 ### Future Features
 
 Future features will include the ability to:
 
-- Get statistics on number of tasks complete per date, time spent on tasks
-- Ability to categorise tasks
+- Task categories / projects
 - Recurring tasks
 - Set expected time taken
-- Drag and drop tasks across dates
+- Task tagging
+- Extended statistics views
 
 ## Inspiration
 

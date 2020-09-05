@@ -1,32 +1,32 @@
 <template>
-  <v-app>
-    <v-app-bar app color="blue" dark>
-      <v-toolbar-title>
-        <v-icon>mdi-sticker-check-outline</v-icon>Clear Habits
-      </v-toolbar-title>
-      <v-spacer></v-spacer>
-      {{ username }}
-      <div id="avatar">
-        <v-menu bottom left v-if="username">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn icon v-bind="attrs" v-on="on">
-              <v-icon>mdi-account</v-icon>
-            </v-btn>
-          </template>
+  <q-layout view="hHh lpR fFf">
+    <q-header elevated class="bg-primary text-white" height-hint="98">
+      <q-toolbar>
+        <q-toolbar-title>
+          <q-icon name="mdi-sticker-check-outline"></q-icon>&nbsp;Clear Habits
+        </q-toolbar-title>
+        {{ username }}
+        <q-btn v-if="username" flat round icon="mdi-account">
+          <q-menu>
+            <q-list style="min-width: 100px">
+              <q-item clickable v-close-popup>
+                <q-item-section @click="logout">Logout</q-item-section>
+              </q-item>
+            </q-list>
+          </q-menu>
+        </q-btn>
+      </q-toolbar>
+    </q-header>
 
-          <v-list>
-            <v-list-item @click="logout">
-              <v-list-item-title>Logout</v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-menu>
-      </div>
-    </v-app-bar>
+    <q-page-container>
+      <q-tabs>
+        <q-route-tab icon="mdi-home" to="/" exact />
+        <q-route-tab icon="mdi-chart-bar" to="/stats" exact />
+      </q-tabs>
 
-    <v-content>
-      <router-view></router-view>
-    </v-content>
-  </v-app>
+      <router-view />
+    </q-page-container>
+  </q-layout>
 </template>
 
 <script>
@@ -37,7 +37,7 @@ export default {
   name: 'App',
   computed: {
     ...mapState({
-      username: state => state.auth.user.username,
+      username: (state) => state.auth.user.username,
     }),
   },
   methods: {

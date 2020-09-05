@@ -12,7 +12,6 @@ router.param('task', function (req, res, next, id) {
       if (!task) {
         return res.sendStatus(404)
       }
-
       req.task = task
 
       return next()
@@ -30,6 +29,41 @@ router.get('/', auth.required, function (req, res, next) {
       }
       Task.find({ author: req.payload.id }).exec((err, tasks) => {
         res.json(tasks)
+      })
+    })
+    .catch(next)
+})
+
+// reorder tasks
+router.put('/reorder', auth.required, function (req, res, next) {
+  var retTasks = []
+  User.findById(req.payload.id)
+    .then(function (user) {
+      if (!user) {
+        return res.sendStatus(401)
+      }
+      var newDate = req.body.newDate
+      var tasks = req.body.tasks
+
+      tasks.forEach((newTask) => {
+        Task.findById(newTask._id)
+          .then(function (task) {
+            if (!task) {
+              return
+            }
+            task.order = newTask.order
+            task.date = newDate
+            task
+              .save()
+              .then(function (task) {
+                retTasks.push(task)
+                if (retTasks.length === tasks.length) {
+                  res.json({ tasks: retTasks })
+                }
+              })
+              .catch(next)
+          })
+          .catch(next)
       })
     })
     .catch(next)

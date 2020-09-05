@@ -6,6 +6,7 @@ import {
   A_TASK_UPDATE,
   A_TASK_TIMER_START,
   A_TASK_TIMER_STOP,
+  A_TASK_REORDER,
 } from './actions.type'
 import {
   M_ERROR_SET,
@@ -29,6 +30,17 @@ const actions = {
       ApiService.get('tasks')
         .then(({ data }) => {
           context.commit(M_TASK_RETRIEVE, data)
+          resolve(data)
+        })
+        .catch(({ response }) => {
+          context.commit(M_ERROR_SET, response.data.errors)
+        })
+    })
+  },
+  [A_TASK_REORDER](context, tasks) {
+    return new Promise(resolve => {
+      ApiService.put(`tasks/reorder`, tasks)
+        .then(({ data }) => {
           resolve(data)
         })
         .catch(({ response }) => {

@@ -1,62 +1,58 @@
 <template>
-  <div>
-    <v-container class="fill-height" fluid>
-      <v-row align="center" justify="center">
-        <v-col cols="12" sm="8" md="4">
-          <v-card class="elevation-12">
-            <v-toolbar color="primary" dark flat>
-              <v-toolbar-title>Register</v-toolbar-title>
-              <v-spacer></v-spacer>
-            </v-toolbar>
-            <v-card-text>
-              <v-form ref="form" v-model="valid" :lazy-validation="true">
-                <v-text-field
-                  v-model="username"
-                  :rules="usernameRules"
-                  prepend-icon="mdi-account-circle"
-                  label="Name"
-                  type="text"
-                  required
-                ></v-text-field>
-
-                <v-text-field
-                  v-model="email"
-                  :rules="emailRules"
-                  prepend-icon="mdi-at"
-                  label="E-mail"
-                  type="text"
-                  required
-                ></v-text-field>
-
-                <v-text-field
-                  v-model="password"
-                  :rules="passwordRules"
-                  label="Password"
-                  prepend-icon="mdi-lock"
-                  type="password"
-                  required
-                ></v-text-field>
-              </v-form>
-            </v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn @click="onSubmit" color="primary">Register</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-col>
-      </v-row>
-    </v-container>
-
-    <v-snackbar v-model="snackbar" color="error" v-if="errors">
-      <p style="margin: 0;" v-for="(v, k) in errors" :key="k">{{ k }} {{ v }}</p>
-      <template v-slot:action="{ attrs }">
-        <v-btn dark text v-bind="attrs" @click="snackbar = false">Close</v-btn>
-      </template>
-    </v-snackbar>
-  </div>
+  <q-page padding>
+    <q-card>
+      <q-card-section class="bg-primary text-white">
+        <div class="text-h6">Register</div>
+      </q-card-section>
+      <q-card-section>
+        <q-form ref="form" v-model="valid" :lazy-validation="true">
+          <q-input
+            v-model="username"
+            label="Your Username *"
+            hint="Username"
+            lazy-rules
+            :rules="usernameRules"
+          >
+            <template v-slot:prepend>
+              <q-icon name="mdi-account" />
+            </template>
+          </q-input>
+          <q-input
+            v-model="email"
+            label="Your email address *"
+            hint="Email Address"
+            lazy-rules
+            :rules="emailRules"
+          >
+            <template v-slot:prepend>
+              <q-icon name="mdi-email" />
+            </template>
+          </q-input>
+          <q-input
+            v-model="password"
+            label="Your password *"
+            hint="Password (>6 characters long)"
+            lazy-rules
+            type="password"
+            :rules="passwordRules"
+          >
+            <template v-slot:prepend>
+              <q-icon name="mdi-lock" />
+            </template>
+          </q-input>
+        </q-form>
+      </q-card-section>
+      <q-card-actions align="right">
+        <q-btn @click="onSubmit" color="primary">Register</q-btn>
+      </q-card-actions>
+    </q-card>
+    <br />
+    <p>
+      If you already have an account, please
+      <router-link to="/login" tag="a" active-class="active" exact>Login</router-link>
+    </p>
+  </q-page>
 </template>
-
-
 
 <script>
 import { mapState } from 'vuex'
@@ -66,43 +62,52 @@ export default {
   name: 'Register',
   data: () => ({
     valid: true,
-    snackbar: false,
     username: '',
-    usernameRules: [v => !!v || 'Username is required'],
+    usernameRules: [(v) => !!v || 'Username is required'],
     email: '',
     emailRules: [
-      v => !!v || 'E-mail is required',
-      v => /.+@.+\..+/.test(v) || 'E-mail must be valid',
+      (v) => !!v || 'E-mail is required',
+      (v) => /.+@.+\..+/.test(v) || 'E-mail must be valid',
     ],
     password: '',
     passwordRules: [
-      v => !!v || 'Password is required',
-      v => (v && v.length >= 6) || 'Password must be at last 6 characters long',
+      (v) => !!v || 'Password is required',
+      (v) =>
+        (v && v.length >= 6) || 'Password must be at last 6 characters long',
     ],
   }),
 
   computed: {
     ...mapState({
-      errors: state => state.auth.errors,
+      errors: (state) => state.auth.errors,
     }),
   },
 
   watch: {
     errors() {
       if (Object.keys(this.errors).length) {
-        this.snackbar = true
+        this.showErrors()
       }
     },
   },
 
   methods: {
+    showErrors() {
+      Object.keys(this.errors).map((key) =>
+        this.$q.notify({
+          group: false,
+          message: key + ' ' + this.errors[key],
+          type: 'negative',
+        }),
+      )
+    },
     onSubmit() {
       if (this.$refs.form.validate()) {
         this.$store
           .dispatch(A_AUTH_REGISTER, {
+            username: this.username,
             email: this.email,
             password: this.password,
-            username: this.username,
           })
           .then(() => this.$router.push({ name: 'home' }))
       }

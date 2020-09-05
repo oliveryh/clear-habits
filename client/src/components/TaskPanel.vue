@@ -2,7 +2,8 @@
   <div>
     <div class="row">
       <div class="col-12 col-md-4 q-pa-md">
-        <ch-week-selector v-model="startDate"></ch-week-selector>
+        <ch-day-selector v-if="dateZoomed" v-model="dateZoomed"></ch-day-selector>
+        <ch-week-selector v-else v-model="startDate"></ch-week-selector>
       </div>
       <div class="col-12 col-md-4 align-center q-pa-md">
         <h6 class="q-my-none">{{ remainingTasks }} Task(s) to complete</h6>
@@ -26,14 +27,17 @@
 <script>
 import ChTaskList from '@/components/TaskList.vue'
 import ChWeekSelector from '@/components/WeekSelector.vue'
+import ChDaySelector from '@/components/DaySelector.vue'
 import { mapState } from 'vuex'
 import { A_TASK_RETRIEVE } from '@/store/actions.type'
+import { mapFields } from 'vuex-map-fields'
 
 export default {
   name: 'TaskPanel',
   components: {
     ChTaskList,
     ChWeekSelector,
+    ChDaySelector,
   },
   data: () => ({
     startDate: null,
@@ -45,8 +49,8 @@ export default {
   computed: {
     ...mapState({
       tasks: (state) => state.home.tasks,
-      dateZoomed: (state) => state.home.dateZoomed,
     }),
+    ...mapFields(['home.dateZoomed']),
     filteredTasks() {
       var tasks_filtered = this.tasks
       if (this.hideCompleted) {

@@ -14,6 +14,7 @@ var TaskSchema = new mongoose.Schema(
       required: [true, "can't be blank"],
     },
     order: { type: mongoose.Schema.Types.Number, default: 0 },
+    project: { type: mongoose.Schema.Types.ObjectId, ref: 'Project' },
   },
   { timestamps: true },
 )

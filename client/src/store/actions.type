@@ -10,4 +10,11 @@ export const A_TASK_TIMER_START = "actionTaskTimerStart";
 export const A_TASK_TIMER_STOP = "actionTaskTimerStop";
 export const A_TASK_REORDER = "actionTaskReorder";
 export const A_STATS_RETRIEVE = "actionStatsRetrieve";
-
+export const A_CATEGORY_RETRIEVE = "actionCategoryRetrieve";
+export const A_CATEGORY_CREATE = "actionCategoryCreate";
+export const A_CATEGORY_UPDATE = "actionCategoryUpdate";
+export const A_CATEGORY_DELETE = "actionCategoryDelete";
+export const A_PROJECT_RETRIEVE = "actionProjectRetrieve";
+export const A_PROJECT_CREATE = "actionProjectCreate";
+export const A_PROJECT_UPDATE = "actionProjectUpdate";
+export const A_PROJECT_DELETE = "actionProjectDelete";

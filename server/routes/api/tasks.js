@@ -7,6 +7,12 @@ var auth = require('../auth')
 // preload task objects on routes with :task
 router.param('task', function (req, res, next, id) {
   Task.findById(id)
+    .populate({
+      path: 'project',
+      populate: {
+        path: 'category',
+      },
+    })
     .populate('author')
     .then(function (task) {
       if (!task) {
@@ -22,14 +28,20 @@ router.param('task', function (req, res, next, id) {
 // list of all tasks
 router.get('/', auth.required, function (req, res, next) {
   User.findById(req.payload.id)
-    .populate('tasks')
     .then(function (user) {
       if (!user) {
         return res.sendStatus(401)
       }
-      Task.find({ author: req.payload.id }).exec((err, tasks) => {
-        res.json(tasks)
-      })
+      Task.find({ author: req.payload.id })
+        .populate({
+          path: 'project',
+          populate: {
+            path: 'category',
+          },
+        })
+        .exec((err, tasks) => {
+          res.json(tasks)
+        })
     })
     .catch(next)
 })
@@ -78,9 +90,21 @@ router.post('/', auth.required, function (req, res, next) {
       }
       var task = new Task(req.body)
       task.author = user
-      return task.save().then(function () {
-        return res.json(task)
-      })
+      return task
+        .save()
+        .then((t) =>
+          t
+            .populate({
+              path: 'project',
+              populate: {
+                path: 'category',
+              },
+            })
+            .execPopulate(),
+        )
+        .then(function () {
+          return res.json(task)
+        })
     })
     .catch(next)
 })
@@ -105,8 +129,22 @@ router.put('/:task', auth.required, function (req, res, next) {
           req.task.timerTrackedTime = req.body.timerTrackedTime
         }
 
+        if (typeof req.body.project !== 'undefined') {
+          req.task.project = req.body.project
+        }
+
         req.task
           .save()
+          .then((t) =>
+            t
+              .populate({
+                path: 'project',
+                populate: {
+                  path: 'category',
+                },
+              })
+              .execPopulate(),
+          )
           .then(function (task) {
             return res.json(task)
           })

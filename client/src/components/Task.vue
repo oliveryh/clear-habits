@@ -1,7 +1,15 @@
 <template>
   <div>
     <q-card>
-      <q-card-section>
+      <q-card-section class="q-pb-none">
+        <div v-if="task.project" class="text-headline text-left">
+          <q-icon
+            name="mdi-checkbox-blank-circle"
+            :style="'color: ' + task.project.category.color"
+          />
+          {{ task.project.description }}
+        </div>
+        <div v-else class="text-headline text-left">NONE</div>
         <div class="text-h6 text-left">{{ task.description }}</div>
       </q-card-section>
       <q-card-actions align="left">
@@ -48,6 +56,7 @@
         <q-card-section>
           <div class="text-h6">Edit Card</div>
           <q-form ref="form" @submit.prevent>
+            <ch-project-picker v-model="editedTask.project" :projects="projects"></ch-project-picker>
             <q-input v-model="editedTask.description" r></q-input>
             <q-input v-model="editedTask.date" mask="####-##-##">
               <template v-slot:append>
@@ -93,6 +102,9 @@ import {
   A_TASK_TIMER_START,
   A_TASK_TIMER_STOP,
 } from '@/store/actions.type'
+import { mapState } from 'vuex'
+
+import ChProjectPicker from '@/components/ProjectPicker'
 
 export default {
   name: 'Task',
@@ -101,12 +113,16 @@ export default {
       type: Object,
     },
   },
+  components: {
+    ChProjectPicker,
+  },
   data: () => ({
     taskRules: [(v) => !!v || 'Description required'],
     timerTrackedTime: null,
     timerInterval: null,
     editorDialog: false,
     editedTask: null,
+    selectModel: null,
   }),
   created() {
     this.timerSet()
@@ -126,6 +142,9 @@ export default {
     },
   },
   computed: {
+    ...mapState({
+      projects: (state) => state.settings.projects,
+    }),
     editedTaskTime: {
       get() {
         var tt = this.editedTask.timerTrackedTime
@@ -202,6 +221,9 @@ export default {
       this.$refs.form.validate().then((success) => {
         if (success) {
           this.editorDialog = false
+          if (this.selectModel != null) {
+            this.editedTask.project = this.selectModel._id
+          }
           this.taskUpdate(this.editedTask)
         }
       })

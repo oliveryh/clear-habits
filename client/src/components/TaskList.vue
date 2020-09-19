@@ -57,6 +57,7 @@ import {
   M_CONTROL_ZOOM_DISABLE,
   M_TASK_UPDATE,
 } from '@/store/mutations.type'
+import { mapFields } from 'vuex-map-fields'
 
 export default {
   name: 'TaskList',
@@ -80,6 +81,7 @@ export default {
     draggable,
   },
   computed: {
+    ...mapFields(['home.projectSelected']),
     filteredTasks: {
       get() {
         return this.tasks
@@ -101,6 +103,9 @@ export default {
       var task = {
         description: this.newTask,
         date: this.date,
+      }
+      if (this.projectSelected) {
+        task.project = this.projectSelected._id
       }
       this.$store.dispatch(A_TASK_CREATE, task)
       this.newTask = null

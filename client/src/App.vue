@@ -22,6 +22,7 @@
       <q-tabs>
         <q-route-tab icon="mdi-home" to="/" exact />
         <q-route-tab icon="mdi-chart-bar" to="/stats" exact />
+        <q-route-tab icon="mdi-cog" to="/settings" exact />
       </q-tabs>
 
       <router-view />

@@ -16,12 +16,14 @@ import {
   M_TASK_UPDATE,
   M_CONTROL_ZOOM_ENABLE,
   M_CONTROL_ZOOM_DISABLE,
+  M_CONTROL_PROJECT_SELECT,
 } from './mutations.type'
 
 const state = {
   errors: null,
   tasks: [],
   dateZoomed: null,
+  projectSelected: null,
 }
 
 const actions = {
@@ -132,6 +134,7 @@ const mutations = {
       task.timerActive = data.timerActive
       task.timerStartedAt = data.timerStartedAt
       task.timerTrackedTime = data.timerTrackedTime
+      task.project = data.project
       return task
     })
   },
@@ -144,6 +147,9 @@ const mutations = {
   },
   [M_CONTROL_ZOOM_DISABLE](state) {
     state.dateZoomed = null
+  },
+  [M_CONTROL_PROJECT_SELECT](state, projectId) {
+    state.projectSelected = projectId
   },
 }
 

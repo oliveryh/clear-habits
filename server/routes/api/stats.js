@@ -8,7 +8,6 @@ var _ = require('lodash')
 // list of all stats
 router.get('/', auth.required, function (req, res, next) {
   User.findById(req.payload.id)
-    .populate('tasks')
     .then(function (user) {
       if (!user) {
         return res.sendStatus(401)

@@ -8,9 +8,13 @@ const state = {
 }
 
 const actions = {
-  [A_STATS_RETRIEVE](context) {
+  [A_STATS_RETRIEVE](context, startDate) {
     return new Promise(resolve => {
-      ApiService.get('stats')
+      ApiService.query('stats', {
+        params: {
+          startDate,
+        },
+      })
         .then(({ data }) => {
           context.commit(M_STATS_RETRIEVE, data)
           resolve(data)

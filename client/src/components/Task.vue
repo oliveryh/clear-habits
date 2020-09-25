@@ -10,7 +10,7 @@
           {{ task.project.description }}
         </div>
         <div v-else class="text-headline text-left">NONE</div>
-        <div class="text-h6 text-left">{{ task.description }}</div>
+        <div class="text-subtitle-2 text-weight-medium text-left">{{ task.description }}</div>
       </q-card-section>
       <q-card-actions align="left">
         <q-btn

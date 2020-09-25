@@ -11,18 +11,36 @@
 <script>
 import VueApexCharts from 'vue-apexcharts'
 export default {
-  name: 'ChartTime',
+  name: 'ChartTimeCategorical',
   components: {
     apexchart: VueApexCharts,
   },
   data() {
-    return {}
+    return {
+      tenColorPalette: [
+        '#00c0c7',
+        '#5144d3',
+        '#e8871a',
+        '#da3490',
+        '#9089fa',
+        '#47e26f',
+        '#2780eb',
+        '#6f38b1',
+        '#dfbf03',
+        '#cb6f10',
+        '#268d6c',
+        '#9bec54',
+      ],
+    }
   },
   props: {
     dateRange: {
       type: Array,
     },
     data: {
+      type: Array,
+    },
+    colors: {
       type: Array,
     },
   },
@@ -33,7 +51,10 @@ export default {
           toolbar: {
             show: false,
           },
+          stacked: true,
+          height: 400,
         },
+        colors: this.colors != null ? this.colors : this.tenColorPalette,
         dataLabels: {
           formatter: function (value) {
             var hours = parseInt(value)
@@ -45,6 +66,10 @@ export default {
             }
             return retString
           },
+        },
+        legend: {
+          position: 'right',
+          offsetY: 40,
         },
         yaxis: {
           forceNiceScale: true,
@@ -82,12 +107,7 @@ export default {
       }
     },
     series() {
-      return [
-        {
-          name: 'Tasks',
-          data: this.data,
-        },
-      ]
+      return this.data
     },
   },
 }

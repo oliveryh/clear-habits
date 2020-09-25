@@ -30,18 +30,17 @@
         <q-input filled v-model="newTask" label="New Task" @keydown.enter="taskCreate"></q-input>
       </div>
     </div>
-    <div class="row">
-      <draggable
-        :emptyInsertThreshold="75"
-        v-model="filteredTasks"
-        group="tasks"
-        @change="taskChange"
-      >
-        <div class="col col-12" :key="task._id" v-for="task in filteredTasks">
-          <Task :key="task._id" :task="task" />
-        </div>
-      </draggable>
-    </div>
+    <draggable
+      :emptyInsertThreshold="75"
+      v-model="filteredTasks"
+      group="tasks"
+      @change="taskChange"
+      class="row"
+    >
+      <div class="col col-12" :key="task._id" v-for="task in filteredTasks">
+        <Task :key="task._id" :task="task" />
+      </div>
+    </draggable>
   </div>
 </template>
 <script>

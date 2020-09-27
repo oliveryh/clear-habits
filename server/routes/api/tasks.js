@@ -119,19 +119,7 @@ router.put('/:task', auth.required, function (req, res, next) {
 
       // authorized if user is author of task
       if (req.task.author._id.toString() === req.payload.id.toString()) {
-        if (typeof req.body.complete !== 'undefined') {
-          req.task.complete = req.body.complete
-        }
-
-        if (typeof req.body.description !== 'undefined') {
-          req.task.description = req.body.description
-          req.task.date = req.body.date
-          req.task.timerTrackedTime = req.body.timerTrackedTime
-        }
-
-        if (typeof req.body.project !== 'undefined') {
-          req.task.project = req.body.project
-        }
+        Object.assign(req.task, req.body)
 
         req.task
           .save()

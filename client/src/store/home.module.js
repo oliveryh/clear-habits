@@ -134,6 +134,7 @@ const mutations = {
       task.timerActive = data.timerActive
       task.timerStartedAt = data.timerStartedAt
       task.timerTrackedTime = data.timerTrackedTime
+      task.timerEstimatedTime = data.timerEstimatedTime
       task.project = data.project
       return task
     })

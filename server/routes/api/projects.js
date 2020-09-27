@@ -63,13 +63,7 @@ router.put('/:project', auth.required, function (req, res, next) {
 
       // authorized if user is author of project
       if (req.project.author._id.toString() === req.payload.id.toString()) {
-        if (typeof req.body.description !== 'undefined') {
-          req.project.description = req.body.description
-        }
-
-        if (typeof req.body.color !== 'undefined') {
-          req.project.color = req.body.color
-        }
+        Object.assign(req.project, req.body)
 
         req.project
           .save()

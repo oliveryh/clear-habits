@@ -58,13 +58,7 @@ router.put('/:category', auth.required, function (req, res, next) {
 
       // authorized if user is author of category
       if (req.category.author._id.toString() === req.payload.id.toString()) {
-        if (typeof req.body.description !== 'undefined') {
-          req.category.description = req.body.description
-        }
-
-        if (typeof req.body.color !== 'undefined') {
-          req.category.color = req.body.color
-        }
+        Object.assign(req.category, req.body)
 
         req.category
           .save()

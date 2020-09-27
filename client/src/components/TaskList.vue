@@ -2,7 +2,9 @@
   <div class="q-pa-sm">
     <div class="row">
       <div class="col">
-        <h5 class="text-weight-light q-my-none float-left">{{ date }}</h5>
+        <h5 class="text-weight-light q-my-none float-left">
+          {{ date == 'backlog' ? 'Backlog' : date }}
+        </h5>
         <q-btn
           @click="zoomOut()"
           v-if="dateZoomed"

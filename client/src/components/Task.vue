@@ -49,6 +49,8 @@
             v-else
             flat
             color="green"
+            dense
+            round
             @click="
               task.complete = true
               taskUpdate(task)
@@ -59,6 +61,8 @@
             class="q-px-none"
             flat
             color="grey"
+            round
+            dense
             @click="editorOpen()"
             icon="mdi-pencil"
           ></q-btn>

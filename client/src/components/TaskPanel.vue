@@ -2,7 +2,10 @@
   <div>
     <div class="row">
       <div class="col-6 col-md-3 q-pa-md">
-        <ch-day-selector v-if="dateZoomed" v-model="dateZoomed"></ch-day-selector>
+        <ch-day-selector
+          v-if="dateZoomed"
+          v-model="dateZoomed"
+        ></ch-day-selector>
         <ch-week-selector v-else v-model="startDate"></ch-week-selector>
       </div>
       <div class="col-6 col-md-3 q-pa-md">
@@ -11,23 +14,44 @@
 
       <div class="col-6 col-md-3 q-pa-md">
         <q-form ref="form" @submit.prevent>
-          <ch-project-picker v-model="categorySelected" :projects="categories" label="Category"></ch-project-picker>
+          <ch-project-picker
+            v-model="categorySelected"
+            :projects="categories"
+            label="Category"
+          ></ch-project-picker>
         </q-form>
       </div>
       <div class="col-6 col-md-3 q-pa-md">
         <q-form ref="form" @submit.prevent>
-          <ch-project-picker v-model="projectSelected" :projects="filteredProjects" label="Project"></ch-project-picker>
+          <ch-project-picker
+            v-model="projectSelected"
+            :projects="filteredProjects"
+            label="Project"
+          ></ch-project-picker>
         </q-form>
       </div>
     </div>
     {{ date }}
     <div class="row" style="text-align: center">
       <div v-if="dateZoomed" class="col">
-        <ch-task-list :date="dateZoomed" :dateZoomed="dateZoomed" :tasks="getTaskList(dateZoomed)" />
+        <ch-task-list
+          :date="dateZoomed"
+          :dateZoomed="dateZoomed"
+          :tasks="getTaskList(dateZoomed)"
+        />
       </div>
-      <div v-else v-for="date in dateSpread(startDate)" :key="date" class="custom7cols">
-        <ch-task-list :date="date" :tasks="getTaskList(date)" />
-      </div>
+      <template v-else>
+        <div class="custom8cols">
+          <ch-task-list date="backlog" :tasks="getTaskList('backlog')" />
+        </div>
+        <div
+          v-for="date in dateSpread(startDate)"
+          :key="date"
+          class="custom8cols"
+        >
+          <ch-task-list :date="date" :tasks="getTaskList(date)" />
+        </div>
+      </template>
     </div>
   </div>
 </template>
@@ -129,10 +153,10 @@ export default {
 </script>
 
 <style scoped>
-.custom7cols {
-  width: 14.28%;
-  max-width: 14.28%;
-  flex-basis: 14.28%;
+.custom8cols {
+  width: 12.5%;
+  max-width: 12.5%;
+  flex-basis: 12.5%;
 }
 .align-center {
   display: flex;

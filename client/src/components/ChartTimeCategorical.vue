@@ -37,6 +37,9 @@ export default {
     dateRange: {
       type: Array,
     },
+    xaxisType: {
+      type: Array,
+    },
     data: {
       type: Array,
     },
@@ -98,7 +101,7 @@ export default {
           axisBorder: {
             show: false,
           },
-          type: 'datetime',
+          type: this.xaxisType,
           categories: this.dateRange,
           labels: {
             format: 'ddd',

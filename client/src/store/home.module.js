@@ -6,6 +6,7 @@ import {
   A_TASK_UPDATE,
   A_TASK_TIMER_START,
   A_TASK_TIMER_STOP,
+  A_TASK_COMPLETE,
   A_TASK_REORDER,
 } from './actions.type'
 import {
@@ -89,6 +90,18 @@ const actions = {
   [A_TASK_TIMER_STOP](context, task) {
     return new Promise(resolve => {
       ApiService.put(`tasks/${task._id}/stop`, task)
+        .then(({ data }) => {
+          context.commit(M_TASK_UPDATE, data)
+          resolve(data)
+        })
+        .catch(({ response }) => {
+          context.commit(M_ERROR_SET, response.data.errors)
+        })
+    })
+  },
+  [A_TASK_COMPLETE](context, task) {
+    return new Promise(resolve => {
+      ApiService.put(`tasks/${task._id}/complete`, task)
         .then(({ data }) => {
           context.commit(M_TASK_UPDATE, data)
           resolve(data)

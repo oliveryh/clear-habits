@@ -144,6 +144,50 @@ router.put('/:task', auth.required, function (req, res, next) {
     .catch(next)
 })
 
+router.put('/:task/complete', auth.required, function (req, res, next) {
+  User.findById(req.payload.id)
+    .then(function (user) {
+      if (!user) {
+        return res.sendStatus(401)
+      }
+
+      // authorized if user is author of task
+      if (req.task.author._id.toString() === req.payload.id.toString()) {
+        if (req.task.timerActive) {
+          // stop the timer if it was running
+          numSeconds = parseInt((Date.now() - req.task.timerStartedAt) / 1000)
+
+          req.task.timerActive = false
+          req.task.timerTrackedTime += numSeconds
+          req.task.timerStartedAt = null
+        }
+
+        // set the tracked time to estimated
+        if (
+          ((req.task.timerTrackedTime == 0) |
+            (req.task.timerTrackedTime == null)) &
+          (req.task.timerEstimatedTime != 0) &
+          !isNaN(req.task.timerEstimatedTime)
+        ) {
+          req.task.timerTrackedTime = req.task.timerEstimatedTime
+        }
+
+        // complete task
+        req.task.complete = true
+
+        req.task
+          .save()
+          .then(function (task) {
+            return res.json(task)
+          })
+          .catch(next)
+      } else {
+        return res.sendStatus(401)
+      }
+    })
+    .catch(next)
+})
+
 router.put('/:task/start', auth.required, function (req, res, next) {
   User.findById(req.payload.id)
     .then(function (user) {

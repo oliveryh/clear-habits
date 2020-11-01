@@ -51,10 +51,7 @@
             color="green"
             dense
             round
-            @click="
-              task.complete = true
-              taskUpdate(task)
-            "
+            @click="taskComplete(task)"
             icon="mdi-check"
           ></q-btn>
           <q-btn
@@ -224,6 +221,7 @@ import {
   A_TASK_DELETE,
   A_TASK_TIMER_START,
   A_TASK_TIMER_STOP,
+  A_TASK_COMPLETE,
 } from '@/store/actions.type'
 import { mapState } from 'vuex'
 
@@ -340,6 +338,9 @@ export default {
     },
     taskTimerStop(task) {
       this.$store.dispatch(A_TASK_TIMER_STOP, task)
+    },
+    taskComplete(task) {
+      this.$store.dispatch(A_TASK_COMPLETE, task)
     },
     // editor
     editorOpen() {

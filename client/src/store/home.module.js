@@ -6,6 +6,7 @@ import {
   A_TASK_UPDATE,
   A_TASK_TIMER_START,
   A_TASK_TIMER_STOP,
+  A_TASK_COMPLETE,
   A_TASK_REORDER,
 } from './actions.type'
 import {
@@ -16,12 +17,14 @@ import {
   M_TASK_UPDATE,
   M_CONTROL_ZOOM_ENABLE,
   M_CONTROL_ZOOM_DISABLE,
+  M_CONTROL_PROJECT_SELECT,
 } from './mutations.type'
 
 const state = {
   errors: null,
   tasks: [],
   dateZoomed: null,
+  projectSelected: null,
 }
 
 const actions = {
@@ -96,6 +99,18 @@ const actions = {
         })
     })
   },
+  [A_TASK_COMPLETE](context, task) {
+    return new Promise(resolve => {
+      ApiService.put(`tasks/${task._id}/complete`, task)
+        .then(({ data }) => {
+          context.commit(M_TASK_UPDATE, data)
+          resolve(data)
+        })
+        .catch(({ response }) => {
+          context.commit(M_ERROR_SET, response.data.errors)
+        })
+    })
+  },
   [A_TASK_DELETE](context, task) {
     return new Promise(resolve => {
       ApiService.delete(`tasks/${task._id}`, task)
@@ -132,6 +147,8 @@ const mutations = {
       task.timerActive = data.timerActive
       task.timerStartedAt = data.timerStartedAt
       task.timerTrackedTime = data.timerTrackedTime
+      task.timerEstimatedTime = data.timerEstimatedTime
+      task.project = data.project
       return task
     })
   },
@@ -144,6 +161,9 @@ const mutations = {
   },
   [M_CONTROL_ZOOM_DISABLE](state) {
     state.dateZoomed = null
+  },
+  [M_CONTROL_PROJECT_SELECT](state, projectId) {
+    state.projectSelected = projectId
   },
 }
 

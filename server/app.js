@@ -12,6 +12,8 @@ var app = express()
 
 var mongoose = require('mongoose')
 require('./models/User')
+require('./models/Category')
+require('./models/Project')
 require('./models/Task')
 require('./config/passport')
 

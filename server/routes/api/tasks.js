@@ -7,6 +7,12 @@ var auth = require('../auth')
 // preload task objects on routes with :task
 router.param('task', function (req, res, next, id) {
   Task.findById(id)
+    .populate({
+      path: 'project',
+      populate: {
+        path: 'category',
+      },
+    })
     .populate('author')
     .then(function (task) {
       if (!task) {
@@ -22,14 +28,20 @@ router.param('task', function (req, res, next, id) {
 // list of all tasks
 router.get('/', auth.required, function (req, res, next) {
   User.findById(req.payload.id)
-    .populate('tasks')
     .then(function (user) {
       if (!user) {
         return res.sendStatus(401)
       }
-      Task.find({ author: req.payload.id }).exec((err, tasks) => {
-        res.json(tasks)
-      })
+      Task.find({ author: req.payload.id })
+        .populate({
+          path: 'project',
+          populate: {
+            path: 'category',
+          },
+        })
+        .exec((err, tasks) => {
+          res.json(tasks)
+        })
     })
     .catch(next)
 })
@@ -78,9 +90,21 @@ router.post('/', auth.required, function (req, res, next) {
       }
       var task = new Task(req.body)
       task.author = user
-      return task.save().then(function () {
-        return res.json(task)
-      })
+      return task
+        .save()
+        .then((t) =>
+          t
+            .populate({
+              path: 'project',
+              populate: {
+                path: 'category',
+              },
+            })
+            .execPopulate(),
+        )
+        .then(function () {
+          return res.json(task)
+        })
     })
     .catch(next)
 })
@@ -95,15 +119,61 @@ router.put('/:task', auth.required, function (req, res, next) {
 
       // authorized if user is author of task
       if (req.task.author._id.toString() === req.payload.id.toString()) {
-        if (typeof req.body.complete !== 'undefined') {
-          req.task.complete = req.body.complete
+        Object.assign(req.task, req.body)
+
+        req.task
+          .save()
+          .then((t) =>
+            t
+              .populate({
+                path: 'project',
+                populate: {
+                  path: 'category',
+                },
+              })
+              .execPopulate(),
+          )
+          .then(function (task) {
+            return res.json(task)
+          })
+          .catch(next)
+      } else {
+        return res.sendStatus(401)
+      }
+    })
+    .catch(next)
+})
+
+router.put('/:task/complete', auth.required, function (req, res, next) {
+  User.findById(req.payload.id)
+    .then(function (user) {
+      if (!user) {
+        return res.sendStatus(401)
+      }
+
+      // authorized if user is author of task
+      if (req.task.author._id.toString() === req.payload.id.toString()) {
+        if (req.task.timerActive) {
+          // stop the timer if it was running
+          numSeconds = parseInt((Date.now() - req.task.timerStartedAt) / 1000)
+
+          req.task.timerActive = false
+          req.task.timerTrackedTime += numSeconds
+          req.task.timerStartedAt = null
         }
 
-        if (typeof req.body.description !== 'undefined') {
-          req.task.description = req.body.description
-          req.task.date = req.body.date
-          req.task.timerTrackedTime = req.body.timerTrackedTime
+        // set the tracked time to estimated
+        if (
+          ((req.task.timerTrackedTime == 0) |
+            (req.task.timerTrackedTime == null)) &
+          (req.task.timerEstimatedTime != 0) &
+          !isNaN(req.task.timerEstimatedTime)
+        ) {
+          req.task.timerTrackedTime = req.task.timerEstimatedTime
         }
+
+        // complete task
+        req.task.complete = true
 
         req.task
           .save()

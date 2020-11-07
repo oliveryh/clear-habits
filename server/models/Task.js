@@ -8,12 +8,14 @@ var TaskSchema = new mongoose.Schema(
     timerActive: { type: Boolean, default: false },
     timerStartedAt: { type: mongoose.Schema.Types.Date },
     timerTrackedTime: { type: mongoose.Schema.Types.Number, default: 0 },
+    timerEstimatedTime: { type: mongoose.Schema.Types.Number, default: 0 },
     date: {
       type: String,
       default: new Date().toISOString().substring(0, 10),
       required: [true, "can't be blank"],
     },
     order: { type: mongoose.Schema.Types.Number, default: 0 },
+    project: { type: mongoose.Schema.Types.ObjectId, ref: 'Project' },
   },
   { timestamps: true },
 )

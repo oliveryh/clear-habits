@@ -1,0 +1,7 @@
+#import "../EntryFragment.gql"
+
+mutation($id: ID!) {
+  entryStart(id: $id) {
+    ...Entry
+  }
+}

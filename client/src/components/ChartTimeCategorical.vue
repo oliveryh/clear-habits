@@ -38,7 +38,7 @@ export default {
       type: Array,
     },
     xaxisType: {
-      type: Array,
+      type: String,
     },
     data: {
       type: Array,

@@ -38,15 +38,17 @@
     <br />
     <p>
       If you don't yet have an account, please
-      <router-link to="/register" tag="a" active-class="active" exact>Register</router-link>
+      <router-link to="/register" tag="a" active-class="active" exact
+        >Register</router-link
+      >
     </p>
   </q-page>
 </template>
 
 
 <script>
-import { mapState } from 'vuex'
-import { A_AUTH_LOGIN } from '@/store/actions.type'
+import gql from 'graphql-tag'
+import { apolloClient, onLogin } from '@/vue-apollo'
 
 export default {
   name: 'Login',
@@ -65,39 +67,41 @@ export default {
     ],
   }),
 
-  computed: {
-    ...mapState({
-      errors: (state) => state.auth.errors,
-    }),
-  },
-
-  watch: {
-    errors() {
-      if (Object.keys(this.errors).length) {
-        this.showErrors()
-      }
-    },
-  },
-
   methods: {
-    showErrors() {
-      Object.keys(this.errors).map((key) =>
-        this.$q.notify({
-          group: false,
-          message: key + ' ' + this.errors[key],
-          type: 'negative',
-        }),
-      )
-    },
     onSubmit() {
-      if (this.$refs.form.validate()) {
-        this.$store
-          .dispatch(A_AUTH_LOGIN, {
-            email: this.email,
-            password: this.password,
-          })
-          .then(() => this.$router.push({ name: 'home' }))
-      }
+      this.$refs.form.validate().then((validated) => {
+        if (validated) {
+          this.$apollo
+            .mutate({
+              mutation: gql`
+                mutation($login: String!, $password: String!) {
+                  signIn(login: $login, password: $password) {
+                    token
+                  }
+                }
+              `,
+              variables: {
+                login: this.email,
+                password: this.password,
+              },
+              update: async (
+                store,
+                {
+                  data: {
+                    signIn: { token },
+                  },
+                },
+              ) => {
+                this.result = token
+                await onLogin(apolloClient, token)
+              },
+            })
+            .then(() => this.$router.push({ name: 'home' }))
+            .catch((error) => {
+              this.showErrors(error)
+            })
+        }
+      })
     },
   },
 }

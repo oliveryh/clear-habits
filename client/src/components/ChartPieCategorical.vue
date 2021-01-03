@@ -3,7 +3,7 @@
     <q-card>
       <q-card-section>
         <div class="text-h4 text-weight-light">Time Taken</div>
-        <apexchart type="pie" :options="options"></apexchart>
+        <apexchart type="pie" :options="options" :series="series"></apexchart>
       </q-card-section>
     </q-card>
   </div>
@@ -38,16 +38,18 @@ export default {
       type: Array,
     },
     data: {
-      type: Array,
+      type: Object,
     },
     colors: {
       type: Array,
     },
   },
   computed: {
+    series() {
+      return this.data.series
+    },
     options() {
       return {
-        series: this.data.series,
         chart: {
           width: '100%',
           type: 'donut',
@@ -60,9 +62,7 @@ export default {
         tooltip: {
           y: {
             formatter: function (value) {
-              console.log(value)
               var hours = parseInt(value)
-
               var mins = parseInt((value * 60) % 60)
               var retString = `${mins}m`
               if (hours) {

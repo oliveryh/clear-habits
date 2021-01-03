@@ -5,7 +5,13 @@
         <div class="row">
           <div class="text-h6">{{ project.description }}</div>
           <q-space />
-          <q-btn flat style="display: inline" color="grey" @click="editorOpen()" icon="mdi-pencil"></q-btn>
+          <q-btn
+            flat
+            style="display: inline"
+            color="grey"
+            @click="editorOpen()"
+            icon="mdi-pencil"
+          ></q-btn>
         </div>
       </q-card-section>
     </q-card>
@@ -16,10 +22,22 @@
           <q-form ref="form" @submit.prevent>
             <q-input v-model="editedProject.description" r></q-input>
           </q-form>
-          <q-btn outline icon="mdi-delete" label="Delete" @click="deleteDialog = true" />
+          <q-btn
+            outline
+            icon="mdi-delete"
+            label="Delete"
+            @click="deleteDialog = true"
+          />
         </q-card-section>
         <q-card-actions align="right" class="text-primary">
-          <q-btn flat label="Cancel" @click="editorDialog = false; timerSet()" />
+          <q-btn
+            flat
+            label="Cancel"
+            @click="
+              editorDialog = false
+              timerSet()
+            "
+          />
           <q-btn flat label="Save" @click="editorSave()" />
         </q-card-actions>
       </q-card>
@@ -32,7 +50,13 @@
 
         <q-card-actions align="right">
           <q-btn flat label="Cancel" color="primary" v-close-popup />
-          <q-btn flat label="Delete" color="warning" @click="projectDelete(project)" v-close-popup />
+          <q-btn
+            flat
+            label="Delete"
+            color="warning"
+            @click="projectDelete(project)"
+            v-close-popup
+          />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -40,7 +64,8 @@
 </template>
 
 <script>
-import { A_PROJECT_UPDATE, A_PROJECT_DELETE } from '@/store/actions.type'
+import { M_PROJECT_UPDATE, M_PROJECT_DELETE } from '@/graphql/mutations'
+import { Q_PROJECT } from '@/graphql/queries'
 
 export default {
   name: 'Project',
@@ -58,10 +83,41 @@ export default {
   methods: {
     // project
     projectUpdate(project) {
-      this.$store.dispatch(A_PROJECT_UPDATE, project)
+      this.$apollo.mutate({
+        mutation: M_PROJECT_UPDATE,
+        variables: project,
+        update: (store, { data: { projectUpdate } }) => {
+          const data = store.readQuery({
+            query: Q_PROJECT,
+          })
+          const alteredProject = data.projects.find((p) => p.id === project.id)
+          Object.assign(alteredProject, projectUpdate)
+          store.writeQuery({
+            query: Q_PROJECT,
+            data,
+          })
+        },
+      })
     },
     projectDelete(project) {
-      this.$store.dispatch(A_PROJECT_DELETE, project)
+      this.$apollo.mutate({
+        mutation: M_PROJECT_DELETE,
+        variables: project,
+        update: (store, { data: { projectDelete } }) => {
+          if (projectDelete) {
+            const data = store.readQuery({
+              query: Q_PROJECT,
+            })
+            data.projects = data.projects.filter((p) => {
+              return p.id !== project.id
+            })
+            store.writeQuery({
+              query: Q_PROJECT,
+              data,
+            })
+          }
+        },
+      })
     },
     // editor
     editorOpen() {

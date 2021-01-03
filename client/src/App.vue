@@ -31,21 +31,27 @@
 </template>
 
 <script>
-import { A_AUTH_LOGOUT } from '@/store/actions.type'
-import { mapState } from 'vuex'
+import gql from 'graphql-tag'
+import JwtService from '@/common/jwt.service'
 
 export default {
   name: 'App',
-  computed: {
-    ...mapState({
-      username: (state) => state.auth.user.username,
-    }),
+  apollo: {
+    username: {
+      query: gql`
+        query me {
+          me {
+            username
+          }
+        }
+      `,
+      update: (data) => data.me.username,
+    },
   },
   methods: {
     logout() {
-      this.$store
-        .dispatch(A_AUTH_LOGOUT)
-        .then(() => this.$router.push({ name: 'login' }))
+      JwtService.destroyToken()
+      this.$router.push({ name: 'login' })
     },
   },
 }

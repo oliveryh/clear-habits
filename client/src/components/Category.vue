@@ -1,6 +1,6 @@
 <template>
   <div>
-    <q-card v-bind:class="{ 'selected': this.selected }" class="my-card">
+    <q-card v-bind:class="{ selected: this.selected }" class="my-card">
       <q-card-section>
         <div class="row">
           <div class="q-pr-md" :style="'color: ' + category.color">
@@ -8,7 +8,13 @@
           </div>
           <div class="text-h6">{{ category.description }}</div>
           <q-space />
-          <q-btn flat style="display: inline" color="grey" @click="editorOpen()" icon="mdi-pencil"></q-btn>
+          <q-btn
+            flat
+            style="display: inline"
+            color="grey"
+            @click="editorOpen()"
+            icon="mdi-pencil"
+          ></q-btn>
           <q-btn
             flat
             style="display: inline"
@@ -28,17 +34,32 @@
             <q-input v-model="editedCategory.color" :rules="['anyColor']">
               <template v-slot:append>
                 <q-icon name="mdi-eyedropper" class="cursor-pointer">
-                  <q-popup-proxy transition-show="scale" transition-hide="scale">
+                  <q-popup-proxy
+                    transition-show="scale"
+                    transition-hide="scale"
+                  >
                     <q-color v-model="editedCategory.color" />
                   </q-popup-proxy>
                 </q-icon>
               </template>
             </q-input>
-            <q-btn outline icon="mdi-delete" label="Delete" @click="deleteDialog = true" />
+            <q-btn
+              outline
+              icon="mdi-delete"
+              label="Delete"
+              @click="deleteDialog = true"
+            />
           </q-form>
         </q-card-section>
         <q-card-actions align="right" class="text-primary">
-          <q-btn flat label="Cancel" @click="editorDialog = false; timerSet()" />
+          <q-btn
+            flat
+            label="Cancel"
+            @click="
+              editorDialog = false
+              timerSet()
+            "
+          />
           <q-btn flat label="Save" @click="editorSave()" />
         </q-card-actions>
       </q-card>
@@ -51,7 +72,13 @@
 
         <q-card-actions align="right">
           <q-btn flat label="Cancel" color="primary" v-close-popup />
-          <q-btn flat label="Delete" color="warning" @click="categoryDelete" v-close-popup />
+          <q-btn
+            flat
+            label="Delete"
+            color="warning"
+            @click="categoryDelete"
+            v-close-popup
+          />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -59,8 +86,12 @@
 </template>
 
 <script>
-import { A_CATEGORY_UPDATE, A_CATEGORY_DELETE } from '@/store/actions.type'
-import { M_CATEGORY_SELECT } from '@/store/mutations.type'
+import {
+  M_CATEGORY_UPDATE,
+  M_CATEGORY_DELETE,
+  M_SETTINGS_UPDATE,
+} from '@/graphql/mutations'
+import { Q_CATEGORY } from '@/graphql/queries'
 
 export default {
   name: 'Category',
@@ -81,10 +112,44 @@ export default {
   methods: {
     // category
     categoryUpdate(category) {
-      this.$store.dispatch(A_CATEGORY_UPDATE, category)
+      this.$apollo.mutate({
+        mutation: M_CATEGORY_UPDATE,
+        variables: category,
+        update: (store, { data: { categoryUpdate } }) => {
+          const data = store.readQuery({
+            query: Q_CATEGORY,
+          })
+          const alteredCategory = data.categories.find(
+            (c) => c.id === category.id,
+          )
+          Object.assign(alteredCategory, categoryUpdate)
+          store.writeQuery({
+            query: Q_CATEGORY,
+            data,
+          })
+        },
+      })
     },
     categoryDelete() {
-      this.$store.dispatch(A_CATEGORY_DELETE, this.category)
+      const category = this.category
+      this.$apollo.mutate({
+        mutation: M_CATEGORY_DELETE,
+        variables: category,
+        update: (store, { data: { categoryDelete } }) => {
+          if (categoryDelete) {
+            const data = store.readQuery({
+              query: Q_CATEGORY,
+            })
+            data.categories = data.categories.filter((c) => {
+              return c.id !== category.id
+            })
+            store.writeQuery({
+              query: Q_CATEGORY,
+              data,
+            })
+          }
+        },
+      })
     },
     // editor
     editorOpen() {
@@ -100,7 +165,12 @@ export default {
       })
     },
     selectCategory() {
-      this.$store.commit(M_CATEGORY_SELECT, this.category._id)
+      this.$apollo.mutate({
+        mutation: M_SETTINGS_UPDATE,
+        variables: {
+          categorySelected: this.category.id,
+        },
+      })
     },
   },
 }

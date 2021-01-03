@@ -1,0 +1,7 @@
+mutation($description: String!, $color: String) {
+  categoryCreate(description: $description, color: $color) {
+    id
+    description
+    color
+  }
+}

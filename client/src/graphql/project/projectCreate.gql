@@ -1,0 +1,14 @@
+mutation($categoryId: ID!, $description: String!, $color: String) {
+  projectCreate(
+    categoryId: $categoryId
+    description: $description
+    color: $color
+  ) {
+    id
+    description
+    category {
+      id
+      description
+    }
+  }
+}

@@ -6,11 +6,15 @@
           <h5 class="text-weight-light q-my-none q-pb-md">Categories</h5>
         </div>
         <div class="row">
-          <div v-for="category in categories" :key="category._id" class="col col-12">
+          <div
+            v-for="category in categories"
+            :key="category.id"
+            class="col col-12"
+          >
             <Category
-              :key="category._id"
+              :key="category.id"
               :category="category"
-              :selected="categorySelected == category._id"
+              :selected="categorySelected == category.id"
             />
           </div>
           <div class="col col-12">
@@ -28,11 +32,20 @@
           <h5 class="text-weight-light q-my-none q-pb-md">Projects</h5>
         </div>
         <div class="row">
-          <div v-for="project in selectedProjects" :key="project._id" class="col col-12">
-            <Project :key="project._id" :project="project" />
+          <div
+            v-for="project in selectedProjects"
+            :key="project.id"
+            class="col col-12"
+          >
+            <Project :key="project.id" :project="project" />
           </div>
           <div class="col col-12">
-            <q-input filled v-model="newProject" label="Add Project" @keydown.enter="projectCreate"></q-input>
+            <q-input
+              filled
+              v-model="newProject"
+              label="Add Project"
+              @keydown.enter="projectCreate"
+            ></q-input>
           </div>
         </div>
       </div>
@@ -40,47 +53,51 @@
   </div>
 </template>
 <script>
-import { mapState } from 'vuex'
 import Category from '@/components/Category.vue'
 import Project from '@/components/Project.vue'
-import {
-  A_PROJECT_CREATE,
-  A_PROJECT_RETRIEVE,
-  A_CATEGORY_CREATE,
-  A_CATEGORY_RETRIEVE,
-} from '@/store/actions.type'
+import { M_CATEGORY_CREATE, M_PROJECT_CREATE } from '@/graphql/mutations'
+import { Q_PROJECT, Q_CATEGORY, Q_SETTINGS } from '@/graphql/queries'
 
 export default {
   name: 'Settings',
-  mounted() {
-    this.categoriesRetrieve()
-    this.projectsRetrieve()
-  },
   data() {
     return {
       startDate: null,
       editedCategory: null,
       newProject: null,
       newCategory: null,
+      categorySelected: null,
     }
+  },
+  apollo: {
+    projects: {
+      query: Q_PROJECT,
+    },
+    categories: {
+      query: Q_CATEGORY,
+    },
+    settings: {
+      query: Q_SETTINGS,
+      update(data) {
+        this.categorySelected = data.settings.categorySelected
+      },
+    },
   },
   components: {
     Category,
     Project,
   },
   computed: {
-    ...mapState({
-      categories: (state) => state.settings.categories,
-      projects: (state) => state.settings.projects,
-      categorySelected: (state) => state.settings.categorySelected,
-      errors: (state) => state.auth.errors,
-    }),
     selectedProjects() {
-      return this.projects.filter((project) =>
-        project.category != null
-          ? project.category._id == this.categorySelected
-          : false,
-      )
+      if (this.projects) {
+        return this.projects.filter((project) =>
+          project.category != null
+            ? project.category.id == this.categorySelected
+            : false,
+        )
+      } else {
+        return []
+      }
     },
   },
   watch: {
@@ -100,26 +117,54 @@ export default {
         }),
       )
     },
-    categoriesRetrieve() {
-      this.$store.dispatch(A_CATEGORY_RETRIEVE)
-    },
-    projectsRetrieve() {
-      this.$store.dispatch(A_PROJECT_RETRIEVE)
-    },
     categoryCreate() {
       var category = {
         description: this.newCategory,
         color: '#111',
       }
-      this.$store.dispatch(A_CATEGORY_CREATE, category)
+      this.$apollo
+        .mutate({
+          mutation: M_CATEGORY_CREATE,
+          variables: category,
+          update: (store, { data: { categoryCreate } }) => {
+            const data = store.readQuery({
+              query: Q_CATEGORY,
+            })
+            data.categories.push(categoryCreate)
+            store.writeQuery({
+              query: Q_CATEGORY,
+              data,
+            })
+          },
+        })
+        .catch((error) => {
+          this.showErrors(error)
+        })
       this.newCategory = null
     },
     projectCreate() {
       var project = {
-        category: this.categorySelected,
+        categoryId: this.categorySelected,
         description: this.newProject,
       }
-      this.$store.dispatch(A_PROJECT_CREATE, project)
+      this.$apollo
+        .mutate({
+          mutation: M_PROJECT_CREATE,
+          variables: project,
+          update: (store, { data: { projectCreate } }) => {
+            const data = store.readQuery({
+              query: Q_PROJECT,
+            })
+            data.projects.push(projectCreate)
+            store.writeQuery({
+              query: Q_PROJECT,
+              data,
+            })
+          },
+        })
+        .catch((error) => {
+          this.showErrors(error)
+        })
       this.newProject = null
     },
   },

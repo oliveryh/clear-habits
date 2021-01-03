@@ -1,0 +1,7 @@
+mutation($id: ID!, $description: String, $color: String) {
+  categoryUpdate(id: $id, description: $description, color: $color) {
+    id
+    description
+    color
+  }
+}

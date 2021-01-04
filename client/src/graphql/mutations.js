@@ -17,6 +17,7 @@ import M_ENTRY_STOP from '@/graphql/entry/entryStop.gql'
 import M_ENTRY_UPDATE from '@/graphql/entry/entryUpdate.gql'
 import M_ENTRY_COMPLETE from '@/graphql/entry/entryComplete.gql'
 import M_ENTRY_DELETE from '@/graphql/entry/entryDelete.gql'
+import M_ENTRY_CREATE from '@/graphql/entry/entryCreate.gql'
 import M_ENTRY_CREATE_WITH_TASK from '@/graphql/entry/entryCreateWithTask.gql'
 import M_ENTRY_REORDER from '@/graphql/entry/entryReorder.gql'
 
@@ -40,6 +41,7 @@ export {
   M_ENTRY_UPDATE,
   M_ENTRY_COMPLETE,
   M_ENTRY_DELETE,
+  M_ENTRY_CREATE,
   M_ENTRY_CREATE_WITH_TASK,
   M_ENTRY_REORDER,
   // settings

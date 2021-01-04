@@ -190,6 +190,12 @@
             </q-input>
             <q-btn
               outlined
+              icon="mdi-plus-circle-multiple-outline"
+              label="Add Entry"
+              @click="addEntryToTask"
+            />
+            <q-btn
+              outlined
               icon="mdi-delete"
               label="Delete"
               @click="deleteDialog = true"
@@ -237,6 +243,7 @@ import {
   M_ENTRY_UPDATE,
   M_ENTRY_COMPLETE,
   M_ENTRY_DELETE,
+  M_ENTRY_CREATE,
   M_TASK_UPDATE,
 } from '@/graphql/mutations'
 import { Q_ENTRY, Q_TASK, Q_PROJECT } from '@/graphql/queries'
@@ -456,6 +463,33 @@ export default {
           })
         },
       })
+    },
+    addEntryToTask() {
+      var entry = {
+        description: this.entry.description,
+        date: this.entry.date,
+        taskId: this.entry.task.id,
+      }
+      this.$apollo
+        .mutate({
+          mutation: M_ENTRY_CREATE,
+          variables: entry,
+          update: (store, { data: { entryCreate } }) => {
+            const data = store.readQuery({
+              query: Q_ENTRY,
+            })
+            data.entries.push(entryCreate)
+            store.writeQuery({
+              query: Q_ENTRY,
+              data,
+            })
+          },
+        })
+        .catch((error) => {
+          console.log(error)
+          this.showErrors(error)
+        })
+      this.editorDialog = false
     },
     // editor
     editorOpen() {

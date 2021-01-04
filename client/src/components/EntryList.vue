@@ -195,10 +195,12 @@ export default {
       var entry = {
         description: this.newEntry.description,
         date: this.date,
-        timerEstimatedTime: this.newEntry.timerEstimatedTime,
       }
       if (this.settings.projectSelected) {
         entry.projectId = this.settings.projectSelected.id
+      }
+      if (this.newEntry.timerEstimatedTime) {
+        entry.timerEstimatedTime = this.newEntry.timerEstimatedTime
       }
       this.$apollo
         .mutate({

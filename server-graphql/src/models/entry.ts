@@ -48,6 +48,7 @@ const entry = (sequelize: Sequelize.Sequelize, DataTypes: Sequelize.DataTypes): 
     },
     timerEstimatedTime: {
       type: DataTypes.SMALLINT,
+      allowNull: false,
       defaultValue: 0,
     },
     timerStartedAt: {

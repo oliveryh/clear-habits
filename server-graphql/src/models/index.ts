@@ -6,6 +6,7 @@ import projectModel, { ProjectModel } from './project';
 import taskModel, { TaskModel } from './task';
 import entryModel, { EntryModel } from './entry'
 
+require('dotenv/config.js')
 
 const sequelize = new Sequelize(
   process.env.TEST_DATABASE || process.env.DATABASE || 'app',

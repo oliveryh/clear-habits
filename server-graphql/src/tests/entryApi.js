@@ -28,6 +28,27 @@ export const entries = ({ variables, token }) =>
     `query {
       entries {
         id
+        complete
+        date
+        timerActive
+        timerTrackedTime
+        timerEstimatedTime
+        timerStartedAt
+        date
+        task {
+          id
+          description
+          project {
+            id
+            color
+            description
+            category {
+              id
+              color
+              description
+            }
+          }
+        }
       }
     }`,
   )

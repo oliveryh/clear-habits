@@ -55,11 +55,12 @@ export default {
       isAuthenticated,
       isProjectOwner,
       isForeignCategoryOwner,
-      async (_parent: any, args, { models }: { models: Models }) => {
+      async (_parent: any, args, { me, models, loaders }: { me: UserInstance, models: Models, loaders: Loaders }) => {
         const project = await models.Project.findByPk(args.id);
         if (!project) {
           throw new UserInputError('Project cannot be found');
         }
+        loaders.project.clear(project.id)
         project.set(args);
         return project.save();
       }

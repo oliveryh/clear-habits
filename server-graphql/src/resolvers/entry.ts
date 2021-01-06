@@ -81,11 +81,12 @@ export default {
       isAuthenticated,
       isEntryOwner,
       isForeignTaskOwner,
-      async (_parent: any, args: EntryInstance, { models }: { me: UserInstance, models: Models }) => {
+      async (_parent: any, args: EntryInstance, { me, models, loaders }: { me: UserInstance, models: Models, loaders: Loaders }) => {
         const entry = await models.Entry.findByPk(args.id);
         if (!entry) {
           throw new UserInputError('Entry cannot be found');
         }
+        loaders.entry.clear(entry.id)
         entry.set(args);
         return entry.save();
       },
@@ -94,11 +95,12 @@ export default {
     entryStart: combineResolvers(
       isAuthenticated,
       isEntryOwner,
-      async (_parent: any, args: EntryInstance, { models }: { me: UserInstance, models: Models }) => {
+      async (_parent: any, args: EntryInstance, { me, models, loaders }: { me: UserInstance, models: Models, loaders: Loaders }) => {
         const entry = await models.Entry.findByPk(args.id);
         if (!entry) {
           throw new UserInputError('Entry cannot be found');
         }
+        loaders.entry.clear(entry.id)
         if (!entry.timerActive) {
           entry.timerActive = true
           entry.timerStartedAt = new Date()
@@ -110,11 +112,12 @@ export default {
     entryStop: combineResolvers(
       isAuthenticated,
       isEntryOwner,
-      async (_parent: any, args: EntryInstance, { models }: { me: UserInstance, models: Models }) => {
+      async (_parent: any, args: EntryInstance, { me, models, loaders }: { me: UserInstance, models: Models, loaders: Loaders }) => {
         const entry = await models.Entry.findByPk(args.id);
         if (!entry) {
           throw new UserInputError('Entry cannot be found');
         }
+        loaders.entry.clear(entry.id)
         // stop the timer if it was running
         if (entry.timerActive && (entry.timerStartedAt != null)) {
           const numSeconds = Math.floor((Date.now() - entry.timerStartedAt.getTime()) / 1000)
@@ -129,12 +132,12 @@ export default {
     entryComplete: combineResolvers(
       isAuthenticated,
       isEntryOwner,
-      async (_parent: any, args: EntryInstance, { models }: { me: UserInstance, models: Models }) => {
+      async (_parent: any, args: EntryInstance, { me, models, loaders }: { me: UserInstance, models: Models, loaders: Loaders }) => {
         const entry = await models.Entry.findByPk(args.id);
         if (!entry) {
           throw new UserInputError('Entry cannot be found');
         }
-
+        loaders.entry.clear(entry.id)
         // stop the timer if it was running
         if (entry.timerActive && (entry.timerStartedAt != null)) {
           const numSeconds = Math.floor((Date.now() - entry.timerStartedAt.getTime()) / 1000)

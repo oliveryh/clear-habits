@@ -63,11 +63,12 @@ export default {
     categoryUpdate: combineResolvers(
       isAuthenticated,
       isCategoryOwner,
-      async (_parent: any, args: any, { me, models }: { me: UserInstance, models: Models }) => {
+      async (_parent: any, args: any, { me, models, loaders }: { me: UserInstance, models: Models, loaders: Loaders }) => {
         const category = await models.Category.findByPk(args.id);
         if (!category) {
           throw new UserInputError('Category cannot be found');
         }
+        loaders.category.clear(category.id)
         category.set(args);
         return category.save();
       }

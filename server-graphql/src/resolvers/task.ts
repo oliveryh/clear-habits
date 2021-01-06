@@ -55,11 +55,12 @@ export default {
       isAuthenticated,
       isTaskOwner,
       isForeignProjectOwner,
-      async (_parent: any, args: TaskInstance, { models }: { me: UserInstance, models: Models }) => {
+      async (_parent: any, args: TaskInstance, { me, models, loaders }: { me: UserInstance, models: Models, loaders: Loaders }) => {
         const task = await models.Task.findByPk(args.id);
         if (!task) {
           throw new UserInputError('Task cannot be found');
         }
+        loaders.task.clear(task.id)
         task.set(args);
         return task.save();
       },

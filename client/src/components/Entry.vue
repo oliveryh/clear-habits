@@ -486,7 +486,6 @@ export default {
           },
         })
         .catch((error) => {
-          console.log(error)
           this.showErrors(error)
         })
       this.editorDialog = false

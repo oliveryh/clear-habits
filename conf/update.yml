@@ -32,7 +32,9 @@
         secret: '{{ secret }}'
 
     - name: npm.server.build
-      command: NODE_ENV=production npm run build
+      command: npm run build
+      environment:
+        NODE_ENV: production
       args:
         chdir: '{{ app_dir }}/repo/server-graphql'
 

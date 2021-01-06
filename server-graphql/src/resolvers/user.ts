@@ -33,7 +33,7 @@ export default {
         password,
       });
 
-      return { token: createToken(user, secret, '2h') };
+      return { token: createToken(user, secret, '7d') };
     },
     signIn: async (
         _parent: any,
@@ -51,7 +51,7 @@ export default {
         throw new AuthenticationError('Invalid password');
       }
 
-      return { token: createToken(user, secret, '2h') };
+      return { token: createToken(user, secret, '7d') };
     },
   },
 

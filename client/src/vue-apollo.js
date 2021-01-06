@@ -103,17 +103,6 @@ const resolvers = {
   },
 }
 
-cache.writeData({
-  data: {
-    settings: {
-      __typename: 'Settings',
-      categorySelected: null,
-      dateZoomed: null,
-      projectSelected: null,
-    },
-  },
-})
-
 const { apolloClient, wsClient } = createApolloClient({
   ...defaultOptions,
   cache,
@@ -123,9 +112,27 @@ const { apolloClient, wsClient } = createApolloClient({
 
 apolloClient.wsClient = wsClient
 
+const defaultData = {
+  settings: {
+    __typename: 'Settings',
+    categorySelected: null,
+    dateZoomed: null,
+    projectSelected: null,
+  },
+}
+
+// Set initial state
+cache.writeData({ data: defaultData })
+
+// Ensure that state is set onLogin as this resets after writeData occurs
+apolloClient.onResetStore(() => {
+  cache.writeData({ data: defaultData })
+})
+
 // Call this in the Vue app file
 export function createProvider() {
   // Create vue apollo provider
+
   const apolloProvider = new VueApollo({
     defaultClient: apolloClient,
     defaultOptions: {
@@ -148,7 +155,6 @@ export function createProvider() {
 
 // Manually call this when user log in
 export async function onLogin(apolloClient, token) {
-  console.log('onLogin Running')
   if (typeof localStorage !== 'undefined' && token) {
     JwtService.saveToken(token)
   }

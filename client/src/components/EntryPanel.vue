@@ -1,32 +1,36 @@
 <template>
   <div>
     <div class="row">
-      <div class="col-6 col-md-3 q-pa-md">
+      <div class="col-6 col-md-3" style="padding: 10px 10px 5px 10px">
         <ch-day-selector
           v-if="settings.dateZoomed"
           v-model="settings.dateZoomed"
         ></ch-day-selector>
         <ch-week-selector v-else v-model="startDate"></ch-week-selector>
       </div>
-      <div class="col-6 col-md-3 q-pa-md">
-        <q-toggle v-model="hideCompleted" label="Hide Completed"></q-toggle>
+      <div class="col-6 col-md-3" style="padding: 10px 10px 5px 10px">
+        <q-toggle icon="mdi-check" v-model="showCompleted"
+          ><div class="text-caption font-m-bold">SHOW COMPLETE</div></q-toggle
+        >
       </div>
 
-      <div class="col-6 col-md-3 q-pa-md">
+      <div class="col-6 col-md-3" style="padding: 10px 10px 5px 10px">
         <q-form ref="form" @submit.prevent>
           <ch-project-picker
             v-model="categorySelected"
             :projects="categories"
             label="Category"
+            :showAvatar="true"
           ></ch-project-picker>
         </q-form>
       </div>
-      <div class="col-6 col-md-3 q-pa-md">
+      <div class="col-6 col-md-3" style="padding: 10px 10px 5px 10px">
         <q-form ref="form" @submit.prevent>
           <ch-project-picker
             v-model="settings.projectSelected"
             :projects="filteredProjects"
             label="Project"
+            :showAvatar="false"
           ></ch-project-picker>
         </q-form>
       </div>
@@ -80,7 +84,7 @@ export default {
   },
   data: () => ({
     startDate: null,
-    hideCompleted: true,
+    showCompleted: false,
     options: null,
     categorySelected: null,
   }),
@@ -104,7 +108,7 @@ export default {
   computed: {
     filteredEntries() {
       var entries_filtered = this.entries || []
-      if (this.hideCompleted) {
+      if (!this.showCompleted) {
         entries_filtered = entries_filtered.filter(
           (entry) => entry.complete == false,
         )

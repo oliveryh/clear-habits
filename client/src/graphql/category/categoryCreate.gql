@@ -3,5 +3,9 @@ mutation($description: String!, $color: String) {
     id
     description
     color
+    projects {
+      id
+      description
+    }
   }
 }

@@ -79,5 +79,10 @@ export default {
     user: async (category: CategoryInstance, _args: any, { loaders }: { loaders: Loaders }) => {
       return await loaders.user.load(category.userId);
     },
+    projects: async (category: CategoryInstance, _args: any, { loaders, models }: { loaders: Loaders, models: Models }) => {
+      const projects = await models.Project.findAll({ where: { categoryId: category.id }})
+      console.log(projects)
+      return projects
+    },
   },
 };

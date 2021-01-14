@@ -2,15 +2,66 @@
   <div class="q-pa-sm">
     <div class="row">
       <div class="col">
-        <h5 class="text-weight-light q-my-none float-left">
-          {{ date == 'backlog' ? 'Backlog' : date }}
-        </h5>
+        <div v-if="date == 'backlog'" class="float-left">
+          <h6 class="font-m-medium" style="margin: auto">BACKLOG</h6>
+          <q-icon
+            size="4rem"
+            name="mdi-archive-outline"
+            class="float-left"
+            style="border-bottom: 3px solid #027be3; border-radius: 1.5px"
+          />
+        </div>
+        <div v-else-if="isToday(date)" class="float-left">
+          <h6 class="font-m-medium" style="margin: auto">
+            {{ dateToString(date) }}
+          </h6>
+          <h2
+            style="
+              color: white;
+              background-color: #027be3;
+              border-radius: 10px;
+              padding: 2px 5px 2px;
+              display: inline-block;
+            "
+            class="font-m-medium q-my-none float-left"
+          >
+            {{ date | getDate }}
+          </h2>
+        </div>
+        <div v-else class="float-left">
+          <h6 class="font-m-medium" style="margin: auto">
+            {{ dateToString(date) }}
+          </h6>
+          <h2
+            style="border-bottom: 3px solid #027be3; border-radius: 1.5px"
+            class="font-m-medium q-my-none float-left"
+          >
+            {{ date | getDate }}
+          </h2>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col col-12" :class="settings.dateZoomed ? 'col-lg-12' : ''">
+        <q-btn
+          flat
+          dense
+          rounded
+          color="grey"
+          label="Add Task"
+          align="between"
+          class="float-left font-m-bold q-pr-sm"
+          icon="mdi-plus"
+          @click="addTask"
+          @keypress.prevent
+        />
         <q-btn
           @click="zoomOut()"
           v-if="settings.dateZoomed"
           round
           dense
           flat
+          color="primary"
           icon="mdi-magnify-minus-outline"
           class="float-right"
           size="md"
@@ -21,50 +72,61 @@
           round
           dense
           flat
+          color="primary"
           icon="mdi-magnify-plus-outline"
           class="float-right"
           size="md"
         ></q-btn>
       </div>
     </div>
-    <div class="row">
-      <div class="col">
-        <h5 class="text-weight-light q-my-none">{{ timeSummary }}</h5>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col col-12" :class="settings.dateZoomed ? 'col-lg-8' : ''">
-        <q-input
-          class="q-pa-sm"
-          outlined
-          v-model="newEntry.description"
-          label="New Entry"
-          @keydown.enter="entryCreate"
-        ></q-input>
-      </div>
-      <div class="col col-12" :class="settings.dateZoomed ? 'col-lg-4' : ''">
-        <q-input
-          class="q-pa-sm"
-          outlined
-          v-model="newEntryEstimatedTime"
-          mask="time"
-          :rules="['time']"
-          @keydown.enter="entryCreate"
-        >
-          <template v-slot:append>
-            <q-icon name="access_time" class="cursor-pointer">
-              <q-popup-proxy transition-show="scale" transition-hide="scale">
-                <q-time v-model="newEntryEstimatedTime" format24h>
-                  <div class="row items-center justify-end">
-                    <q-btn v-close-popup label="Close" color="primary" flat />
-                  </div>
-                </q-time>
-              </q-popup-proxy>
-            </q-icon>
-          </template>
-        </q-input>
-      </div>
-    </div>
+    <q-dialog v-model="editorDialog">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Add Task</div>
+          <q-form ref="taskForm" class="q-gutter-md" @submit.prevent>
+            <q-input
+              class="q-pa-sm"
+              outlined
+              v-model="newEntry.description"
+              label="New Entry"
+              @keydown.enter="entryCreate"
+            ></q-input>
+            <q-input
+              class="q-pa-sm"
+              outlined
+              v-model="newEntryEstimatedTime"
+              mask="time"
+              :rules="['time']"
+              @keydown.enter="entryCreate"
+            >
+              <template v-slot:append>
+                <q-icon name="access_time" class="cursor-pointer">
+                  <q-popup-proxy
+                    transition-show="scale"
+                    transition-hide="scale"
+                  >
+                    <q-time v-model="newEntryEstimatedTime" format24h>
+                      <div class="row items-center justify-end">
+                        <q-btn
+                          v-close-popup
+                          label="Close"
+                          color="primary"
+                          flat
+                        />
+                      </div>
+                    </q-time>
+                  </q-popup-proxy>
+                </q-icon>
+              </template>
+            </q-input>
+          </q-form>
+        </q-card-section>
+        <q-card-actions align="right" class="text-primary">
+          <q-btn flat label="Cancel" @click="editorDialog = false" />
+          <q-btn flat label="Add" @click="entryCreate()" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
     <draggable
       :emptyInsertThreshold="75"
       v-model="filteredEntries"
@@ -95,6 +157,7 @@ export default {
       timerEstimatedTime: null,
     },
     settings: null,
+    editorDialog: false,
   }),
   props: {
     date: {
@@ -192,6 +255,7 @@ export default {
   methods: {
     // TODO: Validate form before entryCreate runs
     entryCreate() {
+      this.editorDialog = false
       var entry = {
         description: this.newEntry.description,
         date: this.date,
@@ -230,6 +294,27 @@ export default {
     },
     zoomIn() {
       this.settings.dateZoomed = this.date
+    },
+    isToday(date) {
+      const today = new Date().toISOString().substring(0, 10)
+      return date == today
+    },
+    dateToString(date) {
+      const dayIndex = new Date(date).getDay()
+      return (
+        [
+          'SUNDAY',
+          'MONDAY',
+          'TUESDAY',
+          'WEDNESDAY',
+          'THURSDAY',
+          'FRIDAY',
+          'SATURDAY',
+        ][dayIndex] || ''
+      )
+    },
+    addTask() {
+      this.editorDialog = true
     },
   },
 }

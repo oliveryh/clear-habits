@@ -1,23 +1,38 @@
 <template>
   <div>
-    <q-card flat bordered>
+    <q-card style="border-radius: 15px">
       <q-card-section style="padding: 10px; padding-bottom: 0px">
         <div v-if="entry.task.project" class="text-headline text-left">
-          <q-icon
-            name="mdi-checkbox-blank-circle"
-            :style="'color: ' + entry.task.project.category.color"
-          />
-          {{ entry.task.project.description }}
+          <div
+            :style="
+              'background-color: ' +
+              entry.task.project.category.color +
+              '; color: ' +
+              highContrastColor
+            "
+            style="
+              border-radius: 5px;
+              padding: 2px 5px 2px;
+              margin-bottom: 4px;
+              display: inline-block;
+            "
+            class="font-m-bold"
+          >
+            {{ entry.task.project.description | allCapitals }}
+          </div>
         </div>
         <div v-else class="text-headline text-left">NONE</div>
-        <div class="text-subtitle-2 text-weight-medium text-left">
+        <div class="text-subtitle-2 text-weight-medium text-left font-m-medium">
           {{ entry.task.description }}
         </div>
       </q-card-section>
-      <q-card-actions align="left">
+      <q-card-actions align="left" style="margin: 2px">
         <q-btn
-          color="red"
-          outline
+          color="red-12"
+          push
+          dense
+          class="font-m-medium"
+          style="border-radius: 10px; border: 4px"
           v-if="entry.timerActive"
           @click="entryTimerStop(entry)"
           icon="mdi-stop"
@@ -25,8 +40,11 @@
           <div v-html="timerLabel"></div
         ></q-btn>
         <q-btn
-          :color="timerTrackedTime > 0 ? 'orange' : 'green'"
+          :color="timerTrackedTime > 0 ? 'orange' : 'green-14'"
           outline
+          dense
+          class="font-m-medium"
+          style="background: #ff0080; border-radius: 10px; border: 4px"
           v-else
           @click="entryTimerStart(entry)"
           icon="mdi-play"
@@ -64,13 +82,17 @@
             icon="mdi-pencil"
           ></q-btn>
         </q-btn-group>
+        <q-linear-progress
+          style="margin: 5px 0px 0px"
+          size="7px"
+          :value="progress"
+          rounded
+          :color="
+            entry.timerEstimatedTime < timerTrackedTime ? 'red' : 'primary'
+          "
+          track-color="grey"
+        />
       </q-card-actions>
-      <q-linear-progress
-        :value="progress"
-        rounded
-        :color="entry.timerEstimatedTime < timerTrackedTime ? 'red' : 'primary'"
-        track-color="grey"
-      />
     </q-card>
     <q-dialog v-if="editedEntry != null" v-model="editorDialog">
       <q-card>
@@ -81,6 +103,7 @@
               v-model="editedEntry.task.project"
               :projects="projects"
               label="Project"
+              :showAvatar="false"
             ></ch-project-picker>
             <q-input
               v-model="editedEntry.task.description"
@@ -292,6 +315,10 @@ export default {
       set(val) {
         this.editedEntry.timerTrackedTime = this.timestampToMinutes(val)
       },
+    },
+    highContrastColor() {
+      const rgbObj = this.hexToRgb(this.entry.task.project.category.color)
+      return this.highContrastText(rgbObj)
     },
     editedEstimatedTime: {
       get() {
@@ -521,3 +548,9 @@ export default {
   },
 }
 </script>
+
+<style>
+.q-btn--outline .q-btn__wrapper::before {
+  border: 2.5px solid;
+}
+</style>

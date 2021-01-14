@@ -5,8 +5,32 @@
         <q-toolbar-title>
           <q-icon name="mdi-sticker-check-outline"></q-icon>&nbsp;Clear Habits
         </q-toolbar-title>
-        {{ username }}
-        <q-btn v-if="username" flat round icon="mdi-account">
+        <q-btn-group class="q-pr-sm" outline rounded>
+          <q-btn
+            padding="sm"
+            outline
+            icon="mdi-home"
+            to="/"
+            exact
+            class="q-pl-sm"
+          />
+          <q-btn padding="sm" outline icon="mdi-chart-bar" to="/stats" exact />
+          <q-btn
+            padding="sm"
+            outline
+            icon="mdi-cog"
+            to="/settings"
+            exact
+            class="q-pr-sm"
+          />
+        </q-btn-group>
+        <q-btn
+          v-if="username"
+          outline
+          :label="username"
+          rounded
+          icon="mdi-account"
+        >
           <q-menu>
             <q-list style="min-width: 100px">
               <q-item clickable v-close-popup>
@@ -17,14 +41,7 @@
         </q-btn>
       </q-toolbar>
     </q-header>
-
     <q-page-container>
-      <q-tabs>
-        <q-route-tab icon="mdi-home" to="/" exact />
-        <q-route-tab icon="mdi-chart-bar" to="/stats" exact />
-        <q-route-tab icon="mdi-cog" to="/settings" exact />
-      </q-tabs>
-
       <router-view />
     </q-page-container>
   </q-layout>

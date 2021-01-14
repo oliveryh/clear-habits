@@ -3,5 +3,9 @@ query {
     id
     description
     color
+    projects {
+      id
+      description
+    }
   }
 }

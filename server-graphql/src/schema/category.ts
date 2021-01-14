@@ -17,5 +17,6 @@ export default gql`
     description: String!
     user: User!
     color: String
+    projects: [Project!]!
   }
 `;

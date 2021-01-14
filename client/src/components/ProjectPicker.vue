@@ -1,7 +1,6 @@
 <template>
   <div>
     <q-select
-      outlined
       v-model="project"
       use-input
       hide-selected
@@ -13,9 +12,28 @@
       option-value="_id"
       :options="options"
       @filter="filterFn"
+      class="font-m-medium underlined"
       @popup-hide="blurSelector"
       ref="selector"
+      dense
     >
+      <template v-slot:option="scope">
+        <q-item v-bind="scope.itemProps" v-on="scope.itemEvents">
+          <q-item-section v-if="showAvatar" avatar>
+            <q-avatar
+              size="sm"
+              :style="'background-color:' + scope.opt.color"
+              text-color="white"
+              class="q-pr-xs shadow-1"
+            />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="font-m-medium">{{
+              scope.opt.description
+            }}</q-item-label>
+          </q-item-section>
+        </q-item>
+      </template>
       <template v-slot:no-option>
         <q-item>
           <q-item-section class="text-grey">No results</q-item-section>
@@ -36,6 +54,9 @@ export default {
     },
     label: {
       type: String,
+    },
+    showAvatar: {
+      type: Boolean,
     },
   },
   computed: {
@@ -66,3 +87,8 @@ export default {
   },
 }
 </script>
+<style>
+.underlined .q-field__inner .q-field__control {
+  border-bottom: 3px solid #027be3;
+}
+</style>

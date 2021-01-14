@@ -1,61 +1,14 @@
 <template>
   <div>
     <div class="row">
-      <div class="col-6 q-pa-md">
-        <div class="row">
-          <h5 class="text-weight-light q-my-none q-pb-md">Categories</h5>
-        </div>
-        <div class="row">
-          <div
-            v-for="category in categories"
-            :key="category.id"
-            class="col col-12"
-          >
-            <Category
-              :key="category.id"
-              :category="category"
-              :selected="categorySelected == category.id"
-            />
-          </div>
-          <div class="col col-12">
-            <q-input
-              filled
-              v-model="newCategory"
-              label="Add Category"
-              @keydown.enter="categoryCreate"
-            ></q-input>
-          </div>
-        </div>
-      </div>
-      <div class="col-6 q-pa-md">
-        <div class="row">
-          <h5 class="text-weight-light q-my-none q-pb-md">Projects</h5>
-        </div>
-        <div class="row">
-          <div
-            v-for="project in selectedProjects"
-            :key="project.id"
-            class="col col-12"
-          >
-            <Project :key="project.id" :project="project" />
-          </div>
-          <div class="col col-12">
-            <q-input
-              filled
-              v-model="newProject"
-              label="Add Project"
-              @keydown.enter="projectCreate"
-            ></q-input>
-          </div>
-        </div>
+      <div class="col">
+        <ch-settings-panel class="q-px-md q-pt-lg" :categories="categories" />
       </div>
     </div>
   </div>
 </template>
 <script>
-import Category from '@/components/Category.vue'
-import Project from '@/components/Project.vue'
-import { M_CATEGORY_CREATE, M_PROJECT_CREATE } from '@/graphql/mutations'
+import SettingsPanel from '@/components/SettingsPanel.vue'
 import { Q_PROJECT, Q_CATEGORY, Q_SETTINGS } from '@/graphql/queries'
 
 export default {
@@ -84,8 +37,7 @@ export default {
     },
   },
   components: {
-    Category,
-    Project,
+    ChSettingsPanel: SettingsPanel,
   },
   computed: {
     selectedProjects() {
@@ -116,56 +68,6 @@ export default {
           type: 'negative',
         }),
       )
-    },
-    categoryCreate() {
-      var category = {
-        description: this.newCategory,
-        color: '#111',
-      }
-      this.$apollo
-        .mutate({
-          mutation: M_CATEGORY_CREATE,
-          variables: category,
-          update: (store, { data: { categoryCreate } }) => {
-            const data = store.readQuery({
-              query: Q_CATEGORY,
-            })
-            data.categories.push(categoryCreate)
-            store.writeQuery({
-              query: Q_CATEGORY,
-              data,
-            })
-          },
-        })
-        .catch((error) => {
-          this.showErrors(error)
-        })
-      this.newCategory = null
-    },
-    projectCreate() {
-      var project = {
-        categoryId: this.categorySelected,
-        description: this.newProject,
-      }
-      this.$apollo
-        .mutate({
-          mutation: M_PROJECT_CREATE,
-          variables: project,
-          update: (store, { data: { projectCreate } }) => {
-            const data = store.readQuery({
-              query: Q_PROJECT,
-            })
-            data.projects.push(projectCreate)
-            store.writeQuery({
-              query: Q_PROJECT,
-              data,
-            })
-          },
-        })
-        .catch((error) => {
-          this.showErrors(error)
-        })
-      this.newProject = null
     },
   },
 }

@@ -1,20 +1,11 @@
 <template>
   <div>
-    <q-card class="my-card">
-      <q-card-section>
-        <div class="row">
-          <div class="text-h6">{{ project.description }}</div>
-          <q-space />
-          <q-btn
-            flat
-            style="display: inline"
-            color="grey"
-            @click="editorOpen()"
-            icon="mdi-pencil"
-          ></q-btn>
-        </div>
-      </q-card-section>
-    </q-card>
+    <q-item>
+      <q-item-section>{{ project.description }}</q-item-section>
+      <q-item-section side>
+        <q-btn round flat color="grey" icon="mdi-pencil" @click="editorOpen" />
+      </q-item-section>
+    </q-item>
     <q-dialog v-if="editedProject != null" v-model="editorDialog">
       <q-card>
         <q-card-section>

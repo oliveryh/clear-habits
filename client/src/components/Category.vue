@@ -1,30 +1,71 @@
 <template>
   <div>
-    <q-card v-bind:class="{ selected: this.selected }" class="my-card">
-      <q-card-section>
-        <div class="row">
-          <div class="q-pr-md" :style="'color: ' + category.color">
-            <q-icon name="mdi-checkbox-blank-circle" />
-          </div>
-          <div class="text-h6">{{ category.description }}</div>
-          <q-space />
-          <q-btn
-            flat
-            style="display: inline"
-            color="grey"
-            @click="editorOpen()"
-            icon="mdi-pencil"
-          ></q-btn>
-          <q-btn
-            flat
-            style="display: inline"
-            color="grey"
-            @click="selectCategory()"
-            icon="mdi-arrow-right"
-          ></q-btn>
-        </div>
-      </q-card-section>
-    </q-card>
+    <q-expansion-item
+      switch-toggle-side
+      expand-icon-toggle
+      expand-separator
+      popup
+      class="has-border font-m-medium"
+    >
+      <template v-slot:header>
+        <q-item-section avatar>
+          <q-avatar
+            size="sm"
+            :style="'background-color:' + category.color"
+            text-color="white"
+            class="q-pr-xs shadow-1"
+          />
+        </q-item-section>
+        <q-item-section>{{ category.description }}</q-item-section>
+        <q-item-section avatar>
+          <q-avatar color="grey" size="sm" text-color="white">{{
+            category.projects.length
+          }}</q-avatar>
+        </q-item-section>
+        <q-item-section avatar class="q-pl-md"
+          ><q-btn round flat color="grey" icon="mdi-pencil" @click="editorOpen"
+        /></q-item-section>
+      </template>
+      <q-list bordered separator>
+        <Project
+          v-for="project in category.projects"
+          :key="project.id"
+          :project="project"
+        />
+        <q-item>
+          <q-item-section avatar>
+            <q-btn
+              flat
+              rounded
+              color="grey"
+              icon="mdi-plus"
+              class="font-m-bold"
+              label="Add Project"
+              @click="addProjectDialog = true"
+          /></q-item-section>
+        </q-item>
+        <q-dialog v-model="addProjectDialog">
+          <q-card>
+            <q-card-section>
+              <div class="text-h6">Add Project</div>
+              <q-form ref="taskForm" class="q-gutter-md" @submit.prevent>
+                <q-input
+                  class="q-pa-sm"
+                  outlined
+                  v-model="newProjectDescription"
+                  label="New Project"
+                  @keydown.enter="projectCreate"
+                ></q-input>
+              </q-form>
+            </q-card-section>
+            <q-card-actions align="right" class="text-primary">
+              <q-btn flat label="Cancel" @click="addProjectDialog = false" />
+              <q-btn flat label="Add" @click="projectCreate" />
+            </q-card-actions>
+          </q-card>
+        </q-dialog>
+      </q-list>
+    </q-expansion-item>
     <q-dialog v-if="editedCategory != null" v-model="editorDialog">
       <q-card>
         <q-card-section>
@@ -86,12 +127,15 @@
 </template>
 
 <script>
+import Project from '@/components/Project.vue'
 import {
   M_CATEGORY_UPDATE,
   M_CATEGORY_DELETE,
   M_SETTINGS_UPDATE,
+  M_PROJECT_CREATE,
 } from '@/graphql/mutations'
-import { Q_CATEGORY } from '@/graphql/queries'
+
+import { Q_CATEGORY, Q_PROJECT } from '@/graphql/queries'
 
 export default {
   name: 'Category',
@@ -103,11 +147,16 @@ export default {
       type: Boolean,
     },
   },
+  components: {
+    Project,
+  },
   data: () => ({
     categoryRules: [(v) => !!v || 'Description required'],
     editorDialog: false,
     editedCategory: null,
     deleteDialog: false,
+    addProjectDialog: false,
+    newProjectDescription: null,
   }),
   methods: {
     // category
@@ -151,6 +200,45 @@ export default {
         },
       })
     },
+    projectCreate() {
+      this.addProjectDialog = false
+      const newProject = {
+        categoryId: this.category.id,
+        description: this.newProjectDescription,
+      }
+      this.$apollo
+        .mutate({
+          mutation: M_PROJECT_CREATE,
+          variables: newProject,
+          update: (store, { data: { projectCreate } }) => {
+            var data = store.readQuery({
+              query: Q_PROJECT,
+            })
+            data.projects.push(projectCreate)
+            store.writeQuery({
+              query: Q_PROJECT,
+              data,
+            })
+            // update project nested inside categories
+            data = store.readQuery({
+              query: Q_CATEGORY,
+            })
+            data.categories.forEach((category) => {
+              if (category.id == projectCreate.category.id) {
+                category.projects.push(projectCreate)
+              }
+            })
+            store.writeQuery({
+              query: Q_CATEGORY,
+              data,
+            })
+          },
+        })
+        .catch((error) => {
+          this.showErrors(error)
+        })
+      this.newProjectDescription = null
+    },
     // editor
     editorOpen() {
       this.editedCategory = Object.assign({}, this.category)
@@ -175,7 +263,7 @@ export default {
   },
 }
 </script>
-<style scoped>
+<style>
 .selected {
   background: #bbb;
 }

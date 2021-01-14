@@ -1,33 +1,57 @@
 <template>
   <div>
     <div class="row">
-      <div class="col-12 col-md-3 q-pa-md">
+      <div
+        class="col-6 col-sm-4 col-lg-2 q-pa-md"
+        style="padding: 10px 10px 5px 10px"
+      >
         <ch-week-selector v-model="startDate"></ch-week-selector>
       </div>
-      <div class="col-6 col-md-2 q-pa-md">
+      <div
+        class="col-6 col-sm-4 col-lg-2 q-pa-md"
+        style="padding: 10px 10px 5px 10px"
+      >
         <q-btn-toggle
+          rounded
+          spread
           v-model="period"
           toggle-color="primary"
+          color="white"
+          unelevated
+          text-color="primary"
+          class="font-m-bold"
+          style="border: 2px solid #027be3"
           :options="[
             { label: 'Daily', value: 'daily' },
             { label: 'Weekly', value: 'weekly' },
           ]"
         />
       </div>
-      <div class="col-6 col-md-1 q-pa-md">
+      <div
+        class="col-4 col-sm-4 col-lg-2 q-pa-md"
+        style="padding: 10px 10px 5px 10px"
+      >
         <q-btn
-          color="primary"
+          rounded
+          color="white"
+          unelevated
+          text-color="primary"
           icon="refresh"
           label="Refresh"
+          class="font-m-bold"
           @click="refreshStats"
         />
       </div>
-      <div class="col-12 col-md-6 q-pa-md">
+      <div
+        class="col-8 col-sm-12 col-lg-6 q-pa-md"
+        style="padding: 10px 10px 5px 10px"
+      >
         <q-form ref="form" @submit.prevent>
           <ch-project-picker
             v-model="categorySelected"
             :projects="categories"
             label="Category"
+            :showAvatar="true"
           ></ch-project-picker>
         </q-form>
       </div>
@@ -244,5 +268,8 @@ export default {
 .echarts {
   width: 100%;
   height: 400px;
+}
+.q-btn {
+  border: 2.5px solid;
 }
 </style>

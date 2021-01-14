@@ -1,8 +1,19 @@
 <template>
   <div>
-    <q-btn-group>
-      <q-btn icon="mdi-calendar">
-        <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
+    <q-btn-group rounded outline>
+      <q-btn
+        color="primary"
+        rounded
+        outline
+        class="q-pl-sm"
+        padding="sm"
+        icon="mdi-calendar"
+      >
+        <q-popup-proxy
+          ref="qDateProxy"
+          transition-show="scale"
+          transition-hide="scale"
+        >
           <q-date
             v-model="calendarDate"
             first-day-of-week="1"
@@ -11,9 +22,33 @@
           />
         </q-popup-proxy>
       </q-btn>
-      <q-btn icon="mdi-arrow-left" @click="deltaWeek(-1)" />
-      <q-btn label="Today" @click="today()" />
-      <q-btn icon="mdi-arrow-right" @click="deltaWeek(1)" />
+      <q-btn
+        color="primary"
+        rounded
+        outline
+        padding="sm"
+        icon="mdi-arrow-left"
+        @click="deltaWeek(-1)"
+      />
+      <q-btn
+        color="primary"
+        rounded
+        outline
+        padding="sm"
+        class="font-m-bold"
+        label="Now"
+        @click="today()"
+      />
+      <q-btn
+        color="primary"
+        dense
+        rounded
+        outline
+        padding="sm"
+        class="q-pr-sm"
+        icon="mdi-arrow-right"
+        @click="deltaWeek(1)"
+      />
     </q-btn-group>
   </div>
 </template>

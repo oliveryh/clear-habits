@@ -74,5 +74,9 @@ export default {
     project: async (task: TaskInstance, _args: any, { loaders }: { loaders: Loaders }) => {
       return await loaders.project.load(task.projectId);
     },
+    entries: async (task: TaskInstance, _args: any, { loaders, models }: { loaders: Loaders, models: Models }) => {
+      const entries = await models.Entry.findAll({ where: { taskId: task.id }})
+      return entries
+    },
   },
 };

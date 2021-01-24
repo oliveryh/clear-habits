@@ -11,13 +11,14 @@ export default gql`
   }
 
   extend type Mutation {
-    entryCreate(taskId: ID!, date: String, timerEstimatedTime: Int): Entry!
+    entryCreate(taskId: ID!, date: String, timerEstimatedTime: Int, description: String): Entry!
     entryCreateWithTask(projectId: ID!, description: String!, date: String, timerEstimatedTime: Int): Entry!
-    entryUpdate(id: ID!, taskId: ID, complete: Boolean, date: String, timerTrackedTime: Int, timerEstimatedTime: Int): Entry
+    entryUpdate(id: ID!, taskId: ID, complete: Boolean, date: String, timerTrackedTime: Int, timerEstimatedTime: Int, description: String): Entry
     entryDelete(id: ID!): Boolean!
     entryStart(id: ID!): Entry
     entryStop(id: ID!): Entry
     entryComplete(id: ID!): Entry
+    entryRestart(id: ID!): Entry
     entryReorder(date: String!, entries: [EntryReorder!]!): [Entry!]!
   }
 
@@ -29,6 +30,7 @@ export default gql`
   type Entry {
     id: ID!
     order: Int!
+    description: String
     complete: Boolean!
     date: String!
     timerActive: Boolean!

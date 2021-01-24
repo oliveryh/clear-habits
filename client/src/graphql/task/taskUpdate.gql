@@ -1,7 +1,12 @@
 #import "../TaskFragment.gql"
 
-mutation($id: ID!, $projectId: ID, $description: String) {
-  taskUpdate(id: $id, projectId: $projectId, description: $description) {
+mutation($id: ID!, $projectId: ID, $description: String, $complete: Boolean) {
+  taskUpdate(
+    id: $id
+    projectId: $projectId
+    description: $description
+    complete: $complete
+  ) {
     ...Task
   }
 }

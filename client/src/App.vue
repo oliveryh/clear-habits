@@ -13,8 +13,19 @@
             to="/"
             exact
             class="q-pl-sm"
-          />
-          <q-btn padding="sm" outline icon="mdi-chart-bar" to="/stats" exact />
+            ><q-tooltip>Home</q-tooltip></q-btn
+          >
+          <q-btn
+            padding="sm"
+            outline
+            icon="mdi-book-variant"
+            to="/planner"
+            exact
+            ><q-tooltip>Planner</q-tooltip></q-btn
+          >
+          <q-btn padding="sm" outline icon="mdi-chart-bar" to="/stats" exact
+            ><q-tooltip>Stats</q-tooltip></q-btn
+          >
           <q-btn
             padding="sm"
             outline
@@ -22,7 +33,8 @@
             to="/settings"
             exact
             class="q-pr-sm"
-          />
+            ><q-tooltip>Settings</q-tooltip></q-btn
+          >
         </q-btn-group>
         <q-btn
           v-if="username"

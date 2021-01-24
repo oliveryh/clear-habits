@@ -42,7 +42,7 @@ describe('categories', () => {
             user: {
               username: 'oliver',
             },
-            color: '#FFF',
+            color: '#fff',
           },
         },
       }

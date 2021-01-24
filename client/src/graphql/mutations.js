@@ -9,6 +9,7 @@ import M_PROJECT_UPDATE from '@/graphql/project/projectUpdate.gql'
 import M_PROJECT_DELETE from '@/graphql/project/projectDelete.gql'
 
 // task
+import M_TASK_CREATE from '@/graphql/task/taskCreate.gql'
 import M_TASK_UPDATE from '@/graphql/task/taskUpdate.gql'
 
 // entry
@@ -16,6 +17,7 @@ import M_ENTRY_START from '@/graphql/entry/entryStart.gql'
 import M_ENTRY_STOP from '@/graphql/entry/entryStop.gql'
 import M_ENTRY_UPDATE from '@/graphql/entry/entryUpdate.gql'
 import M_ENTRY_COMPLETE from '@/graphql/entry/entryComplete.gql'
+import M_ENTRY_RESTART from '@/graphql/entry/entryRestart.gql'
 import M_ENTRY_DELETE from '@/graphql/entry/entryDelete.gql'
 import M_ENTRY_CREATE from '@/graphql/entry/entryCreate.gql'
 import M_ENTRY_CREATE_WITH_TASK from '@/graphql/entry/entryCreateWithTask.gql'
@@ -34,12 +36,14 @@ export {
   M_PROJECT_UPDATE,
   M_PROJECT_DELETE,
   // task
+  M_TASK_CREATE,
   M_TASK_UPDATE,
   // entry
   M_ENTRY_START,
   M_ENTRY_STOP,
   M_ENTRY_UPDATE,
   M_ENTRY_COMPLETE,
+  M_ENTRY_RESTART,
   M_ENTRY_DELETE,
   M_ENTRY_CREATE,
   M_ENTRY_CREATE_WITH_TASK,

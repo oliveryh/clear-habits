@@ -36,6 +36,13 @@ export const mixins = {
       var seconds = this.$options.filters.zeroPad(parseInt(tt % 60))
       return `${hours}:${minutes}:${seconds}`
     },
+    secondsToTimestampPadded(val) {
+      var tt = val
+      var hours = this.$options.filters.zeroPad(parseInt(tt / 3600))
+      var minutes = this.$options.filters.zeroPad(parseInt((tt % 3600) / 60))
+      var seconds = this.$options.filters.zeroPad(parseInt(tt % 60))
+      return `${hours}:${minutes}:${seconds}`
+    },
     timestampToSeconds(val) {
       var parts = val.split(':')
       var hours = parseInt(parts[0])

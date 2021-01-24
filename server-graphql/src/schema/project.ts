@@ -18,5 +18,6 @@ export default gql`
     user: User!
     category: Category!
     color: String
+    tasks: [Task!]!
   }
 `;

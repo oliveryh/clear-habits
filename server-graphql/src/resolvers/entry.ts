@@ -151,8 +151,39 @@ export default {
           entry.timerTrackedTime = entry.timerEstimatedTime
         }
 
-        // complete task
+        // complete entry
         entry.complete = true
+
+        // complete parent task if it only has 1 child
+        const parentTask = await models.Task.findByPk(entry.taskId, {include: [models.Entry]})
+        if (parentTask?.entries?.length == 1) {
+          parentTask.complete = true
+          parentTask.save()
+        }
+      
+        return entry.save()
+      }
+    ),
+
+    entryRestart: combineResolvers(
+      isAuthenticated,
+      isEntryOwner,
+      async (_parent: any, args: EntryInstance, { me, models, loaders }: { me: UserInstance, models: Models, loaders: Loaders }) => {
+        const entry = await models.Entry.findByPk(args.id);
+        if (!entry) {
+          throw new UserInputError('Entry cannot be found');
+        }
+        loaders.entry.clear(entry.id)
+        
+        // restart entry
+        entry.complete = false
+
+        // restart parent task
+        const parentTask = await models.Task.findByPk(entry.taskId)
+        if (parentTask) {
+          parentTask.complete = false
+          parentTask?.save()
+        }
       
         return entry.save()
       }

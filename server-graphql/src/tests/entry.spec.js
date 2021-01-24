@@ -2,6 +2,7 @@ import { expect, assert } from 'chai'
 
 import * as entryApi from './entryApi.js'
 import * as userApi from './userApi.js'
+import * as taskApi from './taskApi.js'
 
 const expectErrorMessage = (result, message) =>
   expect(result.data.errors[0].message).to.eql(message)
@@ -18,9 +19,10 @@ describe('entries', () => {
   let myEntryIdRunning = 5
   let myEntryIdNewlyCreated = 6
   let myEntryIdRunning2 = 7
-  let otherEntryId = 8
+  let myEntryIdCompleteParent = 8
+  let otherEntryId = 9
   let myTaskId = 1
-  let otherTaskId = 4
+  let otherTaskId = 5
   let myProjectId = 1
   let otherProjectId = 4
   before(async () => {
@@ -47,6 +49,7 @@ describe('entries', () => {
         data: {
           entry: {
             id: myEntryIdRetrieve.toString(),
+            description: 'User 1 Entry 1',
             complete: false,
             date: '2020-01-01',
             timerActive: false,
@@ -97,7 +100,7 @@ describe('entries', () => {
     // success
     it('successfully returns entries owned by authenticated user', async () => {
       const result = await entryApi.entries({ token })
-      expect(result.data.data.entries.length).to.eql(7)
+      expect(result.data.data.entries.length).to.eql(8)
     })
     // authentication
     it('throws error if unauthenticated', async () => {
@@ -113,6 +116,7 @@ describe('entries', () => {
           taskId: myTaskId,
           date: '2020-01-01',
           timerTrackedTime: 1000,
+          description: 'New Description',
         },
         token,
       })
@@ -121,6 +125,7 @@ describe('entries', () => {
         data: {
           entryCreate: {
             date: '2020-01-01',
+            description: 'New Description',
             complete: false,
             timerActive: false,
             timerTrackedTime: 0,
@@ -152,6 +157,7 @@ describe('entries', () => {
           entryCreate: {
             date: new Date().toISOString().substring(0, 10),
             complete: false,
+            description: null,
             timerActive: false,
             timerTrackedTime: 0,
             timerEstimatedTime: 0,
@@ -227,6 +233,7 @@ describe('entries', () => {
           entryCreateWithTask: {
             date: '2020-01-01',
             complete: false,
+            description: null,
             timerActive: false,
             timerTrackedTime: 0,
             timerEstimatedTime: 100,
@@ -258,6 +265,7 @@ describe('entries', () => {
           entryCreateWithTask: {
             date: new Date().toISOString().substring(0, 10),
             complete: false,
+            description: null,
             timerActive: false,
             timerTrackedTime: 0,
             timerEstimatedTime: 0,
@@ -390,6 +398,7 @@ describe('entries', () => {
           entryUpdate: {
             id: myEntryIdUpdate.toString(),
             complete: false,
+            description: 'User 1 Entry 2',
             date: '2019-01-01',
             timerActive: false,
             timerTrackedTime: 1000,
@@ -457,98 +466,199 @@ describe('entries', () => {
       })
       expectErrorMessage(result, 'Task cannot be found')
     })
-  }),
-    describe('entryComplete(id: ID!): Entry', () => {
-      // success
-      it('successfully saves tracked time to estimated on completion', async () => {
-        const result = await entryApi.entryComplete({
-          variables: {
-            id: myEntryIdEstimated,
-          },
-          token,
-        })
-        const expectedResult = {
-          data: {
-            entryComplete: {
-              id: myEntryIdEstimated.toString(),
-              complete: true,
-              date: '2019-01-01',
-              timerActive: false,
-              timerTrackedTime: 100,
-              timerEstimatedTime: 100,
-              timerStartedAt: null,
-              task: {
-                id: myTaskId.toString(),
-                description: 'User 1 Task 1',
-              },
+  })
+  describe('entryComplete(id: ID!): Entry', () => {
+    // success
+    it('successfully saves tracked time to estimated on completion', async () => {
+      const result = await entryApi.entryComplete({
+        variables: {
+          id: myEntryIdEstimated,
+        },
+        token,
+      })
+      const expectedResult = {
+        data: {
+          entryComplete: {
+            id: myEntryIdEstimated.toString(),
+            complete: true,
+            description: 'User 1 Entry 4',
+            date: '2019-01-01',
+            timerActive: false,
+            timerTrackedTime: 100,
+            timerEstimatedTime: 100,
+            timerStartedAt: null,
+            task: {
+              id: myTaskId.toString(),
+              description: 'User 1 Task 1',
             },
           },
-        }
+        },
+      }
 
-        expect(result.data).to.eql(expectedResult)
-      })
-      it('successfully updates tracked time from running entry', async () => {
-        const result = await entryApi.entryComplete({
-          variables: {
-            id: myEntryIdRunning,
-          },
-          token,
-        })
-        const expectedResult = {
-          data: {
-            entryComplete: {
-              id: myEntryIdRunning.toString(),
-              complete: true,
-              date: '2019-01-01',
-              timerActive: false,
-              timerEstimatedTime: 100,
-              timerStartedAt: null,
-              task: {
-                id: myTaskId.toString(),
-                description: 'User 1 Task 1',
-              },
-            },
-          },
-        }
-
-        expect(result.data.data.entryComplete.timerTrackedTime).to.be.at.least(
-          1200,
-        )
-        var actualResult = result.data
-        delete actualResult.data.entryComplete.timerTrackedTime
-        expect(actualResult).to.eql(expectedResult)
-      })
-      // authentication
-      it('throws error if unauthenticated', async () => {
-        const result = await entryApi.entryComplete({
-          variables: {
-            id: myEntryIdRetrieve,
-          },
-        })
-        expectErrorMessage(result, 'Not authenticated as user')
-      })
-      // authorisation
-      it("throws error if you don't own the entry", async () => {
-        const result = await entryApi.entryComplete({
-          variables: {
-            id: otherEntryId,
-          },
-          token,
-        })
-        expectErrorMessage(result, 'Not authorised to take this action')
-      })
-      // missing key
-      it("throws error if entry doesn't exist", async () => {
-        const result = await entryApi.entryComplete({
-          variables: {
-            id: '0',
-          },
-          token,
-        })
-        expectErrorMessage(result, 'Entry cannot be found')
-        expectErrorCode(result, 'BAD_USER_INPUT')
-      })
+      expect(result.data).to.eql(expectedResult)
     })
+    it('successfully completes parent task if only one entry in task', async () => {
+      const result = await entryApi.entryComplete({
+        variables: {
+          id: myEntryIdCompleteParent,
+        },
+        token,
+      })
+
+      const taskId = result.data.data.entryComplete.task.id
+
+      const parentTask = await taskApi.task({
+        variables: {
+          id: taskId,
+        },
+        token,
+      })
+
+      expect(parentTask.data.data.task.complete).to.eql(true)
+    })
+    it('successfully leaves parent task if multiple entries in task', async () => {
+      const result = await entryApi.entryComplete({
+        variables: {
+          id: myEntryIdEstimated,
+        },
+        token,
+      })
+
+      const taskId = result.data.data.entryComplete.task.id
+
+      const parentTask = await taskApi.task({
+        variables: {
+          id: taskId,
+        },
+        token,
+      })
+
+      expect(parentTask.data.data.task.complete).to.eql(false)
+    })
+    it('successfully updates tracked time from running entry', async () => {
+      const result = await entryApi.entryComplete({
+        variables: {
+          id: myEntryIdRunning,
+        },
+        token,
+      })
+      const expectedResult = {
+        data: {
+          entryComplete: {
+            id: myEntryIdRunning.toString(),
+            complete: true,
+            description: null,
+            date: '2019-01-01',
+            timerActive: false,
+            timerEstimatedTime: 100,
+            timerStartedAt: null,
+            task: {
+              id: myTaskId.toString(),
+              description: 'User 1 Task 1',
+            },
+          },
+        },
+      }
+
+      expect(result.data.data.entryComplete.timerTrackedTime).to.be.at.least(
+        1200,
+      )
+      var actualResult = result.data
+      delete actualResult.data.entryComplete.timerTrackedTime
+      expect(actualResult).to.eql(expectedResult)
+    })
+    // authentication
+    it('throws error if unauthenticated', async () => {
+      const result = await entryApi.entryComplete({
+        variables: {
+          id: myEntryIdRetrieve,
+        },
+      })
+      expectErrorMessage(result, 'Not authenticated as user')
+    })
+    // authorisation
+    it("throws error if you don't own the entry", async () => {
+      const result = await entryApi.entryComplete({
+        variables: {
+          id: otherEntryId,
+        },
+        token,
+      })
+      expectErrorMessage(result, 'Not authorised to take this action')
+    })
+    // missing key
+    it("throws error if entry doesn't exist", async () => {
+      const result = await entryApi.entryComplete({
+        variables: {
+          id: '0',
+        },
+        token,
+      })
+      expectErrorMessage(result, 'Entry cannot be found')
+      expectErrorCode(result, 'BAD_USER_INPUT')
+    })
+  })
+  describe('entryRestart(id: ID!): Entry', () => {
+    // success
+    it('successfully restarts entry', async () => {
+      const result = await entryApi.entryRestart({
+        variables: {
+          id: myEntryIdEstimated,
+        },
+        token,
+      })
+      const expectedResult = {
+        data: {
+          entryRestart: {
+            id: myEntryIdEstimated.toString(),
+            complete: false,
+            description: 'User 1 Entry 4',
+            date: '2019-01-01',
+            timerActive: false,
+            timerTrackedTime: 100,
+            timerEstimatedTime: 100,
+            timerStartedAt: null,
+            task: {
+              id: myTaskId.toString(),
+              description: 'User 1 Task 1',
+            },
+          },
+        },
+      }
+
+      expect(result.data).to.eql(expectedResult)
+    })
+    // authentication
+    it('throws error if unauthenticated', async () => {
+      const result = await entryApi.entryRestart({
+        variables: {
+          id: myEntryIdRetrieve,
+        },
+      })
+      expectErrorMessage(result, 'Not authenticated as user')
+    })
+    // authorisation
+    it("throws error if you don't own the entry", async () => {
+      const result = await entryApi.entryRestart({
+        variables: {
+          id: otherEntryId,
+        },
+        token,
+      })
+      expectErrorMessage(result, 'Not authorised to take this action')
+    })
+    // missing key
+    it("throws error if entry doesn't exist", async () => {
+      const result = await entryApi.entryRestart({
+        variables: {
+          id: '0',
+        },
+        token,
+      })
+      expectErrorMessage(result, 'Entry cannot be found')
+      expectErrorCode(result, 'BAD_USER_INPUT')
+    })
+  })
   describe('entryStart(id: ID!): Entry', () => {
     // success
     it('successfully start entry', async () => {
@@ -595,52 +705,52 @@ describe('entries', () => {
       expectErrorMessage(result, 'Entry cannot be found')
       expectErrorCode(result, 'BAD_USER_INPUT')
     })
-  }),
-    describe('entryStop(id: ID!): Entry', () => {
-      // success
-      it('successfully stop entry', async () => {
-        const result = await entryApi.entryStop({
-          variables: {
-            id: myEntryIdRunning2,
-          },
-          token,
-        })
+  })
+  describe('entryStop(id: ID!): Entry', () => {
+    // success
+    it('successfully stop entry', async () => {
+      const result = await entryApi.entryStop({
+        variables: {
+          id: myEntryIdRunning2,
+        },
+        token,
+      })
 
-        const actualData = result.data.data.entryStop
-        expect(actualData.complete).to.eql(false)
-        expect(actualData.timerActive).to.eql(false)
-        expect(actualData.timerTrackedTime).to.be.at.least(1200)
-        expect(actualData.timerStartedAt).to.eql(null)
-      })
-      // authentication
-      it('throws error if unauthenticated', async () => {
-        const result = await entryApi.entryStop({
-          variables: {
-            id: myEntryIdRetrieve,
-          },
-        })
-        expectErrorMessage(result, 'Not authenticated as user')
-      })
-      // authorisation
-      it("throws error if you don't own the entry", async () => {
-        const result = await entryApi.entryStop({
-          variables: {
-            id: otherEntryId,
-          },
-          token,
-        })
-        expectErrorMessage(result, 'Not authorised to take this action')
-      })
-      // missing key
-      it("throws error if entry doesn't exist", async () => {
-        const result = await entryApi.entryStop({
-          variables: {
-            id: '0',
-          },
-          token,
-        })
-        expectErrorMessage(result, 'Entry cannot be found')
-        expectErrorCode(result, 'BAD_USER_INPUT')
-      })
+      const actualData = result.data.data.entryStop
+      expect(actualData.complete).to.eql(false)
+      expect(actualData.timerActive).to.eql(false)
+      expect(actualData.timerTrackedTime).to.be.at.least(1200)
+      expect(actualData.timerStartedAt).to.eql(null)
     })
+    // authentication
+    it('throws error if unauthenticated', async () => {
+      const result = await entryApi.entryStop({
+        variables: {
+          id: myEntryIdRetrieve,
+        },
+      })
+      expectErrorMessage(result, 'Not authenticated as user')
+    })
+    // authorisation
+    it("throws error if you don't own the entry", async () => {
+      const result = await entryApi.entryStop({
+        variables: {
+          id: otherEntryId,
+        },
+        token,
+      })
+      expectErrorMessage(result, 'Not authorised to take this action')
+    })
+    // missing key
+    it("throws error if entry doesn't exist", async () => {
+      const result = await entryApi.entryStop({
+        variables: {
+          id: '0',
+        },
+        token,
+      })
+      expectErrorMessage(result, 'Entry cannot be found')
+      expectErrorCode(result, 'BAD_USER_INPUT')
+    })
+  })
 })

@@ -70,39 +70,39 @@ const createUsersWithTasks = async () => {
 
   const user1category1 = await models.Category.create({
     description: 'User 1 Category 1',
-    color: '#FFF',
+    color: '#fff',
     userId: user1.id,
   });
 
   const user1category2 = await models.Category.create({
     description: 'User 1 Category 2',
-    color: '#FFF',
+    color: '#fff',
     userId: user1.id,
   });
 
   const user1category3 = await models.Category.create({
     description: 'User 1 Category 3',
-    color: '#FFF',
+    color: '#fff',
     userId: user1.id,
   });
 
   const user1project1 = await models.Project.create({
     description: 'User 1 Project 1',
-    color: '#FFF',
+    color: '#fff',
     categoryId: user1category1.id as number,
     userId: user1.id,
   });
 
   const user1project2 = await models.Project.create({
     description: 'User 1 Project 2',
-    color: '#FFF',
+    color: '#fff',
     categoryId: user1category1.id as number,
     userId: user1.id,
   });
 
   const user1project3 = await models.Project.create({
     description: 'User 1 Project 3',
-    color: '#FFF',
+    color: '#fff',
     categoryId: user1category1.id as number,
     userId: user1.id,
   });
@@ -125,15 +125,23 @@ const createUsersWithTasks = async () => {
     description: 'User 1 Task 3',
   });
 
+  const user1task4 = await models.Task.create({
+    projectId: user1project1.id,
+    userId: user1.id,
+    description: 'User 1 Task 4',
+  });
+
   const user1entry1 = await models.Entry.create({
     userId: user1.id,
     taskId: user1task1.id,
+    description: 'User 1 Entry 1',
     date: '2020-01-01',
   })
 
   const user1entry2 = await models.Entry.create({
     userId: user1.id,
     taskId: user1task1.id,
+    description: 'User 1 Entry 2',
   })
 
   const user1entry3 = await models.Entry.create({
@@ -144,6 +152,7 @@ const createUsersWithTasks = async () => {
   const user1entry4 = await models.Entry.create({
     userId: user1.id,
     taskId: user1task1.id,
+    description: 'User 1 Entry 4',
     date: '2019-01-01',
     timerActive: false,
     timerEstimatedTime: 100,
@@ -176,6 +185,12 @@ const createUsersWithTasks = async () => {
     timerStartedAt: dateTwentyMinutesAgo
   })
 
+  const user1entry8 = await models.Entry.create({
+    userId: user1.id,
+    taskId: user1task4.id,
+    date: '2019-01-01',
+  })
+
   const user2 = await models.User.create({
     username: 'john',
     email: 'hello@john.com',
@@ -184,13 +199,13 @@ const createUsersWithTasks = async () => {
 
   const user2category1 = await models.Category.create({
     description: 'User 2 Category 3',
-    color: '#FFF',
+    color: '#fff',
     userId: user2.id,
   });
 
   const user2project1 = await models.Project.create({
     description: 'User 2 Project 1',
-    color: '#FFF',
+    color: '#fff',
     userId: user2.id,
     categoryId: user2category1.id as number,
   });

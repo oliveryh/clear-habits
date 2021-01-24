@@ -3,6 +3,7 @@
 mutation(
   $id: ID!
   $taskId: ID
+  $description: String
   $complete: Boolean
   $date: String
   $timerTrackedTime: Int
@@ -11,6 +12,7 @@ mutation(
   entryUpdate(
     id: $id
     taskId: $taskId
+    description: $description
     complete: $complete
     date: $date
     timerTrackedTime: $timerTrackedTime

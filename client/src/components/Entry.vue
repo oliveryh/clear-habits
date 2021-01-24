@@ -25,6 +25,12 @@
         <div class="text-subtitle-2 text-weight-medium text-left font-m-medium">
           {{ entry.task.description }}
         </div>
+        <div
+          v-if="entry.description"
+          class="text-subtitle-2 text-weight-medium text-left font-m-light"
+        >
+          {{ entry.description }}
+        </div>
       </q-card-section>
       <q-card-actions align="left" style="margin: 2px">
         <q-btn
@@ -59,7 +65,7 @@
             color="orange"
             @click="
               entry.complete = false
-              entryUpdate(entry)
+              entryRestart(entry)
             "
             icon="mdi-undo-variant"
           ></q-btn>
@@ -125,6 +131,11 @@
 
           <div class="text-h6">Edit Entry</div>
           <q-form ref="entryForm" class="q-gutter-md" @submit.prevent>
+            <q-input
+              v-model="editedEntry.description"
+              outlined
+              label="Description"
+            ></q-input>
             <q-input
               v-model="editedEntry.date"
               mask="####-##-##"
@@ -265,6 +276,7 @@ import {
   M_ENTRY_STOP,
   M_ENTRY_UPDATE,
   M_ENTRY_COMPLETE,
+  M_ENTRY_RESTART,
   M_ENTRY_DELETE,
   M_ENTRY_CREATE,
   M_TASK_UPDATE,
@@ -484,6 +496,25 @@ export default {
           })
           const alteredEntry = data.entries.find((e) => e.id === entry.id)
           Object.assign(alteredEntry, entryComplete)
+          store.writeQuery({
+            query: Q_ENTRY,
+            data,
+          })
+        },
+      })
+    },
+    entryRestart(entry) {
+      this.$apollo.mutate({
+        mutation: M_ENTRY_RESTART,
+        variables: {
+          id: entry.id,
+        },
+        update: (store, { data: { entryRestart } }) => {
+          const data = store.readQuery({
+            query: Q_ENTRY,
+          })
+          const alteredEntry = data.entries.find((e) => e.id === entry.id)
+          Object.assign(alteredEntry, entryRestart)
           store.writeQuery({
             query: Q_ENTRY,
             data,

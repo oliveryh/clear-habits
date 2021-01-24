@@ -47,7 +47,7 @@ describe('projects', () => {
               description: 'User 1 Category 1',
               id: '1',
             },
-            color: '#FFF',
+            color: '#fff',
           },
         },
       }

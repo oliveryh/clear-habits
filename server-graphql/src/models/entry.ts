@@ -11,6 +11,7 @@ export interface EntryAttributes {
   taskId?: number;
   // model attributes
   order?: number;
+  description?: string;
   complete?: boolean;
   date?: string;
   timerActive?: boolean;
@@ -33,6 +34,10 @@ const entry = (sequelize: Sequelize.Sequelize, DataTypes: Sequelize.DataTypes): 
     complete: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
+    },
+    description: {
+      type: DataTypes.STRING,
+      defaultValue: null,
     },
     date: {
       type: DataTypes.STRING,

@@ -4,6 +4,7 @@ export default gql`
   extend type Query {
     category(id: ID!): Category!
     categories: [Category!]!
+    planner: [Category!]!
   }
 
   extend type Mutation {

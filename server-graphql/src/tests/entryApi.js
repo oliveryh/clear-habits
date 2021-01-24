@@ -7,6 +7,7 @@ export const entry = ({ variables, token }) =>
     `query ($id: ID!) {
       entry(id: $id) {
         id
+        description
         complete
         date
         timerActive
@@ -28,6 +29,7 @@ export const entries = ({ variables, token }) =>
     `query {
       entries {
         id
+        description
         complete
         date
         timerActive
@@ -57,9 +59,10 @@ export const entryCreate = ({ variables, token }) =>
   graphqlCall(
     variables,
     token,
-    `mutation ($taskId: ID!, $date: String, $timerEstimatedTime: Int) {
-      entryCreate(taskId: $taskId, date: $date, timerEstimatedTime: $timerEstimatedTime) {
+    `mutation ($taskId: ID!, $date: String, $timerEstimatedTime: Int, $description: String) {
+      entryCreate(taskId: $taskId, date: $date, timerEstimatedTime: $timerEstimatedTime, description: $description) {
         id
+        description
         complete
         date
         timerActive
@@ -78,9 +81,10 @@ export const entryUpdate = ({ variables, token }) =>
   graphqlCall(
     variables,
     token,
-    `mutation ($id: ID!, $taskId: ID, $complete: Boolean, $date: String, $timerTrackedTime: Int, $timerEstimatedTime: Int) {
-      entryUpdate(id: $id, taskId: $taskId, complete: $complete, date: $date, timerTrackedTime: $timerTrackedTime, timerEstimatedTime: $timerEstimatedTime) {
+    `mutation ($id: ID!, $taskId: ID, $complete: Boolean, $date: String, $timerTrackedTime: Int, $timerEstimatedTime: Int, $description: String) {
+      entryUpdate(id: $id, taskId: $taskId, complete: $complete, date: $date, timerTrackedTime: $timerTrackedTime, timerEstimatedTime: $timerEstimatedTime, description: $description) {
         id
+        description
         complete
         date
         timerActive
@@ -111,6 +115,29 @@ export const entryComplete = ({ variables, token }) =>
     `mutation ($id: ID!) {
       entryComplete(id: $id) {
         id
+        description
+        complete
+        date
+        timerActive
+        timerTrackedTime
+        timerEstimatedTime
+        timerStartedAt
+        task {
+          id
+          description
+        }
+      }
+    }`,
+  )
+
+export const entryRestart = ({ variables, token }) =>
+  graphqlCall(
+    variables,
+    token,
+    `mutation ($id: ID!) {
+      entryRestart(id: $id) {
+        id
+        description
         complete
         date
         timerActive
@@ -132,6 +159,7 @@ export const entryStart = ({ variables, token }) =>
     `mutation ($id: ID!) {
       entryStart(id: $id) {
         id
+        description
         complete
         date
         timerActive
@@ -153,6 +181,7 @@ export const entryStop = ({ variables, token }) =>
     `mutation ($id: ID!) {
       entryStop(id: $id) {
         id
+        description
         complete
         date
         timerActive
@@ -174,6 +203,7 @@ export const entryCreateWithTask = ({ variables, token }) =>
     `mutation ($projectId: ID!, $description: String!, $date: String, $timerEstimatedTime: Int) {
       entryCreateWithTask(projectId: $projectId, description: $description, date: $date, timerEstimatedTime: $timerEstimatedTime) {
         id
+        description
         complete
         date
         timerActive

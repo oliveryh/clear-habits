@@ -33,6 +33,17 @@ export default {
         return categories
       }
     ),
+    planner: combineResolvers(
+      isAuthenticated,
+      async (_parent: any, _args: any, { me, models }: { me: UserInstance, models: Models }) => {
+        const categories = await models.Category.findAll({
+          where: {
+            userId: me.id,
+          },
+        });
+        return categories
+      }
+    )
   },
 
   Mutation: {
@@ -81,7 +92,6 @@ export default {
     },
     projects: async (category: CategoryInstance, _args: any, { loaders, models }: { loaders: Loaders, models: Models }) => {
       const projects = await models.Project.findAll({ where: { categoryId: category.id }})
-      console.log(projects)
       return projects
     },
   },

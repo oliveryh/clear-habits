@@ -14,7 +14,8 @@ describe('tasks', () => {
   let myTaskIdRetrieve = 1
   let myTaskIdUpdate = 2
   let myTaskIdDelete = 3
-  let otherTaskId = 4
+  let myTaskIdSingleEntry = 4
+  let otherTaskId = 5
   let myProjectId = 1
   let otherProjectId = 4
   before(async () => {
@@ -40,6 +41,7 @@ describe('tasks', () => {
           task: {
             id: myTaskIdRetrieve.toString(),
             description: 'User 1 Task 1',
+            complete: false,
             project: {
               description: 'User 1 Project 1',
               id: '1',
@@ -80,7 +82,7 @@ describe('tasks', () => {
   describe('tasks: [Task!]!', async () => {
     it('successfully returns tasks owned by authenticated user', async () => {
       const result = await taskApi.tasks({ token })
-      expect(result.data.data.tasks.length).to.eql(5)
+      expect(result.data.data.tasks.length).to.eql(4)
     })
     it('throws error if unauthenticated', async () => {
       const result = await taskApi.tasks({})
@@ -102,6 +104,7 @@ describe('tasks', () => {
         data: {
           taskCreate: {
             description: 'test',
+            complete: false,
           },
         },
       }
@@ -216,6 +219,7 @@ describe('tasks', () => {
         variables: {
           id: myTaskIdUpdate,
           description: 'New task description',
+          complete: true,
         },
         token,
       })
@@ -224,6 +228,7 @@ describe('tasks', () => {
           taskUpdate: {
             id: myTaskIdUpdate.toString(),
             description: 'New task description',
+            complete: true,
           },
         },
       }

@@ -74,5 +74,9 @@ export default {
     category: async (project: ProjectInstance, _args: any, { loaders }: { loaders: Loaders }) => {
       return await loaders.category.load(project.categoryId);
     },
+    tasks: async (project: ProjectInstance, _args: any, { loaders, models }: { loaders: Loaders, models: Models }) => {
+      const projects = await models.Task.findAll({ where: { projectId: project.id }})
+      return projects
+    },
   },
 };

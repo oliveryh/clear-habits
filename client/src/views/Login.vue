@@ -48,7 +48,7 @@
 
 <script>
 import gql from 'graphql-tag'
-import { apolloClient, onLogin } from '@/vue-apollo'
+import { onLogin } from '@/vue-apollo'
 
 export default {
   name: 'Login',
@@ -93,7 +93,7 @@ export default {
                 },
               ) => {
                 this.result = token
-                await onLogin(apolloClient, token)
+                await onLogin(token)
               },
             })
             .then(() => this.$router.push({ name: 'home' }))

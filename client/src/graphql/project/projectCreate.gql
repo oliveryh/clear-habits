@@ -1,5 +1,5 @@
 mutation($categoryId: ID!, $description: String!, $color: String) {
-  projectCreate(
+  Project: projectCreate(
     categoryId: $categoryId
     description: $description
     color: $color

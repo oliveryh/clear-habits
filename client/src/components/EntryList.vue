@@ -43,18 +43,7 @@
     </div>
     <div class="row">
       <div class="col col-12" :class="settings.dateZoomed ? 'col-lg-12' : ''">
-        <q-btn
-          flat
-          dense
-          rounded
-          color="grey"
-          label="Add Task"
-          align="between"
-          class="float-left font-m-bold q-pr-sm"
-          icon="mdi-plus"
-          @click="addTask"
-          @keypress.prevent
-        />
+        <button-add objectName="Task" @click="addTask" class="float-left" />
         <q-btn
           @click="zoomOut()"
           v-if="settings.dateZoomed"
@@ -89,7 +78,7 @@
               outlined
               v-model="newEntry.description"
               label="New Entry"
-              @keydown.enter="entryCreate"
+              @keydown.enter="entryCreateWithTask"
             ></q-input>
             <q-input
               class="q-pa-sm"
@@ -97,7 +86,7 @@
               v-model="newEntryEstimatedTime"
               mask="time"
               :rules="['time']"
-              @keydown.enter="entryCreate"
+              @keydown.enter="entryCreateWithTask"
             >
               <template v-slot:append>
                 <q-icon name="access_time" class="cursor-pointer">
@@ -123,7 +112,7 @@
         </q-card-section>
         <q-card-actions align="right" class="text-primary">
           <q-btn flat label="Cancel" @click="editorDialog = false" />
-          <q-btn flat label="Add" @click="entryCreate()" />
+          <q-btn flat label="Add" @click="entryCreateWithTask" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -142,12 +131,9 @@
 <script>
 import Entry from '@/components/Entry.vue'
 import draggable from 'vuedraggable'
-import {
-  M_ENTRY_CREATE_WITH_TASK,
-  M_ENTRY_REORDER,
-  M_SETTINGS_UPDATE,
-} from '@/graphql/mutations'
+import { M_ENTRY_CREATE_WITH_TASK, M_ENTRY_REORDER } from '@/graphql/mutations'
 import { Q_ENTRY, Q_SETTINGS } from '@/graphql/queries'
+import ButtonAdd from '@/components/ButtonAdd.vue'
 
 export default {
   name: 'EntryList',
@@ -175,6 +161,7 @@ export default {
   components: {
     Entry,
     draggable,
+    ButtonAdd,
   },
   computed: {
     filteredEntries: {
@@ -217,10 +204,12 @@ export default {
     },
     newEntryEstimatedTime: {
       get() {
-        return this.minutesToTimestamp(this.newEntry.timerEstimatedTime)
+        return this.secondsToTimestamp(this.newEntry.timerEstimatedTime, {
+          zeroPad: true,
+        })
       },
-      set(val) {
-        this.newEntry.timerEstimatedTime = this.timestampToMinutes(val)
+      set(timestamp) {
+        this.newEntry.timerEstimatedTime = this.timestampToSeconds(timestamp)
       },
     },
     totalEstimatedTime() {
@@ -235,9 +224,9 @@ export default {
     },
     timeSummary() {
       return (
-        this.secondsToTimestamp(this.totalTrackedTime).slice(0, -3) +
+        this.secondsToTimestamp(this.totalTrackedTime) +
         ' / ' +
-        this.secondsToTimestamp(this.totalEstimatedTime).slice(0, -3)
+        this.secondsToTimestamp(this.totalEstimatedTime)
       )
     },
   },
@@ -245,16 +234,13 @@ export default {
     settings: {
       deep: true,
       handler(settings) {
-        this.$apollo.mutate({
-          mutation: M_SETTINGS_UPDATE,
-          variables: settings,
-        })
+        this.settingsUpdate(settings)
       },
     },
   },
   methods: {
     // TODO: Validate form before entryCreate runs
-    entryCreate() {
+    entryCreateWithTask() {
       this.editorDialog = false
       var entry = {
         description: this.newEntry.description,

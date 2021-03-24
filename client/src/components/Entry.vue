@@ -8,7 +8,7 @@
               'background-color: ' +
               entry.task.project.category.color +
               '; color: ' +
-              highContrastColor
+              highContrastColor(entry.task.project.category.color)
             "
             style="
               border-radius: 5px;
@@ -75,7 +75,7 @@
             color="green"
             dense
             round
-            @click="entryComplete(entry)"
+            @click="entryComplete(entry.id)"
             icon="mdi-check"
           ></q-btn>
           <q-btn
@@ -271,17 +271,7 @@
 </template>
 
 <script>
-import {
-  M_ENTRY_START,
-  M_ENTRY_STOP,
-  M_ENTRY_UPDATE,
-  M_ENTRY_COMPLETE,
-  M_ENTRY_RESTART,
-  M_ENTRY_DELETE,
-  M_ENTRY_CREATE,
-  M_TASK_UPDATE,
-} from '@/graphql/mutations'
-import { Q_ENTRY, Q_TASK, Q_PROJECT } from '@/graphql/queries'
+import { Q_PROJECT } from '@/graphql/queries'
 
 import ChProjectPicker from '@/components/ProjectPicker'
 
@@ -322,34 +312,23 @@ export default {
   computed: {
     editedEntryTime: {
       get() {
-        return this.minutesToTimestamp(this.editedEntry.timerTrackedTime)
+        return this.secondsToTimestamp(this.editedEntry.timerTrackedTime, {
+          zeroPad: true,
+        })
       },
-      set(val) {
-        this.editedEntry.timerTrackedTime = this.timestampToMinutes(val)
+      set(timestamp) {
+        this.editedEntry.timerTrackedTime = this.timestampToSeconds(timestamp)
       },
-    },
-    highContrastColor() {
-      const rgbObj = this.hexToRgb(this.entry.task.project.category.color)
-      return this.highContrastText(rgbObj)
     },
     editedEstimatedTime: {
       get() {
-        return this.minutesToTimestamp(this.editedEntry.timerEstimatedTime)
+        return this.secondsToTimestamp(this.editedEntry.timerEstimatedTime, {
+          zeroPad: true,
+        })
       },
-      set(val) {
-        this.editedEntry.timerEstimatedTime = this.timestampToMinutes(val)
+      set(timestamp) {
+        this.editedEntry.timerEstimatedTime = this.timestampToSeconds(timestamp)
       },
-    },
-    trackedTime: {
-      get() {
-        return this.secondsToTimestamp(this.timerTrackedTime)
-      },
-      set(val) {
-        this.timerTrackedTime = this.timestampToSeconds(val)
-      },
-    },
-    estimatedTime() {
-      return this.secondsToTimestamp(this.entry.timerEstimatedTime)
     },
     progress() {
       if (this.entry.timerEstimatedTime !== 0) {
@@ -360,9 +339,11 @@ export default {
     },
     timerLabel() {
       return (
-        this.trackedTime +
+        this.secondsToTimestamp(this.timerTrackedTime, {
+          includeSeconds: true,
+        }) +
         '<small>/' +
-        this.estimatedTime.slice(0, -3) +
+        this.secondsToTimestamp(this.entry.timerEstimatedTime) +
         '</small>'
       )
     },
@@ -389,163 +370,13 @@ export default {
     timerStop() {
       clearInterval(this.timerInterval)
     },
-    // entry
-    entryUpdate(entry) {
-      this.$apollo.mutate({
-        mutation: M_ENTRY_UPDATE,
-        variables: entry,
-        update: (store, { data: { entryUpdate } }) => {
-          const data = store.readQuery({
-            query: Q_ENTRY,
-          })
-          const alteredEntry = data.entries.find((e) => e.id === entry.id)
-          Object.assign(alteredEntry, entryUpdate)
-          store.writeQuery({
-            query: Q_ENTRY,
-            data,
-          })
-        },
-      })
-    },
-    taskUpdate(task) {
-      this.$apollo.mutate({
-        mutation: M_TASK_UPDATE,
-        variables: task,
-        update: (store, { data: { taskUpdate } }) => {
-          const data = store.readQuery({
-            query: Q_TASK,
-          })
-          const alteredTask = data.tasks.find((e) => e.id === task.id)
-          Object.assign(alteredTask, taskUpdate)
-          store.writeQuery({
-            query: Q_TASK,
-            data,
-          })
-        },
-      })
-    },
-    entryDelete(entry) {
-      this.$apollo.mutate({
-        mutation: M_ENTRY_DELETE,
-        variables: {
-          id: entry.id,
-        },
-        update: (store, { data: { entryDelete } }) => {
-          if (entryDelete) {
-            const data = store.readQuery({
-              query: Q_ENTRY,
-            })
-            data.entries = data.entries.filter((e) => {
-              return e.id !== entry.id
-            })
-            store.writeQuery({
-              query: Q_ENTRY,
-              data,
-            })
-          }
-        },
-      })
-    },
-    entryTimerStop(entry) {
-      this.$apollo.mutate({
-        mutation: M_ENTRY_STOP,
-        variables: {
-          id: entry.id,
-        },
-        update: (store, { data: { entryStop } }) => {
-          const data = store.readQuery({
-            query: Q_ENTRY,
-          })
-          const alteredEntry = data.entries.find((e) => e.id === entry.id)
-          Object.assign(alteredEntry, entryStop)
-          store.writeQuery({
-            query: Q_ENTRY,
-            data,
-          })
-        },
-      })
-    },
-    entryTimerStart(entry) {
-      this.$apollo.mutate({
-        mutation: M_ENTRY_START,
-        variables: {
-          id: entry.id,
-        },
-        update: (store, { data: { entryStart } }) => {
-          const data = store.readQuery({
-            query: Q_ENTRY,
-          })
-          const alteredEntry = data.entries.find((e) => e.id === entry.id)
-          Object.assign(alteredEntry, entryStart)
-          store.writeQuery({
-            query: Q_ENTRY,
-            data,
-          })
-        },
-      })
-    },
-    entryComplete(entry) {
-      this.$apollo.mutate({
-        mutation: M_ENTRY_COMPLETE,
-        variables: {
-          id: entry.id,
-        },
-        update: (store, { data: { entryComplete } }) => {
-          const data = store.readQuery({
-            query: Q_ENTRY,
-          })
-          const alteredEntry = data.entries.find((e) => e.id === entry.id)
-          Object.assign(alteredEntry, entryComplete)
-          store.writeQuery({
-            query: Q_ENTRY,
-            data,
-          })
-        },
-      })
-    },
-    entryRestart(entry) {
-      this.$apollo.mutate({
-        mutation: M_ENTRY_RESTART,
-        variables: {
-          id: entry.id,
-        },
-        update: (store, { data: { entryRestart } }) => {
-          const data = store.readQuery({
-            query: Q_ENTRY,
-          })
-          const alteredEntry = data.entries.find((e) => e.id === entry.id)
-          Object.assign(alteredEntry, entryRestart)
-          store.writeQuery({
-            query: Q_ENTRY,
-            data,
-          })
-        },
-      })
-    },
     addEntryToTask() {
       var entry = {
         description: this.entry.description,
         date: this.entry.date,
         taskId: this.entry.task.id,
       }
-      this.$apollo
-        .mutate({
-          mutation: M_ENTRY_CREATE,
-          variables: entry,
-          update: (store, { data: { entryCreate } }) => {
-            const data = store.readQuery({
-              query: Q_ENTRY,
-            })
-            data.entries.push(entryCreate)
-            store.writeQuery({
-              query: Q_ENTRY,
-              data,
-            })
-          },
-        })
-        .catch((error) => {
-          this.showErrors(error)
-        })
+      this.entryCreate(entry)
       this.editorDialog = false
     },
     // editor

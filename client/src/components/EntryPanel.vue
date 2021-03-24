@@ -2,11 +2,16 @@
   <div>
     <div class="row">
       <div class="col-6 col-md-3" style="padding: 10px 10px 5px 10px">
-        <ch-day-selector
+        <ch-date-selector
           v-if="settings.dateZoomed"
           v-model="settings.dateZoomed"
-        ></ch-day-selector>
-        <ch-week-selector v-else v-model="startDate"></ch-week-selector>
+          period="day"
+        ></ch-date-selector>
+        <ch-date-selector
+          v-else
+          v-model="startDate"
+          period="week"
+        ></ch-date-selector>
       </div>
       <div class="col-6 col-md-3" style="padding: 10px 10px 5px 10px">
         <q-toggle icon="mdi-check" v-model="showCompleted"
@@ -60,8 +65,7 @@
 
 <script>
 import ChEntryList from '@/components/EntryList.vue'
-import ChWeekSelector from '@/components/WeekSelector.vue'
-import ChDaySelector from '@/components/DaySelector.vue'
+import ChDateSelector from '@/components/DateSelector.vue'
 import ChProjectPicker from '@/components/ProjectPicker'
 
 import {
@@ -72,14 +76,11 @@ import {
   Q_SETTINGS,
 } from '@/graphql/queries'
 
-import { M_SETTINGS_UPDATE } from '@/graphql/mutations'
-
 export default {
   name: 'EntryPanel',
   components: {
     ChEntryList,
-    ChWeekSelector,
-    ChDaySelector,
+    ChDateSelector,
     ChProjectPicker,
   },
   data: () => ({
@@ -149,10 +150,7 @@ export default {
     settings: {
       deep: true,
       handler(settings) {
-        this.$apollo.mutate({
-          mutation: M_SETTINGS_UPDATE,
-          variables: settings,
-        })
+        this.settingsUpdate(settings)
       },
     },
   },

@@ -59,16 +59,7 @@ export default {
         },
         colors: this.colors != null ? this.colors : this.tenColorPalette,
         dataLabels: {
-          formatter: function (value) {
-            var hours = parseInt(value)
-
-            var mins = parseInt((value * 60) % 60)
-            var retString = `${mins}m`
-            if (hours) {
-              retString = `${hours}h` + ' ' + retString
-            }
-            return retString
-          },
+          formatter: this.hoursToReadable,
         },
         legend: {
           position: 'right',
@@ -82,15 +73,7 @@ export default {
           },
           min: 0,
           labels: {
-            formatter: function (value) {
-              var hours = parseInt(value)
-              var mins = parseInt((value * 60) % 60)
-              var retString = `${mins}m`
-              if (hours) {
-                retString = `${hours}h` + ' ' + retString
-              }
-              return retString
-            },
+            formatter: this.hoursToReadable,
           },
         },
         xaxis: {

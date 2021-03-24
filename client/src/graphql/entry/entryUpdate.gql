@@ -9,7 +9,7 @@ mutation(
   $timerTrackedTime: Int
   $timerEstimatedTime: Int
 ) {
-  entryUpdate(
+  Entry: entryUpdate(
     id: $id
     taskId: $taskId
     description: $description

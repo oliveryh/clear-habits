@@ -1,3 +1,3 @@
 mutation($id: ID!) {
-  projectDelete(id: $id)
+  Project: projectDelete(id: $id)
 }

@@ -1,7 +1,7 @@
 #import "../EntryFragment.gql"
 
 mutation($id: ID!) {
-  entryRestart(id: $id) {
+  Entry: entryRestart(id: $id) {
     ...Entry
   }
 }

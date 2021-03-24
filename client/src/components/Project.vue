@@ -55,9 +55,6 @@
 </template>
 
 <script>
-import { M_PROJECT_UPDATE, M_PROJECT_DELETE } from '@/graphql/mutations'
-import { Q_PROJECT } from '@/graphql/queries'
-
 export default {
   name: 'Project',
   props: {
@@ -72,44 +69,6 @@ export default {
     deleteDialog: false,
   }),
   methods: {
-    // project
-    projectUpdate(project) {
-      this.$apollo.mutate({
-        mutation: M_PROJECT_UPDATE,
-        variables: project,
-        update: (store, { data: { projectUpdate } }) => {
-          const data = store.readQuery({
-            query: Q_PROJECT,
-          })
-          const alteredProject = data.projects.find((p) => p.id === project.id)
-          Object.assign(alteredProject, projectUpdate)
-          store.writeQuery({
-            query: Q_PROJECT,
-            data,
-          })
-        },
-      })
-    },
-    projectDelete(project) {
-      this.$apollo.mutate({
-        mutation: M_PROJECT_DELETE,
-        variables: project,
-        update: (store, { data: { projectDelete } }) => {
-          if (projectDelete) {
-            const data = store.readQuery({
-              query: Q_PROJECT,
-            })
-            data.projects = data.projects.filter((p) => {
-              return p.id !== project.id
-            })
-            store.writeQuery({
-              query: Q_PROJECT,
-              data,
-            })
-          }
-        },
-      })
-    },
     // editor
     editorOpen() {
       this.editedProject = Object.assign({}, this.project)

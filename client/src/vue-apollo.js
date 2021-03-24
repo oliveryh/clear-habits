@@ -1,9 +1,6 @@
 import Vue from 'vue'
 import VueApollo from 'vue-apollo'
-import {
-  createApolloClient,
-  restartWebsockets,
-} from 'vue-cli-plugin-apollo/graphql-client'
+import { createApolloClient } from 'vue-cli-plugin-apollo/graphql-client'
 import JwtService from '@/common/jwt.service'
 
 // Install the vue plugin
@@ -154,30 +151,16 @@ export function createProvider() {
 }
 
 // Manually call this when user log in
-export async function onLogin(apolloClient, token) {
+export async function onLogin(token) {
   if (typeof localStorage !== 'undefined' && token) {
     JwtService.saveToken(token)
-  }
-  if (apolloClient.wsClient) restartWebsockets(apolloClient.wsClient)
-  try {
-    await apolloClient.resetStore()
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.log('%cError on cache reset (login)', 'color: orange;', e.message)
   }
 }
 
 // Manually call this when user log out
-export async function onLogout(apolloClient) {
+export async function onLogout() {
   if (typeof localStorage !== 'undefined') {
     JwtService.destroyToken()
-  }
-  if (apolloClient.wsClient) restartWebsockets(apolloClient.wsClient)
-  try {
-    await apolloClient.resetStore()
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.log('%cError on cache reset (logout)', 'color: orange;', e.message)
   }
 }
 

@@ -1,7 +1,7 @@
 #import "../TaskFragment.gql"
 
 mutation($projectId: ID!, $description: String!) {
-  taskCreate(projectId: $projectId, description: $description) {
+  Task: taskCreate(projectId: $projectId, description: $description) {
     ...Task
     project {
       id

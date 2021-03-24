@@ -5,9 +5,9 @@
         color="primary"
         rounded
         outline
+        class="q-pl-sm"
         padding="sm"
         icon="mdi-calendar"
-        class="q-pl-sm"
       >
         <q-popup-proxy
           ref="qDateProxy"
@@ -15,6 +15,14 @@
           transition-hide="scale"
         >
           <q-date
+            v-if="period == 'day'"
+            v-model="calendarDate"
+            first-day-of-week="1"
+            @input="() => $refs.qDateProxy.hide()"
+            mask="YYYY-MM-DD"
+          />
+          <q-date
+            v-else
             v-model="monday"
             first-day-of-week="1"
             @input="() => $refs.qDateProxy.hide()"
@@ -37,10 +45,11 @@
         padding="sm"
         class="font-m-bold"
         label="Now"
-        @click="mondayThisWeek()"
+        @click="now()"
       />
       <q-btn
         color="primary"
+        dense
         rounded
         outline
         padding="sm"
@@ -54,17 +63,29 @@
 
 <script>
 export default {
-  name: 'WeekSelector',
+  name: 'DateSelector',
   props: {
     value: {
       type: String,
       required: true,
     },
+    period: {
+      type: String,
+      enum: ['week', 'day'],
+    },
   },
   mounted() {
-    this.mondayThisWeek()
+    this.now()
   },
   computed: {
+    calendarDate: {
+      get() {
+        return this.value
+      },
+      set(value) {
+        this.setValue(new Date(value))
+      },
+    },
     monday: {
       get() {
         return this.value
@@ -76,13 +97,25 @@ export default {
   },
   methods: {
     setValue(value) {
-      var dateISO = value.toISOString().split('T')[0]
+      var dateISO = new Date(
+        value.getTime() - value.getTimezoneOffset() * 60000,
+      )
+        .toISOString()
+        .split('T')[0]
       this.$emit('input', dateISO)
     },
     deltaWeek(delta) {
       var newDate = new Date(this.value)
-      newDate.setDate(newDate.getDate() + delta * 7)
+      const numDays = this.period == 'day' ? 1 : 7
+      newDate.setDate(newDate.getDate() + delta * numDays)
       this.setValue(newDate)
+    },
+    now() {
+      if (this.period == 'day') {
+        this.today()
+      } else {
+        this.mondayThisWeek()
+      }
     },
     mondayOfWeek(date) {
       var newDate = date
@@ -95,6 +128,10 @@ export default {
     mondayThisWeek() {
       var today = new Date()
       this.mondayOfWeek(today)
+    },
+    today() {
+      var today = new Date()
+      this.setValue(today)
     },
   },
 }

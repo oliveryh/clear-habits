@@ -6,7 +6,7 @@ mutation(
   $timerEstimatedTime: Int
   $description: String
 ) {
-  entryCreate(
+  Entry: entryCreate(
     taskId: $taskId
     date: $date
     timerEstimatedTime: $timerEstimatedTime

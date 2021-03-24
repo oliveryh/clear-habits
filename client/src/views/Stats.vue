@@ -5,7 +5,7 @@
         class="col-6 col-sm-4 col-lg-2 q-pa-md"
         style="padding: 10px 10px 5px 10px"
       >
-        <ch-week-selector v-model="startDate"></ch-week-selector>
+        <ch-date-selector v-model="startDate" period="week"></ch-date-selector>
       </div>
       <div
         class="col-6 col-sm-4 col-lg-2 q-pa-md"
@@ -131,7 +131,7 @@
 <script>
 import ChChartTimeCategorical from '@/components/ChartTimeCategorical.vue'
 import ChChartPieCategorical from '@/components/ChartPieCategorical.vue'
-import ChWeekSelector from '@/components/WeekSelector.vue'
+import ChDateSelector from '@/components/DateSelector.vue'
 import ChProjectPicker from '@/components/ProjectPicker'
 
 import { Q_CATEGORY, Q_STATS } from '@/graphql/queries'
@@ -141,7 +141,7 @@ export default {
   components: {
     ChChartTimeCategorical,
     ChChartPieCategorical,
-    ChWeekSelector,
+    ChDateSelector,
     ChProjectPicker,
   },
   data() {

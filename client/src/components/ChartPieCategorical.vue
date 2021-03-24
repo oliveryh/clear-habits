@@ -61,15 +61,7 @@ export default {
         },
         tooltip: {
           y: {
-            formatter: function (value) {
-              var hours = parseInt(value)
-              var mins = parseInt((value * 60) % 60)
-              var retString = `${mins}m`
-              if (hours) {
-                retString = `${hours}h` + ' ' + retString
-              }
-              return retString
-            },
+            formatter: this.hoursToReadable,
           },
         },
       }

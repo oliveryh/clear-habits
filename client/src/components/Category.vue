@@ -34,15 +34,8 @@
         />
         <q-item>
           <q-item-section avatar>
-            <q-btn
-              flat
-              rounded
-              color="grey"
-              icon="mdi-plus"
-              class="font-m-bold"
-              label="Add Project"
-              @click="addProjectDialog = true"
-          /></q-item-section>
+            <button-add objectName="Project" @click="addProjectDialog = true" />
+          </q-item-section>
         </q-item>
         <q-dialog v-model="addProjectDialog">
           <q-card>
@@ -54,13 +47,13 @@
                   outlined
                   v-model="newProjectDescription"
                   label="New Project"
-                  @keydown.enter="projectCreate"
+                  @keydown.enter="projectCreateLocal"
                 ></q-input>
               </q-form>
             </q-card-section>
             <q-card-actions align="right" class="text-primary">
               <q-btn flat label="Cancel" @click="addProjectDialog = false" />
-              <q-btn flat label="Add" @click="projectCreate" />
+              <q-btn flat label="Add" @click="projectCreateLocal" />
             </q-card-actions>
           </q-card>
         </q-dialog>
@@ -117,7 +110,7 @@
             flat
             label="Delete"
             color="warning"
-            @click="categoryDelete"
+            @click="categoryDelete(category)"
             v-close-popup
           />
         </q-card-actions>
@@ -128,14 +121,7 @@
 
 <script>
 import Project from '@/components/Project.vue'
-import {
-  M_CATEGORY_UPDATE,
-  M_CATEGORY_DELETE,
-  M_SETTINGS_UPDATE,
-  M_PROJECT_CREATE,
-} from '@/graphql/mutations'
-
-import { Q_CATEGORY, Q_PROJECT } from '@/graphql/queries'
+import ButtonAdd from './ButtonAdd.vue'
 
 export default {
   name: 'Category',
@@ -149,6 +135,7 @@ export default {
   },
   components: {
     Project,
+    ButtonAdd,
   },
   data: () => ({
     categoryRules: [(v) => !!v || 'Description required'],
@@ -159,84 +146,13 @@ export default {
     newProjectDescription: null,
   }),
   methods: {
-    // category
-    categoryUpdate(category) {
-      this.$apollo.mutate({
-        mutation: M_CATEGORY_UPDATE,
-        variables: category,
-        update: (store, { data: { categoryUpdate } }) => {
-          const data = store.readQuery({
-            query: Q_CATEGORY,
-          })
-          const alteredCategory = data.categories.find(
-            (c) => c.id === category.id,
-          )
-          Object.assign(alteredCategory, categoryUpdate)
-          store.writeQuery({
-            query: Q_CATEGORY,
-            data,
-          })
-        },
-      })
-    },
-    categoryDelete() {
-      const category = this.category
-      this.$apollo.mutate({
-        mutation: M_CATEGORY_DELETE,
-        variables: category,
-        update: (store, { data: { categoryDelete } }) => {
-          if (categoryDelete) {
-            const data = store.readQuery({
-              query: Q_CATEGORY,
-            })
-            data.categories = data.categories.filter((c) => {
-              return c.id !== category.id
-            })
-            store.writeQuery({
-              query: Q_CATEGORY,
-              data,
-            })
-          }
-        },
-      })
-    },
-    projectCreate() {
+    projectCreateLocal() {
       this.addProjectDialog = false
       const newProject = {
         categoryId: this.category.id,
         description: this.newProjectDescription,
       }
-      this.$apollo
-        .mutate({
-          mutation: M_PROJECT_CREATE,
-          variables: newProject,
-          update: (store, { data: { projectCreate } }) => {
-            var data = store.readQuery({
-              query: Q_PROJECT,
-            })
-            data.projects.push(projectCreate)
-            store.writeQuery({
-              query: Q_PROJECT,
-              data,
-            })
-            // update project nested inside categories
-            data = store.readQuery({
-              query: Q_CATEGORY,
-            })
-            data.categories.forEach((category) => {
-              if (category.id == projectCreate.category.id) {
-                category.projects.push(projectCreate)
-              }
-            })
-            store.writeQuery({
-              query: Q_CATEGORY,
-              data,
-            })
-          },
-        })
-        .catch((error) => {
-          this.showErrors(error)
-        })
+      this.projectCreate(newProject)
       this.newProjectDescription = null
     },
     // editor
@@ -250,14 +166,6 @@ export default {
           this.editorDialog = false
           this.categoryUpdate(this.editedCategory)
         }
-      })
-    },
-    selectCategory() {
-      this.$apollo.mutate({
-        mutation: M_SETTINGS_UPDATE,
-        variables: {
-          categorySelected: this.category.id,
-        },
       })
     },
   },

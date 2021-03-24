@@ -52,22 +52,15 @@
           <q-avatar class="q-ml-md" color="grey" size="sm" text-color="white">{{
             prop.node.numTasks
           }}</q-avatar>
-          <q-btn
-            flat
-            dense
-            rounded
-            color="grey"
-            label="Add Task"
-            align="between"
-            class="font-m-bold q-mx-md"
-            icon="mdi-plus"
+          <button-add
+            objectName="Task"
             @click="
               () => {
                 Object.assign(newTask, { projectId: prop.node.id })
                 addTask()
               }
             "
-            @keypress.prevent
+            class="q-ml-sm"
           />
         </div>
       </template>
@@ -91,7 +84,7 @@
               class="font-m-bold q-ml-sm"
               color="primary"
               icon="mdi-check"
-              @click="taskComplete(prop.node.id)"
+              @click="taskUpdate({ id: prop.node.id, complete: true })"
             />
             <q-btn
               flat
@@ -105,35 +98,22 @@
                 }
               "
             />
-            <q-btn
-              flat
-              dense
-              rounded
-              color="grey"
-              label="Add Entry"
-              align="between"
-              class="font-m-bold q-ml-sm q-pr-sm"
-              icon="mdi-plus"
+            <button-add
+              objectName="Entry"
               @click="
                 () => {
                   Object.assign(newEntry, { taskId: prop.node.id })
                   addEntry()
                 }
               "
-              @keypress.prevent
+              class="q-ml-sm"
             />
             {{
-              secondsToTimestampPadded(prop.node.totalTimerTrackedTime).slice(
-                0,
-                -3,
-              )
+              secondsToTimestamp(prop.node.totalTimerTrackedTime, {zeroPad: true}),
             }}
             /
             {{
-              secondsToTimestampPadded(prop.node.totalTimerEstimatedTime).slice(
-                0,
-                -3,
-              )
+              secondsToTimestamp(prop.node.totalTimerEstimatedTime, {zeroPad: true}),
             }}
           </div>
           <div class="col col-12" style="margin-top: -10px">
@@ -178,12 +158,7 @@
             flat
             round
             color="orange"
-            @click="
-              entryUpdate({
-                id: prop.node.id,
-                complete: false,
-              })
-            "
+            @click="entryUpdate({ id: prop.node.id, complete: false })"
             icon="mdi-undo-variant"
           ></q-btn>
           <q-btn
@@ -199,10 +174,13 @@
             round
             color="grey"
             @click="
-              entryUpdate({
-                id: prop.node.id,
-                date: new Date().toISOString().substring(0, 10),
-              })
+              () => {
+                entryUpdate({
+                  id: prop.node.id,
+                  date: new Date().toISOString().substring(0, 10),
+                })
+                updateEntryDialog = false
+              }
             "
             icon="mdi-calendar-start"
             ><q-tooltip :delay="750"> Schedule today </q-tooltip></q-btn
@@ -240,7 +218,7 @@
               outlined
               v-model="newEntry.description"
               label="New Entry"
-              @keydown.enter="entryCreate"
+              @keydown.enter="entryCreateLocal"
             ></q-input>
             <q-input
               class="q-pa-sm"
@@ -248,7 +226,7 @@
               v-model="newEntryEstimatedTime"
               mask="time"
               :rules="['time']"
-              @keydown.enter="entryCreate"
+              @keydown.enter="entryCreateLocal"
             >
               <template v-slot:append>
                 <q-icon name="access_time" class="cursor-pointer">
@@ -274,7 +252,7 @@
         </q-card-section>
         <q-card-actions align="right" class="text-primary">
           <q-btn flat label="Cancel" @click="addEntryDialog = false" />
-          <q-btn flat label="Add" @click="entryCreate()" />
+          <q-btn flat label="Add" @click="entryCreateLocal" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -288,13 +266,13 @@
               outlined
               v-model="newTask.description"
               label="New Task"
-              @keydown.enter="taskCreate"
+              @keydown.enter="taskCreateLocal"
             ></q-input>
           </q-form>
         </q-card-section>
         <q-card-actions align="right" class="text-primary">
           <q-btn flat label="Cancel" @click="addTaskDialog = false" />
-          <q-btn flat label="Add" @click="taskCreate()" />
+          <q-btn flat label="Add" @click="taskCreateLocal" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -407,7 +385,16 @@
               }
             "
           />
-          <q-btn flat label="Save" @click="entryUpdate(editedEntry)" />
+          <q-btn
+            flat
+            label="Save"
+            @click="
+              () => {
+                entryUpdate(editedEntry)
+                updateEntryDialog = false
+              }
+            "
+          />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -434,28 +421,27 @@
               }
             "
           />
-          <q-btn flat label="Save" @click="taskUpdate(editedTask)" />
+          <q-btn
+            flat
+            label="Save"
+            @click="
+              () => {
+                taskUpdate(editedTask)
+                this.updateTaskDialog = false
+              }
+            "
+          />
         </q-card-actions>
       </q-card>
     </q-dialog>
   </div>
 </template>
 <script>
-import {
-  M_ENTRY_CREATE,
-  M_ENTRY_COMPLETE,
-  M_ENTRY_UPDATE,
-  M_TASK_CREATE,
-  M_TASK_UPDATE,
-} from '@/graphql/mutations'
-import {
-  F_TASK_ENTRIES,
-  F_PROJECT_TASKS,
-  F_TASK,
-  F_ENTRY,
-} from '@/graphql/fragments'
+import ButtonAdd from './ButtonAdd.vue'
+
 export default {
   name: 'PlannerPanel',
+  components: { ButtonAdd },
   props: {
     planner: {
       type: Array,
@@ -486,145 +472,23 @@ export default {
     addTask() {
       this.addTaskDialog = true
     },
-    taskComplete(id) {
-      this.$apollo.mutate({
-        mutation: M_TASK_UPDATE,
-        variables: {
-          id,
-          complete: true,
-        },
-        update: (store, { data: { taskUpdate } }) => {
-          const task = store.readFragment({
-            id: 'Task:' + id,
-            fragment: F_TASK,
-          })
-          Object.assign(task, taskUpdate)
-          store.writeFragment({
-            id: 'Task:' + id,
-            fragment: F_TASK,
-            data: task,
-          })
-        },
-      })
-    },
-    entryComplete(id) {
-      this.$apollo.mutate({
-        mutation: M_ENTRY_COMPLETE,
-        variables: {
-          id,
-        },
-        update: (store, { data: { entryComplete } }) => {
-          const entry = store.readFragment({
-            id: 'Entry:' + id,
-            fragment: F_ENTRY,
-          })
-          Object.assign(entry, entryComplete)
-          store.writeFragment({
-            id: 'Entry:' + id,
-            fragment: F_ENTRY,
-            data: entry,
-          })
-        },
-      })
-    },
-    entryCreate() {
+    entryCreateLocal() {
       this.addEntryDialog = false
       var entry = this.newEntry
       if (this.newEntry.timerEstimatedTime) {
         entry.timerEstimatedTime = this.newEntry.timerEstimatedTime
       }
-      console.log(entry)
-      this.$apollo
-        .mutate({
-          mutation: M_ENTRY_CREATE,
-          variables: entry,
-          update: (store, { data: { entryCreate } }) => {
-            const task = store.readFragment({
-              id: 'Task:' + entryCreate.task.id,
-              fragment: F_TASK_ENTRIES,
-            })
-            task.entries.push(entryCreate)
-            store.writeFragment({
-              id: 'Task:' + entryCreate.task.id,
-              fragment: F_TASK_ENTRIES,
-              data: task,
-            })
-          },
-        })
-        .catch((error) => {
-          this.showErrors(error)
-        })
+      this.entryCreate(entry)
       this.newEntry = {
         description: null,
         date: 'backlog',
         timerEstimatedTime: null,
       }
     },
-    entryUpdate(newEntry) {
-      this.$apollo.mutate({
-        mutation: M_ENTRY_UPDATE,
-        variables: newEntry,
-        update: (store, { data: { entryUpdate } }) => {
-          const entry = store.readFragment({
-            id: 'Entry:' + entryUpdate.id,
-            fragment: F_ENTRY,
-          })
-          Object.assign(entry, entryUpdate)
-          store.writeFragment({
-            id: 'Entry:' + entryUpdate.id,
-            fragment: F_ENTRY,
-            data: entry,
-          })
-        },
-      })
-      this.updateEntryDialog = false
-    },
-    taskUpdate(newTask) {
-      this.$apollo
-        .mutate({
-          mutation: M_TASK_UPDATE,
-          variables: newTask,
-          update: (store, { data: { taskUpdate } }) => {
-            const task = store.readFragment({
-              id: 'Task:' + taskUpdate.id,
-              fragment: F_TASK,
-            })
-            Object.assign(task, taskUpdate)
-            store.writeFragment({
-              id: 'Task:' + taskUpdate.id,
-              fragment: F_TASK,
-              data: task,
-            })
-          },
-        })
-        .catch((error) => {
-          this.showErrors(error)
-        })
-      this.updateTaskDialog = false
-    },
-    taskCreate() {
+    taskCreateLocal() {
       this.addTaskDialog = false
       var task = this.newTask
-      this.$apollo
-        .mutate({
-          mutation: M_TASK_CREATE,
-          variables: task,
-          update: (store, { data: { taskCreate } }) => {
-            const project = store.readFragment({
-              id: 'Project:' + taskCreate.project.id,
-              fragment: F_PROJECT_TASKS,
-            })
-            project.tasks.push(taskCreate)
-            store.writeFragment({
-              id: 'Project:' + taskCreate.project.id,
-              fragment: F_PROJECT_TASKS,
-              data: project,
-            })
-          },
-        })
-        .catch((error) => {
-          this.showErrors(error)
-        })
+      this.taskCreate(task)
       this.newTask = {
         description: null,
       }
@@ -632,34 +496,36 @@ export default {
     getProgress(tracked, estimated) {
       return estimated !== 0 ? tracked / estimated : 0
     },
-    highContrastColor(color) {
-      const rgbObj = this.hexToRgb(color)
-      return this.highContrastText(rgbObj)
-    },
   },
   computed: {
     newEntryEstimatedTime: {
       get() {
-        return this.minutesToTimestamp(this.newEntry.timerEstimatedTime)
+        return this.secondsToTimestamp(this.newEntry.timerEstimatedTime, {
+          zeroPad: true,
+        })
       },
       set(val) {
-        this.newEntry.timerEstimatedTime = this.timestampToMinutes(val)
+        this.newEntry.timerEstimatedTime = this.timestampToSeconds(val)
       },
     },
     editedEntryTime: {
       get() {
-        return this.minutesToTimestamp(this.editedEntry.timerTrackedTime)
+        return this.secondsToTimestamp(this.editedEntry.timerTrackedTime, {
+          zeroPad: true,
+        })
       },
       set(val) {
-        this.editedEntry.timerTrackedTime = this.timestampToMinutes(val)
+        this.editedEntry.timerTrackedTime = this.timestampToSeconds(val)
       },
     },
     editedEstimatedTime: {
       get() {
-        return this.minutesToTimestamp(this.editedEntry.timerEstimatedTime)
+        return this.secondsToTimestamp(this.editedEntry.timerEstimatedTime, {
+          zeroPad: true,
+        })
       },
       set(val) {
-        this.editedEntry.timerEstimatedTime = this.timestampToMinutes(val)
+        this.editedEntry.timerEstimatedTime = this.timestampToSeconds(val)
       },
     },
   },

@@ -1,0 +1,14 @@
+query {
+  categories {
+    id
+    description
+    color
+    projects {
+      id
+      description
+      category {
+        id
+      }
+    }
+  }
+}

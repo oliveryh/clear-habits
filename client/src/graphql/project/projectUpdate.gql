@@ -1,0 +1,12 @@
+mutation($id: ID!, $categoryId: ID, $description: String, $color: String) {
+  Project: projectUpdate(
+    categoryId: $categoryId
+    id: $id
+    description: $description
+    color: $color
+  ) {
+    id
+    description
+    color
+  }
+}

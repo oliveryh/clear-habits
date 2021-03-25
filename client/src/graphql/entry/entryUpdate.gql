@@ -1,0 +1,24 @@
+#import "../EntryFragment.gql"
+
+mutation(
+  $id: ID!
+  $taskId: ID
+  $description: String
+  $complete: Boolean
+  $date: String
+  $timerTrackedTime: Int
+  $timerEstimatedTime: Int
+) {
+  Entry: entryUpdate(
+    id: $id
+    taskId: $taskId
+    description: $description
+    complete: $complete
+    date: $date
+    timerTrackedTime: $timerTrackedTime
+    timerEstimatedTime: $timerEstimatedTime
+  ) {
+    ...Entry
+    date
+  }
+}

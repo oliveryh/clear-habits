@@ -1,91 +1,128 @@
 <template>
   <div>
     <div class="row">
-      <div class="col-12 col-md-3 q-pa-md">
-        <ch-week-selector v-model="startDate"></ch-week-selector>
+      <div
+        class="col-6 col-sm-4 col-lg-2 q-pa-md"
+        style="padding: 10px 10px 5px 10px"
+      >
+        <ch-date-selector v-model="startDate" period="week"></ch-date-selector>
       </div>
-      <div class="col-6 col-md-3 q-pa-md">
+      <div
+        class="col-6 col-sm-4 col-lg-2 q-pa-md"
+        style="padding: 10px 10px 5px 10px"
+      >
         <q-btn-toggle
+          rounded
+          spread
           v-model="period"
           toggle-color="primary"
+          color="white"
+          unelevated
+          text-color="primary"
+          class="font-m-bold"
+          style="border: 2px solid #027be3"
           :options="[
             { label: 'Daily', value: 'daily' },
             { label: 'Weekly', value: 'weekly' },
           ]"
         />
       </div>
-      <div class="col-12 col-md-6 q-pa-md">
+      <div
+        class="col-4 col-sm-4 col-lg-2 q-pa-md"
+        style="padding: 10px 10px 5px 10px"
+      >
+        <q-btn
+          rounded
+          color="white"
+          unelevated
+          text-color="primary"
+          icon="refresh"
+          label="Refresh"
+          class="font-m-bold"
+          @click="refreshStats"
+        />
+      </div>
+      <div
+        class="col-8 col-sm-12 col-lg-6 q-pa-md"
+        style="padding: 10px 10px 5px 10px"
+      >
         <q-form ref="form" @submit.prevent>
           <ch-project-picker
             v-model="categorySelected"
             :projects="categories"
             label="Category"
+            :showAvatar="true"
           ></ch-project-picker>
         </q-form>
       </div>
     </div>
 
-    <div v-if="period == 'daily'">
-      <div class="row">
-        <div class="col-12 col-md-4 q-pa-md">
-          <ch-chart-pie-categorical
-            :data="getPieCategorical"
-            :colors="getColors"
-          ></ch-chart-pie-categorical>
-        </div>
-        <div class="col-12 col-md-8 q-pa-md">
-          <ch-chart-time-categorical
-            :data="getTimesCategorical"
-            :dateRange="dateSpread(this.startDate)"
-            xaxisType="datetime"
-            :colors="getColors"
-          ></ch-chart-time-categorical>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-12 col-md-4 q-pa-md">
-          <ch-chart-pie-categorical
-            :data="getProjects"
-          ></ch-chart-pie-categorical>
-        </div>
-        <div class="col-12 col-md-8 q-pa-md">
-          <ch-chart-time-categorical
-            :data="getProjectsSum"
-            :dateRange="dateSpread(this.startDate)"
-            xaxisType="datetime"
-          ></ch-chart-time-categorical>
-        </div>
-      </div>
+    <div v-if="isLoading">
+      <p>Loading...</p>
     </div>
     <div v-else>
-      <div class="row">
-        <div class="col-12 col-md-4 q-pa-md">
-          <ch-chart-pie-categorical
-            :data="getPieCategorical"
-            :colors="getColors"
-          ></ch-chart-pie-categorical>
+      <div v-if="period == 'daily'">
+        <div class="row">
+          <div class="col-12 col-md-4 q-pa-md">
+            <ch-chart-pie-categorical
+              :data="getPieCategorical"
+              :colors="getColors"
+            ></ch-chart-pie-categorical>
+          </div>
+          <div class="col-12 col-md-8 q-pa-md">
+            <ch-chart-time-categorical
+              :data="getTimesCategorical"
+              :dateRange="dateSpread(this.startDate)"
+              xaxisType="datetime"
+              :colors="getColors"
+            ></ch-chart-time-categorical>
+          </div>
         </div>
-        <div class="col-12 col-md-8 q-pa-md">
-          <ch-chart-time-categorical
-            :data="getTimesCategorical"
-            :dateRange="weekSpread(this.startDate)"
-            xaxisType="categories"
-            :colors="getColors"
-          ></ch-chart-time-categorical>
+        <div v-if="categorySelected" class="row">
+          <div class="col-12 col-md-4 q-pa-md">
+            <ch-chart-pie-categorical
+              :data="getProjects"
+            ></ch-chart-pie-categorical>
+          </div>
+          <div class="col-12 col-md-8 q-pa-md">
+            <ch-chart-time-categorical
+              :data="getProjectsSum"
+              :dateRange="dateSpread(this.startDate)"
+              xaxisType="datetime"
+            ></ch-chart-time-categorical>
+          </div>
         </div>
       </div>
-      <div class="row">
-        <div class="col-12 col-md-4 q-pa-md">
-          <ch-chart-pie-categorical
-            :data="getProjects"
-          ></ch-chart-pie-categorical>
+      <div v-else>
+        <div class="row">
+          <div class="col-12 col-md-4 q-pa-md">
+            <ch-chart-pie-categorical
+              :data="getPieCategorical"
+              :colors="getColors"
+            ></ch-chart-pie-categorical>
+          </div>
+          <div class="col-12 col-md-8 q-pa-md">
+            <ch-chart-time-categorical
+              :data="getTimesCategorical"
+              :dateRange="weekSpread(this.startDate)"
+              xaxisType="categories"
+              :colors="getColors"
+            ></ch-chart-time-categorical>
+          </div>
         </div>
-        <div class="col-12 col-md-8 q-pa-md">
-          <ch-chart-time-categorical
-            :data="getProjectsSum"
-            :dateRange="weekSpread(this.startDate)"
-            xaxisType="categories"
-          ></ch-chart-time-categorical>
+        <div v-if="categorySelected" class="row">
+          <div class="col-12 col-md-4 q-pa-md">
+            <ch-chart-pie-categorical
+              :data="getProjects"
+            ></ch-chart-pie-categorical>
+          </div>
+          <div class="col-12 col-md-8 q-pa-md">
+            <ch-chart-time-categorical
+              :data="getProjectsSum"
+              :dateRange="weekSpread(this.startDate)"
+              xaxisType="categories"
+            ></ch-chart-time-categorical>
+          </div>
         </div>
       </div>
     </div>
@@ -94,33 +131,26 @@
 <script>
 import ChChartTimeCategorical from '@/components/ChartTimeCategorical.vue'
 import ChChartPieCategorical from '@/components/ChartPieCategorical.vue'
-import ChWeekSelector from '@/components/WeekSelector.vue'
+import ChDateSelector from '@/components/DateSelector.vue'
 import ChProjectPicker from '@/components/ProjectPicker'
-import { mapState } from 'vuex'
-import {
-  A_CATEGORY_RETRIEVE,
-  A_PROJECT_RETRIEVE,
-  A_STATS_RETRIEVE,
-} from '@/store/actions.type'
+
+import { Q_CATEGORY, Q_STATS } from '@/graphql/queries'
 
 export default {
   name: 'Stats',
   components: {
     ChChartTimeCategorical,
     ChChartPieCategorical,
-    ChWeekSelector,
+    ChDateSelector,
     ChProjectPicker,
-  },
-  mounted() {
-    this.statsRetrieve()
-    this.categoriesRetrieve()
-    this.projectsRetrieve()
   },
   data() {
     return {
-      startDate: null,
+      startDate: '2021-01-01',
       categorySelected: null,
       period: 'daily',
+      stats: [],
+      isLoading: true,
     }
   },
   watch: {
@@ -131,11 +161,27 @@ export default {
       this.statsRetrieve()
     },
   },
+  apollo: {
+    categories: {
+      query: Q_CATEGORY,
+    },
+    stats: {
+      query: Q_STATS,
+      variables() {
+        return {
+          startDate: this.startDate,
+          period: this.period,
+        }
+      },
+      result({ data, loading }) {
+        if (!loading) {
+          this.stats = data.stats
+          this.isLoading = false
+        }
+      },
+    },
+  },
   computed: {
-    ...mapState({
-      stats: (state) => state.stats.stats,
-      categories: (state) => state.settings.categories,
-    }),
     getTimesCategorical() {
       if (Object.keys(this.stats).length !== 0) {
         return this.stats.statsBarCategory
@@ -146,12 +192,11 @@ export default {
       if (Object.keys(this.stats).length !== 0) {
         return this.stats.statsPieCategory
       }
-      return []
+      return {}
     },
     getProjects() {
       if (Object.keys(this.stats).length !== 0) {
         if (this.categorySelected != null) {
-          console.log('CHANGED')
           return (
             this.stats.statsPieProject[this.categorySelected.description] || {
               labels: [],
@@ -160,7 +205,7 @@ export default {
           )
         }
       }
-      return []
+      return {}
     },
     getProjectsSum() {
       if (Object.keys(this.stats).length !== 0) {
@@ -186,16 +231,10 @@ export default {
   },
   methods: {
     statsRetrieve() {
-      this.$store.dispatch(A_STATS_RETRIEVE, {
-        startDate: this.startDate,
-        period: this.period,
-      })
+      this.$apollo.queries.stats.refresh()
     },
-    categoriesRetrieve() {
-      this.$store.dispatch(A_CATEGORY_RETRIEVE)
-    },
-    projectsRetrieve() {
-      this.$store.dispatch(A_PROJECT_RETRIEVE)
+    refreshStats() {
+      this.$apollo.queries.stats.refetch()
     },
     getWeekNumber(d) {
       d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()))
@@ -229,5 +268,8 @@ export default {
 .echarts {
   width: 100%;
   height: 400px;
+}
+.q-btn {
+  border: 2.5px solid;
 }
 </style>

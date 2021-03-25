@@ -1,0 +1,21 @@
+#import "../EntryFragment.gql"
+
+query {
+  planner {
+    id
+    description
+    color
+    projects {
+      id
+      description
+      tasks {
+        id
+        description
+        complete
+        entries {
+          ...Entry
+        }
+      }
+    }
+  }
+}

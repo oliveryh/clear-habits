@@ -1,0 +1,11 @@
+fragment Entry on Entry {
+  id
+  date
+  description
+  order
+  complete
+  timerActive
+  timerTrackedTime
+  timerEstimatedTime
+  timerStartedAt
+}

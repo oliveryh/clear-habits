@@ -11,6 +11,11 @@ export default new Router({
       component: () => import('@/views/Home'),
     },
     {
+      path: '/planner',
+      name: 'planner',
+      component: () => import('@/views/Planner'),
+    },
+    {
       path: '/stats',
       name: 'stats',
       component: () => import('@/views/Stats'),

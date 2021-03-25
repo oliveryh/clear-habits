@@ -1,0 +1,15 @@
+mutation(
+  $categorySelected: Number
+  $dateZoomed: String
+  $projectSelected: Project
+) {
+  settingsUpdate(
+    categorySelected: $categorySelected
+    dateZoomed: $dateZoomed
+    projectSelected: $projectSelected
+  ) @client {
+    categorySelected @client
+    dateZoomed @client
+    projectSelected @client
+  }
+}

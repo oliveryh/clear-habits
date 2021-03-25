@@ -1,0 +1,9 @@
+extension:
+  - 'js'
+reporter: 'spec'
+require: '@babel/register'
+spec: 'src/tests/**/*.spec.js' # the positional arguments!
+watch-files:
+  - 'src/tests/**/*.js'
+  - 'dist/**/*.js'
+async-only: false

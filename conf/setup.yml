@@ -3,16 +3,16 @@
   become: yes
   become_method: sudo
   vars:
+    - ansible_ssh_pipelining: true
     - app_dir: /app
   tasks:
-
-    ############# 
+    #############
     # STRUCTURE #
     #############
 
     - name: app.directory
-      file: 
-        path: "{{ app_dir }}"
+      file:
+        path: '{{ app_dir }}'
         state: directory
         mode: 0777
 
@@ -27,7 +27,7 @@
     - name: git.clone
       git:
         repo: https://github.com/oliveryh/clear-habits
-        dest: "{{ app_dir }}/repo"
+        dest: '{{ app_dir }}/repo'
         version: develop
         force: yes
       become_user: ansible
@@ -46,58 +46,71 @@
 
     - name: npm.server.install
       npm:
-        path: "{{ app_dir }}/repo/server"
+        path: '{{ app_dir }}/repo/server-graphql'
       become_user: ansible
+
+    - name: npm.server.env
+      template:
+        src: .env.production.server.j2
+        dest: '{{ app_dir }}/repo/server-graphql/.env'
+      become_user: ansible
+      vars:
+        postgresql_pass: '{{ postgresql_pass }}'
+        secret: '{{ secret }}'
+
+    - name: npm.server.build
+      command: NODE_ENV=production npm run build
+      args:
+        chdir: '{{ app_dir }}/repo/server-graphql'
 
     - name: npm.client.install
       npm:
-        path: "{{ app_dir }}/repo/client"
+        path: '{{ app_dir }}/repo/client'
       become_user: ansible
 
     - name: npm.client.build.env.requisite
       ipify_facts:
 
     - name: npm.client.build.env
-      template: 
+      template:
         src: .env.production.j2
-        dest: "{{ app_dir }}/repo/client/.env.production"
+        dest: '{{ app_dir }}/repo/client/.env.production'
       become_user: ansible
       vars:
-        ip_address: "{{ ipify_public_ip }}"
+        ip_address: '{{ ipify_public_ip }}'
 
     - name: npm.client.build
       command: npm run build
       args:
-        chdir: "{{ app_dir }}/repo/client"
+        chdir: '{{ app_dir }}/repo/client'
       become_user: ansible
 
-    ###########
-    # MONGODB #
-    ###########
-      
-    - name: mongodb.key
-      apt_key:
-        url: https://www.mongodb.org/static/pgp/server-4.2.asc
-        state: present
+    ##############
+    # POSTGRESQL #
+    ##############
 
-    - name: mongodb.listfile
-      apt_repository:
-        filename: '/etc/apt/sources.list.d/mongodb-org-4.2.list'
-        repo: 'deb http://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.2 multiverse'
-        state: present
-        update_cache: yes
-
-    - name: mongodb.install
+    - name: postgresql.install
       apt:
-        name: mongodb-org
-        state: present
-        update_cache: yes
+        name: postgresql
 
-    - name: mongodb.start
-      service:
-        name: mongod
-        state: started
-    
+    - name: postgresql.prerequisite
+      apt:
+        name: python3-psycopg2
+
+    - name: postgresql.configure.password
+      become: yes
+      become_user: postgres
+      postgresql_user:
+        name: postgres
+        password: '{{ postgresql_pass }}'
+
+    - name: postgresql.configure.db
+      become: yes
+      become_user: postgres
+      postgresql_db:
+        name: clearhabits
+        state: present
+
     #######
     # PM2 #
     #######
@@ -109,9 +122,9 @@
         production: yes
 
     - name: pm2.server.start
-      command: pm2 start app.js --name server -f
+      command: pm2 start dist/server.js --name server -f
       args:
-        chdir: "{{ app_dir }}/repo/server"
+        chdir: '{{ app_dir }}/repo/server-graphql'
       become_user: ansible
 
     - name: pm2.save
@@ -121,21 +134,21 @@
     - name: pm2.service.enable
       command: pm2 startup systemd -u ansible --hp /home/ansible
       environment:
-        PATH: "{{ ansible_env.PATH }}"
+        PATH: '{{ ansible_env.PATH }}'
 
     - name: pm2.service.stop
       command: ps aux | grep pm2 | grep -v grep | awk '{print $2}' | xargs kill -9
       become_user: ansible
 
     - name: pm2.service.start
-      service: 
+      service:
         name: pm2-ansible
         state: started
 
     #########
     # NGINX #
     #########
-    
+
     - name: nginx.install
       apt:
         name: nginx
@@ -168,7 +181,7 @@
     - name: nginx.config.default.disable
       file:
         path: /etc/nginx/sites-enabled/default
-        state: absent  
+        state: absent
 
     - name: nginx.update
       shell:

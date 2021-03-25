@@ -1,0 +1,60 @@
+- hosts: webserver
+  remote_user: ansible
+  become: yes
+  become_method: sudo
+  vars:
+    - app_dir: /app
+  tasks:
+    #######
+    # GIT #
+    #######
+
+    - name: git.clone
+      git:
+        repo: https://github.com/oliveryh/clear-habits
+        dest: '{{ app_dir }}/repo'
+        version: develop
+        force: yes
+      become_user: ansible
+
+    - name: npm.server.install
+      npm:
+        path: '{{ app_dir }}/repo/server-graphql'
+      become_user: ansible
+
+    - name: npm.server.env
+      template:
+        src: .env.production.server.j2
+        dest: '{{ app_dir }}/repo/server-graphql/.env'
+      become_user: ansible
+      vars:
+        postgresql_pass: '{{ postgresql_pass }}'
+        secret: '{{ secret }}'
+
+    - name: npm.server.build
+      command: npm run build
+      environment:
+        NODE_ENV: production
+      args:
+        chdir: '{{ app_dir }}/repo/server-graphql'
+
+    - name: npm.client.install
+      npm:
+        path: '{{ app_dir }}/repo/client'
+      become_user: ansible
+
+    - name: npm.client.build
+      command: npm run build
+      args:
+        chdir: '{{ app_dir }}/repo/client'
+      become_user: ansible
+
+    #######
+    # PM2 #
+    #######
+
+    - name: pm2.server.restart
+      command: pm2 restart server
+      args:
+        chdir: '{{ app_dir }}/repo/server-graphql'
+      become_user: ansible

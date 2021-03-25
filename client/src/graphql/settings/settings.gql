@@ -1,0 +1,7 @@
+query {
+  settings @client {
+    categorySelected @client
+    dateZoomed @client
+    projectSelected @client
+  }
+}

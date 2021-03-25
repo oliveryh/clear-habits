@@ -49,14 +49,16 @@
     <br />
     <p>
       If you already have an account, please
-      <router-link to="/login" tag="a" active-class="active" exact>Login</router-link>
+      <router-link to="/login" tag="a" active-class="active" exact
+        >Login</router-link
+      >
     </p>
   </q-page>
 </template>
 
 <script>
-import { mapState } from 'vuex'
-import { A_AUTH_REGISTER } from '@/store/actions.type'
+import gql from 'graphql-tag'
+import { onLogin } from '@/vue-apollo'
 
 export default {
   name: 'Register',
@@ -77,40 +79,50 @@ export default {
     ],
   }),
 
-  computed: {
-    ...mapState({
-      errors: (state) => state.auth.errors,
-    }),
-  },
-
-  watch: {
-    errors() {
-      if (Object.keys(this.errors).length) {
-        this.showErrors()
-      }
-    },
-  },
-
   methods: {
-    showErrors() {
-      Object.keys(this.errors).map((key) =>
-        this.$q.notify({
-          group: false,
-          message: key + ' ' + this.errors[key],
-          type: 'negative',
-        }),
-      )
-    },
     onSubmit() {
-      if (this.$refs.form.validate()) {
-        this.$store
-          .dispatch(A_AUTH_REGISTER, {
-            username: this.username,
-            email: this.email,
-            password: this.password,
-          })
-          .then(() => this.$router.push({ name: 'home' }))
-      }
+      this.$refs.form.validate().then((validated) => {
+        if (validated) {
+          this.$apollo
+            .mutate({
+              mutation: gql`
+                mutation(
+                  $username: String!
+                  $email: String!
+                  $password: String!
+                ) {
+                  signUp(
+                    username: $username
+                    email: $email
+                    password: $password
+                  ) {
+                    token
+                  }
+                }
+              `,
+              variables: {
+                username: this.username,
+                email: this.email,
+                password: this.password,
+              },
+              update: async (
+                store,
+                {
+                  data: {
+                    signUp: { token },
+                  },
+                },
+              ) => {
+                this.result = token
+                await onLogin(token)
+              },
+            })
+            .then(() => this.$router.push({ name: 'home' }))
+            .catch((error) => {
+              this.showErrors(error)
+            })
+        }
+      })
     },
   },
 }

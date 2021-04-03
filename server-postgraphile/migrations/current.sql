@@ -63,8 +63,6 @@ $$ language plpgsql strict security definer;
 
 comment on function app_public.sign_up(text, text, text) is 'Registers a single user and creates an account in our forum.';
 
-
-
 create function app_public.sign_in(
     email text,
     password text
@@ -131,6 +129,10 @@ RETURNS boolean AS $$
     END
 $$ LANGUAGE plpgsql IMMUTABLE;
 
+CREATE FUNCTION app_public.current_user_id() RETURNS INTEGER AS $$
+  SELECT NULLIF(current_setting('jwt.claims.person_id', TRUE), '')::INTEGER;
+$$ LANGUAGE SQL IMMUTABLE;
+
 create table app_public.categories (
     id serial primary key,
     description text not null,
@@ -141,6 +143,18 @@ create table app_public.categories (
         references app_public.person on delete cascade
 );
 
+comment on table app_public.categories is E'@omit create';
+
+create function app_public.create_category(
+    description text,
+    color text
+) returns app_public.categories AS $$
+INSERT INTO app_public.categories (description, color, person_id)
+VALUES (description, color, app_public.current_user_id())
+RETURNING *;
+$$ language sql volatile set search_path from current strict;
+
+
 grant app_anonymous to app_postgraphile;
 grant app_person to app_postgraphile;
 grant usage on schema app_public to app_anonymous;
@@ -148,4 +162,9 @@ grant usage on schema app_public to app_person;
 grant usage on sequence app_public.categories_id_seq to app_person;
 
 grant select on table app_public.person to app_person;
-grant select, insert on table app_public.categories to app_person;
+grant select, insert, update on table app_public.categories to app_person;
+
+ALTER TABLE app_public.categories ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY everyone_create ON app_public.categories FOR INSERT WITH CHECK(true);
+CREATE POLICY select_mine ON app_public.categories FOR SELECT USING(person_id = app_public.current_user_id());

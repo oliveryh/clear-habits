@@ -7,6 +7,7 @@ const middleware = postgraphile(config.db.url, 'app_public', {
   watchPg: true,
   graphiql: true,
   enhanceGraphiql: true,
+  enableCors: true,
 })
 
 const app = express()

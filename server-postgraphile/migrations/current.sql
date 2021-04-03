@@ -94,11 +94,48 @@ $$ language sql stable;
 
 comment on function app_public.me() is 'Gets the person who was identified by our JWT.';
 
+CREATE OR REPLACE FUNCTION hex_to_int(hexval varchar) RETURNS integer AS $$
+DECLARE
+  result  int;
+BEGIN
+EXECUTE 'SELECT x''' || hexval || '''::int' INTO result;
+  RETURN result;
+END;
+$$
+LANGUAGE 'plpgsql' IMMUTABLE STRICT;
+
+create function app_public.hex_to_high_contrast(hex_code text)
+RETURNS boolean AS $$
+    DECLARE
+        long_hex text;
+        rgb_r int;
+        rgb_g int;
+        rgb_b int;
+        is_white int;
+    BEGIN
+        IF (length(hex_code) = 4) THEN
+            long_hex := REGEXP_REPLACE(hex_code, '^#?([a-f\d])([a-f\d])([a-f\d])$', '\1\1\2\2\3\3');
+        ELSE
+            long_hex := hex_code;
+        END IF;
+
+        rgb_r := hex_to_int(substring(long_hex from 2 for 2));
+        rgb_g := hex_to_int(substring(long_hex from 4 for 2));
+        rgb_b := hex_to_int(substring(long_hex from 6 for 2));
+
+        IF (ROUND((rgb_r * 299 + rgb_g * 587 + rgb_b * 114) / 1000) > 125) THEN
+            return true;
+        ELSE
+            return false;
+        END IF;
+    END
+$$ LANGUAGE plpgsql IMMUTABLE;
 
 create table app_public.categories (
     id serial primary key,
     description text not null,
     color text check(color ~ '^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$'),
+    color_contrast boolean GENERATED ALWAYS AS (app_public.hex_to_high_contrast(color)) STORED,
     created_at timestamptz NOT NULL DEFAULT now(),
     person_id int not null default current_setting('jwt.claims.person_id', true)::integer
         references app_public.person on delete cascade

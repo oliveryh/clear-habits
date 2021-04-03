@@ -11,6 +11,10 @@ const middleware = postgraphile(config.db.url, 'app_public', {
   jwtSecret: config.server.secret,
   jwtPgTypeIdentifier: 'app_public.jwt_token',
   pgDefaultRole: 'app_anonymous',
+  appendPlugins: [
+    require('@graphile-contrib/pg-simplify-inflector'),
+    require('@graphile/pg-aggregates').default,
+  ],
 })
 
 const app = express()

@@ -22,11 +22,18 @@
             label="Your password *"
             hint="Password (>6 characters long)"
             lazy-rules
-            type="password"
+            :type="isPwd ? 'password' : 'text'"
             :rules="passwordRules"
           >
             <template v-slot:prepend>
               <q-icon name="mdi-lock" />
+            </template>
+            <template v-slot:append>
+              <q-icon
+                :name="isPwd ? 'mdi-eye-off' : 'mdi-eye'"
+                class="cursor-pointer"
+                @click="isPwd = !isPwd"
+              />
             </template>
           </q-input>
         </q-form>
@@ -53,6 +60,7 @@ import { onLogin } from '@/vue-apollo'
 export default {
   name: 'Login',
   data: () => ({
+    isPwd: true,
     valid: true,
     email: '',
     emailRules: [

@@ -8,6 +8,9 @@ const middleware = postgraphile(config.db.url, 'app_public', {
   graphiql: true,
   enhanceGraphiql: true,
   enableCors: true,
+  jwtSecret: config.server.secret,
+  jwtPgTypeIdentifier: 'app_public.jwt_token',
+  pgDefaultRole: 'app_anonymous',
 })
 
 const app = express()

@@ -166,5 +166,4 @@ grant select, insert, update on table app_public.categories to app_person;
 
 ALTER TABLE app_public.categories ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY everyone_create ON app_public.categories FOR INSERT WITH CHECK(true);
-CREATE POLICY select_mine ON app_public.categories FOR SELECT USING(person_id = app_public.current_user_id());
+CREATE POLICY everyone_create ON app_public.categories FOR ALL USING (person_id = app_public.current_user_id());

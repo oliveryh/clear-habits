@@ -8,7 +8,7 @@ beforeAll(async () => {
 })
 describe('categories', () => {
   describe('createCategory', () => {
-    it('creates a category with the correct Person ID', async () => {
+    it('success if correct Person ID', async () => {
       const result = await graphqlCall(
         {
           color: '#000',
@@ -34,7 +34,7 @@ describe('categories', () => {
       }
       expect(result.data.data.createCategory.category).toEqual(expectedResult)
     })
-    it('fails if color is malformed', async () => {
+    it('failure if color is malformed', async () => {
       const result = await graphqlCall(
         {
           color: 'red',
@@ -56,7 +56,7 @@ describe('categories', () => {
         'new row for relation "categories" violates check constraint "color_hex_format"',
       )
     })
-    it('fails if description is empty', async () => {
+    it('failure if description is empty', async () => {
       const result = await graphqlCall(
         {
           color: '#000',
@@ -86,7 +86,7 @@ describe('categories', () => {
     })
   })
   describe('updateCategory', () => {
-    it("error if user tried editing category they don't own", async () => {
+    it("failure if user tried editing category they don't own", async () => {
       const result = await graphqlCall(
         {
           id: initVals.user2Category1Id,
@@ -106,7 +106,7 @@ describe('categories', () => {
         "No values were updated in collection 'categories' because no values you can update were found matching these criteria.",
       )
     })
-    it('fails if description is empty', async () => {
+    it('failure if description is empty', async () => {
       const result = await graphqlCall(
         {
           color: '#000',
@@ -114,8 +114,8 @@ describe('categories', () => {
           description: '',
         },
         initVals.user1Token,
-        `mutation MyMutation($description: String!, $id: Int!) {
-          updateCategory(input: {patch: {description: $description}, id: $id}) {
+        `mutation MyMutation($id: Int!, $description: String, $personId: Int) {
+          updateCategory(input: {patch: {description: $description, personId: $personId}, id: $id}) {
             category {
               id
               description
@@ -125,6 +125,26 @@ describe('categories', () => {
       )
       expect(result.data.errors[0].message).toEqual(
         'new row for relation "categories" violates check constraint "description_is_not_empty"',
+      )
+    })
+    it('failure if updating person id to another user', async () => {
+      const result = await graphqlCall(
+        {
+          id: initVals.user1Category1Id,
+          personId: initVals.user2Id,
+        },
+        initVals.user1Token,
+        `mutation MyMutation($id: Int!, $description: String, $personId: Int) {
+          updateCategory(input: {patch: {description: $description, personId: $personId}, id: $id}) {
+            category {
+              id
+              description
+            }
+          }
+        }`,
+      )
+      expect(result.data.errors[0].message).toEqual(
+        'new row violates row-level security policy for table "categories"',
       )
     })
   })

@@ -69,7 +69,7 @@ const initialiseTests = async () => {
     headers: { Authorization: 'Bearer ' + user2.data.data.signUp.jwtToken },
   }
 
-  const me = await graphqlCall(
+  const me2 = await graphqlCall(
     {},
     user2Token,
     `
@@ -81,7 +81,7 @@ const initialiseTests = async () => {
     `,
   )
 
-  const user2Id = me.data.data.me.id
+  const user2Id = me2.data.data.me.id
 
   const user1Category1 = await graphqlCall(
     {

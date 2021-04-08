@@ -135,8 +135,8 @@ $$ LANGUAGE SQL IMMUTABLE;
 
 create table app_public.categories (
     id serial primary key,
-    description text not null,
-    color text check(color ~ '^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$'),
+    description text not null CONSTRAINT description_is_not_empty CHECK (description <> ''),
+    color text CONSTRAINT color_hex_format check(color ~ '^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$'),
     color_contrast boolean GENERATED ALWAYS AS (app_public.hex_to_high_contrast(color)) STORED,
     created_at timestamptz NOT NULL DEFAULT now(),
     person_id int not null default current_setting('jwt.claims.person_id', true)::integer

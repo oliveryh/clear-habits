@@ -35,6 +35,20 @@ const initialiseTests = async () => {
     headers: { Authorization: 'Bearer ' + user1.data.data.signUp.jwtToken },
   }
 
+  const me = await graphqlCall(
+    {},
+    user1Token,
+    `
+    query MyQuery {
+      me {
+        id
+      }
+    }
+    `,
+  )
+
+  const user1Id = me.data.data.me.id
+
   const user2 = await graphqlCall(
     {
       email: 'hello@banana.com',
@@ -54,6 +68,20 @@ const initialiseTests = async () => {
   const user2Token = {
     headers: { Authorization: 'Bearer ' + user2.data.data.signUp.jwtToken },
   }
+
+  const me = await graphqlCall(
+    {},
+    user2Token,
+    `
+    query MyQuery {
+      me {
+        id
+      }
+    }
+    `,
+  )
+
+  const user2Id = me.data.data.me.id
 
   const user1Category1 = await graphqlCall(
     {
@@ -101,8 +129,10 @@ const initialiseTests = async () => {
 
   return {
     user1Token,
+    user1Id,
     user1Category1Id,
     user2Token,
+    user2Id,
     user2Category1Id,
   }
 }

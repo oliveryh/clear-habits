@@ -127,13 +127,61 @@ const initialiseTests = async () => {
   )
   const user2Category1Id = user2Category1.data.data.createCategory.category.id
 
+  const user1Category1Project1 = await graphqlCall(
+    {
+      description: 'User 1 Category 1 Task 1',
+      categoryId: user1Category1Id,
+    },
+    user1Token,
+    `
+    mutation MyMutation($categoryId: Int!, $description: String!) {
+      createProject(input: {description: $description, categoryId: $categoryId}) {
+        project {
+          id
+          description
+          categoryId
+          personId
+        }
+      }
+    }
+    `,
+  )
+
+  const user1Category1Project1Id =
+    user1Category1Project1.data.data.createProject.project.id
+
+  const user2Category1Project1 = await graphqlCall(
+    {
+      description: 'User 1 Category 1 Task 1',
+      categoryId: user2Category1Id,
+    },
+    user2Token,
+    `
+    mutation MyMutation($categoryId: Int!, $description: String!) {
+      createProject(input: {description: $description, categoryId: $categoryId}) {
+        project {
+          id
+          description
+          categoryId
+          personId
+        }
+      }
+    }
+    `,
+  )
+
+  const user2Category1Project1Id =
+    user2Category1Project1.data.data.createProject.project.id
+
   return {
     user1Token,
     user1Id,
     user1Category1Id,
+    user1Category1Project1Id,
     user2Token,
     user2Id,
     user2Category1Id,
+    user2Category1Project1Id,
   }
 }
 

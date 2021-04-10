@@ -41,7 +41,7 @@ describe('categories', () => {
           description: 'User 1 Category',
         },
         initVals.user1Token,
-        `mutation MyMutation($color: String = "", $description: String = "") {
+        `mutation MyMutation($color: String, $description: String!) {
           createCategory(input: {description: $description, color: $color}) {
             category {
               color
@@ -63,7 +63,7 @@ describe('categories', () => {
           description: '',
         },
         initVals.user1Token,
-        `mutation MyMutation($color: String = "", $description: String = "") {
+        `mutation MyMutation($color: String, $description: String!) {
           createCategory(input: {description: $description, color: $color}) {
             category {
               color

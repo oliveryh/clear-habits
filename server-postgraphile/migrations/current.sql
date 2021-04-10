@@ -136,7 +136,7 @@ $$ LANGUAGE SQL IMMUTABLE;
 create table app_public.categories (
     id serial primary key,
     description text not null CONSTRAINT description_is_not_empty CHECK (description <> ''),
-    color text CONSTRAINT color_hex_format check(color ~ '^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$'),
+    color text CONSTRAINT color_hex_format check(color ~ '^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$') default '#333',
     color_contrast boolean GENERATED ALWAYS AS (app_public.hex_to_high_contrast(color)) STORED,
     created_at timestamptz NOT NULL DEFAULT now(),
     person_id int not null default current_setting('jwt.claims.person_id', true)::integer
@@ -152,18 +152,56 @@ create function app_public.create_category(
 INSERT INTO app_public.categories (description, color, person_id)
 VALUES (description, color, app_public.current_user_id())
 RETURNING *;
-$$ language sql volatile set search_path from current strict;
+$$ language sql volatile set search_path from current;
+
+create or replace function owns_category(int) returns boolean as $$
+select exists (
+    select 1
+    from app_public.categories
+    where id = $1
+    and person_id = app_public.current_user_id()
+);
+$$ language sql;
+
+create table app_public.projects (
+    id serial primary key,
+    description text not null CONSTRAINT description_is_not_empty CHECK (description <> ''),
+    create_at timestamptz NOT NULL DEFAULT now(),
+    person_id int not null default current_setting('jwt.claims.person_id', true)::integer
+        references app_public.person on delete cascade,
+    category_id int not null
+        references app_public.categories on delete cascade
+    constraint person_owns_category check (owns_category(category_id))
+);
+
+comment on table app_public.projects is E'@omit create';
+
+create function app_public.create_project(
+    description text,
+    category_id int
+) returns app_public.projects AS $$
+INSERT INTO app_public.projects (description, category_id, person_id)
+VALUES (description, category_id, app_public.current_user_id())
+RETURNING *;
+$$ language sql volatile set search_path from current;
 
 
 grant app_anonymous to app_postgraphile;
 grant app_person to app_postgraphile;
 grant usage on schema app_public to app_anonymous;
 grant usage on schema app_public to app_person;
-grant usage on sequence app_public.categories_id_seq to app_person;
+
 
 grant select on table app_public.person to app_person;
+
 grant select, insert, update on table app_public.categories to app_person;
+grant usage on sequence app_public.categories_id_seq to app_person;
+
+grant select, insert, update on table app_public.projects to app_person;
+grant usage on sequence app_public.projects_id_seq to app_person;
 
 ALTER TABLE app_public.categories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE app_public.projects ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY everyone_create ON app_public.categories FOR ALL USING (person_id = app_public.current_user_id());
+CREATE POLICY manage_own_categories ON app_public.categories FOR ALL USING (person_id = app_public.current_user_id());
+CREATE POLICY manage_own_projects ON app_public.projects FOR ALL USING (person_id = app_public.current_user_id());

@@ -5,9 +5,6 @@ let initVals
 beforeAll(async () => {
   initData.clearDb()
   initVals = await initData.initialiseTests()
-  if (!initVals) {
-    process.exit(1)
-  }
 })
 describe('projects', () => {
   describe('createProject', () => {
@@ -173,9 +170,9 @@ describe('projects', () => {
         },
         initVals.user1Token,
         `
-        mutation MyMutation($id: Int!, $description: String, $categoryId: Int) {
+        mutation MyMutation($id: Int!, $description: String, $categoryId: Int, $personId: Int) {
           updateProject(
-            input: {patch: {description: $description, categoryId: $categoryId}, id: $id}
+            input: {patch: {description: $description, categoryId: $categoryId, personId: $personId}, id: $id}
           ) {
             project {
               description
@@ -187,6 +184,7 @@ describe('projects', () => {
         }
         `,
       )
+
       expect(result.data.errors[0].message).toEqual(
         'new row violates row-level security policy for table "projects"',
       )

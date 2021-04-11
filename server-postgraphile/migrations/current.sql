@@ -185,6 +185,43 @@ VALUES (description, category_id, app_public.current_user_id())
 RETURNING *;
 $$ language sql volatile set search_path from current;
 
+create or replace function owns_project(int) returns boolean as $$
+begin
+    if $1 IS null then
+        return true;
+    else
+        return exists (
+            select 1
+            from app_public.projects
+            where id = $1
+            and person_id = app_public.current_user_id()
+        );
+    end if;
+end;
+$$ language plpgsql;
+
+create table app_public.tasks (
+    id serial primary key,
+    description text not null CONSTRAINT description_is_not_empty CHECK (description <> ''),
+    complete boolean not null default false,
+    create_at timestamptz NOT NULL DEFAULT now(),
+    person_id int not null default current_setting('jwt.claims.person_id', true)::integer
+        references app_public.person on delete cascade,
+    project_id int
+        references app_public.projects on delete cascade
+    constraint person_owns_project check (owns_project(project_id))
+);
+
+comment on table app_public.tasks is E'@omit create';
+
+create function app_public.create_task(
+    description text,
+    project_id int
+) returns app_public.tasks AS $$
+INSERT INTO app_public.tasks (description, project_id, person_id)
+VALUES (description, project_id, app_public.current_user_id())
+RETURNING *;
+$$ language sql volatile set search_path from current;
 
 grant app_anonymous to app_postgraphile;
 grant app_person to app_postgraphile;
@@ -200,8 +237,13 @@ grant usage on sequence app_public.categories_id_seq to app_person;
 grant select, insert, update on table app_public.projects to app_person;
 grant usage on sequence app_public.projects_id_seq to app_person;
 
+grant select, insert, update on table app_public.tasks to app_person;
+grant usage on sequence app_public.tasks_id_seq to app_person;
+
 ALTER TABLE app_public.categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE app_public.projects ENABLE ROW LEVEL SECURITY;
+ALTER TABLE app_public.tasks ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY manage_own_categories ON app_public.categories FOR ALL USING (person_id = app_public.current_user_id());
 CREATE POLICY manage_own_projects ON app_public.projects FOR ALL USING (person_id = app_public.current_user_id());
+CREATE POLICY manage_own_tasks ON app_public.tasks FOR ALL USING (person_id = app_public.current_user_id());

@@ -16,7 +16,7 @@ drop table if exists app_public.categories;
 create table app_public.person (
     id serial primary key,
     username text not null check (char_length(username) < 80),
-    create_at timestamp default now()
+    created_at timestamp default now()
 );
 
 create table app_private.person_account (
@@ -166,7 +166,7 @@ $$ language sql;
 create table app_public.projects (
     id serial primary key,
     description text not null CONSTRAINT description_is_not_empty CHECK (description <> ''),
-    create_at timestamptz NOT NULL DEFAULT now(),
+    created_at timestamptz NOT NULL DEFAULT now(),
     person_id int not null default current_setting('jwt.claims.person_id', true)::integer
         references app_public.person on delete cascade,
     category_id int not null
@@ -204,7 +204,7 @@ create table app_public.tasks (
     id serial primary key,
     description text not null CONSTRAINT description_is_not_empty CHECK (description <> ''),
     complete boolean not null default false,
-    create_at timestamptz NOT NULL DEFAULT now(),
+    created_at timestamptz NOT NULL DEFAULT now(),
     person_id int not null default current_setting('jwt.claims.person_id', true)::integer
         references app_public.person on delete cascade,
     project_id int
@@ -223,6 +223,98 @@ VALUES (description, project_id, app_public.current_user_id())
 RETURNING *;
 $$ language sql volatile set search_path from current;
 
+create or replace function owns_task(int) returns boolean as $$
+begin
+    if $1 IS null then
+        return true;
+    else
+        return exists (
+            select 1
+            from app_public.tasks
+            where id = $1
+            and person_id = app_public.current_user_id()
+        );
+    end if;
+end;
+$$ language plpgsql;
+
+create table app_public.entries (
+    id serial primary key,
+    description text not null CONSTRAINT description_is_not_empty CHECK (description <> ''),
+    complete boolean not null default false,
+    created_at timestamptz NOT NULL DEFAULT now(),
+    timer_started_at timestamptz default NULL,
+    timer_estimated_time int NOT NULL default 0,
+    timer_tracked_time int NOT NULL default 0,
+    timer_active boolean NOT NULL default false,
+    person_id int not null default current_setting('jwt.claims.person_id', true)::integer
+        references app_public.person on delete cascade,
+    task_id int not null
+        references app_public.tasks on delete cascade
+    constraint person_owns_task check (owns_task(task_id))
+);
+
+comment on table app_public.entries is E'@omit create';
+
+create function app_public.create_entry(
+    description text,
+    timer_estimated_time int,
+    timer_tracked_time int,
+    task_id int
+) returns app_public.entries AS $$
+INSERT INTO app_public.entries (description, timer_estimated_time, timer_tracked_time, task_id, person_id)
+VALUES (description, timer_estimated_time, timer_tracked_time, task_id, app_public.current_user_id())
+RETURNING *;
+$$ language sql volatile set search_path from current;
+
+create function app_public.start_entry(
+    id int
+) returns app_public.entries AS $$
+DECLARE
+    entry app_public.entries;
+BEGIN
+    SELECT a.* INTO entry
+    FROM app_public.entries as a
+    where a.id = $1;
+
+    if entry.timer_active = false then
+        UPDATE app_public.entries
+        SET
+            timer_active = true,
+            timer_started_at = now()
+        WHERE app_public.entries.id = $1
+        RETURNING * into entry;
+    end if;
+
+    RETURN entry;
+END;
+$$ language plpgsql;
+
+create function app_public.stop_entry(
+    id int
+) returns app_public.entries AS $$
+DECLARE
+    entry app_public.entries;
+BEGIN
+    SELECT a.* INTO entry
+    FROM app_public.entries as a
+    where a.id = $1;
+
+    if entry.timer_active = true then
+        UPDATE app_public.entries
+        SET
+            timer_active = false,
+            timer_started_at = null,
+            timer_tracked_time = EXTRACT(EPOCH FROM (now() - entry.timer_started_at))
+        WHERE app_public.entries.id = $1
+        RETURNING * into entry;
+    end if;
+
+    RETURN entry;
+END;
+$$ language plpgsql;
+
+
 grant app_anonymous to app_postgraphile;
 grant app_person to app_postgraphile;
 grant usage on schema app_public to app_anonymous;
@@ -240,10 +332,15 @@ grant usage on sequence app_public.projects_id_seq to app_person;
 grant select, insert, update on table app_public.tasks to app_person;
 grant usage on sequence app_public.tasks_id_seq to app_person;
 
+grant select, insert, update on table app_public.entries to app_person;
+grant usage on sequence app_public.entries_id_seq to app_person;
+
 ALTER TABLE app_public.categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE app_public.projects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE app_public.tasks ENABLE ROW LEVEL SECURITY;
+ALTER TABLE app_public.entries ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY manage_own_categories ON app_public.categories FOR ALL USING (person_id = app_public.current_user_id());
 CREATE POLICY manage_own_projects ON app_public.projects FOR ALL USING (person_id = app_public.current_user_id());
 CREATE POLICY manage_own_tasks ON app_public.tasks FOR ALL USING (person_id = app_public.current_user_id());
+CREATE POLICY manage_own_tasks ON app_public.entries FOR ALL USING (person_id = app_public.current_user_id());

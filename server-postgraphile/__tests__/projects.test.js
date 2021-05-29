@@ -3,7 +3,6 @@ const initData = require('./init.js')
 
 let initVals
 beforeAll(async () => {
-  initData.clearDb()
   initVals = await initData.initialiseTests()
 })
 describe('projects', () => {

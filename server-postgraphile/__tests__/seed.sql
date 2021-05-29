@@ -30,12 +30,15 @@ BEGIN
 	INSERT INTO app_public.tasks (person_id, project_id, description) VALUES (user1, user1_project, 'Task 1') RETURNING id into user1_task;
 	INSERT INTO app_public.entries (person_id, task_id, description) VALUES (user1, user1_task, 'Entry 1') RETURNING id into user1_entry;
 
+	INSERT INTO app_public.tasks (person_id, project_id, description) VALUES (user1, user1_project, 'Task Complete') RETURNING id into user1_task_complete;
+	INSERT INTO app_public.entries (person_id, task_id, description, timer_estimated_time) VALUES (user1, user1_task_complete, 'Entry With Estimated Time', 60) RETURNING id into user1_entry_complete;
+
 	INSERT INTO app_public.tasks (person_id, project_id, description, complete) VALUES (user1, user1_project, 'Task Complete', true) RETURNING id into user1_task_complete;
 	INSERT INTO app_public.entries (person_id, task_id, description, complete) VALUES (user1, user1_task_complete, 'Entry Complete', true) RETURNING id into user1_entry_complete;
 
 	SELECT a.person_id into user2 FROM app_public.sign_up('user2', 'hello@user2.com', 'password') as a;
 
-	-- Log in as User 1
+	-- Log in as User 2
 	PERFORM (SELECT * FROM set_config('role', 'app_person', true));
 	PERFORM (SELECT * FROM set_config('jwt.claims.person_id', user2::text, true));
 

@@ -258,12 +258,12 @@ comment on table app_public.entries is E'@omit create';
 
 create function app_public.create_entry(
     description text,
-    timer_estimated_time int,
-    timer_tracked_time int,
-    task_id int
+    task_id int,
+    timer_estimated_time int default 0,
+    timer_tracked_time int default 0
 ) returns app_public.entries AS $$
-INSERT INTO app_public.entries (description, timer_estimated_time, timer_tracked_time, task_id, person_id)
-VALUES (description, timer_estimated_time, timer_tracked_time, task_id, app_public.current_user_id())
+INSERT INTO app_public.entries (description, task_id, person_id, timer_estimated_time, timer_tracked_time)
+VALUES (description, task_id, app_public.current_user_id(), timer_estimated_time, timer_tracked_time)
 RETURNING *;
 $$ language sql volatile set search_path from current;
 
@@ -314,6 +314,83 @@ BEGIN
 END;
 $$ language plpgsql;
 
+create function app_public.complete_entry(
+    id int
+) returns app_public.entries AS $$
+DECLARE
+    entry app_public.entries;
+    num_task_entries int;
+BEGIN
+
+    SELECT a.* INTO entry
+    FROM app_public.entries as a
+    where a.id = $1;
+
+    if entry.timer_active = true then
+
+    end if;
+
+    if entry.timer_active = true then
+        UPDATE app_public.entries
+        SET
+            timer_active = false,
+            timer_started_at = null,
+            timer_tracked_time = EXTRACT(EPOCH FROM (now() - entry.timer_started_at))
+        WHERE app_public.entries.id = $1
+        RETURNING * into entry;
+    end if;
+
+    if ((entry.timer_tracked_time = 0) OR ((entry.timer_tracked_time = null) AND (entry.timer_estimated_time != 0))) then
+        UPDATE app_public.entries
+        SET
+            timer_tracked_time = entry.timer_estimated_time
+        WHERE app_public.entries.id = $1
+        RETURNING * into entry;
+    end if;
+
+    UPDATE app_public.entries
+    SET
+        complete = true
+    WHERE app_public.entries.id = $1
+    RETURNING * into entry;
+
+    SELECT COUNT(*) INTO num_task_entries
+    FROM app_public.entries as a
+    where a.task_id = entry.task_id;
+
+    if num_task_entries = 1 then
+        UPDATE app_public.tasks
+        SET
+            complete = true
+        WHERE app_public.tasks.id = entry.task_id;
+    end if;
+
+    RETURN entry;
+END;
+$$ language plpgsql;
+
+
+create function app_public.restart_entry(
+    id int
+) returns app_public.entries AS $$
+DECLARE
+    entry app_public.entries;
+BEGIN
+
+    UPDATE app_public.entries
+    SET
+        complete = false
+    WHERE app_public.entries.id = $1
+    RETURNING * into entry;
+
+    UPDATE app_public.tasks
+    SET
+        complete = false
+    WHERE app_public.tasks.id = entry.task_id;
+
+    RETURN entry;
+END;
+$$ language plpgsql;
 
 grant app_anonymous to app_postgraphile;
 grant app_person to app_postgraphile;
@@ -343,4 +420,4 @@ ALTER TABLE app_public.entries ENABLE ROW LEVEL SECURITY;
 CREATE POLICY manage_own_categories ON app_public.categories FOR ALL USING (person_id = app_public.current_user_id());
 CREATE POLICY manage_own_projects ON app_public.projects FOR ALL USING (person_id = app_public.current_user_id());
 CREATE POLICY manage_own_tasks ON app_public.tasks FOR ALL USING (person_id = app_public.current_user_id());
-CREATE POLICY manage_own_tasks ON app_public.entries FOR ALL USING (person_id = app_public.current_user_id());
+CREATE POLICY manage_own_entries ON app_public.entries FOR ALL USING (person_id = app_public.current_user_id());

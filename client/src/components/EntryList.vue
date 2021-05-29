@@ -42,6 +42,11 @@
       </div>
     </div>
     <div class="row">
+      <div class="col col-12 q-py-none">
+        <h6 class="font-m-medium q-my-none q-mx-none text-left">
+          {{ timeSummary }}
+        </h6>
+      </div>
       <div class="col col-12" :class="settings.dateZoomed ? 'col-lg-12' : ''">
         <button-add objectName="Task" @click="addTask" class="float-left" />
         <q-btn

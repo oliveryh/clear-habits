@@ -277,6 +277,10 @@ BEGIN
     FROM app_public.entries as a
     where a.id = $1;
 
+    if entry IS NULL then
+        RAISE EXCEPTION 'You do not have permission to update this entry';
+    end if;
+
     if entry.timer_active = false then
         UPDATE app_public.entries
         SET
@@ -326,8 +330,8 @@ BEGIN
     FROM app_public.entries as a
     where a.id = $1;
 
-    if entry.timer_active = true then
-
+    if entry IS NULL then
+        RAISE EXCEPTION 'You do not have permission to update this entry';
     end if;
 
     if entry.timer_active = true then
@@ -382,6 +386,10 @@ BEGIN
         complete = false
     WHERE app_public.entries.id = $1
     RETURNING * into entry;
+
+    if entry IS NULL then
+        RAISE EXCEPTION 'You do not have permission to update this entry';
+    end if;
 
     UPDATE app_public.tasks
     SET

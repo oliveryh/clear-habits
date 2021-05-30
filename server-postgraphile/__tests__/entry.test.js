@@ -220,6 +220,99 @@ describe('entries', () => {
       )
     })
   })
+  describe('startEntry', () => {
+    it('successfully start entry', async () => {
+      const result = await graphqlCall(
+        {
+          id: initVals.user1Category1Project1Task5Entry1Id,
+        },
+        initVals.user1Token,
+        `
+        mutation MyMutation($id: Int!) {
+          startEntry(input: {id: $id}) {
+            entry {
+              timerActive
+              timerStartedAt
+            }
+          }
+        }
+        `,
+      )
+      const actualResult = result.data.data.startEntry.entry
+      expect(actualResult.timerActive).toEqual(true)
+      expect(actualResult.timerStartedAt).not.toEqual(null)
+    })
+    it('failure if id not owned by user', async () => {
+      const result = await graphqlCall(
+        {
+          id: initVals.user2Category1Project1Task1Entry1Id,
+        },
+        initVals.user1Token,
+        `
+        mutation MyMutation($id: Int!) {
+          startEntry(input: {id: $id}) {
+            entry {
+              timerActive
+              timerStartedAt
+            }
+          }
+        }
+        `,
+      )
+
+      expect(result.data.errors[0].message).toEqual(
+        'You do not have permission to update this entry',
+      )
+    })
+  })
+  describe('stopEntry', () => {
+    it('successfully stop entry', async () => {
+      const result = await graphqlCall(
+        {
+          id: initVals.user1Category1Project1Task6Entry1Id,
+        },
+        initVals.user1Token,
+        `
+        mutation MyMutation($id: Int!) {
+          stopEntry(input: {id: $id}) {
+            entry {
+              timerActive
+              timerStartedAt
+              timerTrackedTime
+            }
+          }
+        }
+        `,
+      )
+      const actualResult = result.data.data.stopEntry.entry
+      expect(actualResult.timerActive).toEqual(false)
+      expect(actualResult.timerStartedAt).toEqual(null)
+      expect(actualResult.timerTrackedTime).toEqual(3600)
+    })
+    it('failure if id not owned by user', async () => {
+      const result = await graphqlCall(
+        {
+          id: initVals.user2Category1Project1Task1Entry1Id,
+        },
+        initVals.user1Token,
+        `
+        mutation MyMutation($id: Int!) {
+          startEntry(input: {id: $id}) {
+            entry {
+              timerActive
+              timerStartedAt
+              timerTrackedTime
+            }
+          }
+        }
+        `,
+      )
+
+      expect(result.data.errors[0].message).toEqual(
+        'You do not have permission to update this entry',
+      )
+    })
+  })
   describe('completeEntry', () => {
     it('successfully complete entry', async () => {
       const result = await graphqlCall(
@@ -235,6 +328,7 @@ describe('entries', () => {
               timerEstimatedTime
               timerTrackedTime
               timerStartedAt
+              complete
               task {
                 complete
               }
@@ -248,6 +342,7 @@ describe('entries', () => {
         timerEstimatedTime: 0,
         timerStartedAt: null,
         timerTrackedTime: 0,
+        complete: true,
         task: {
           complete: true,
         },
@@ -268,6 +363,7 @@ describe('entries', () => {
               timerEstimatedTime
               timerTrackedTime
               timerStartedAt
+              complete
               task {
                 complete
               }
@@ -281,38 +377,94 @@ describe('entries', () => {
         timerEstimatedTime: 60,
         timerStartedAt: null,
         timerTrackedTime: 60,
+        complete: true,
         task: {
           complete: true,
         },
       }
       expect(result.data.data.completeEntry.entry).toEqual(expectedResult)
     })
-    // it('failure if id not owned by user', async () => {
-    //   const result = await graphqlCall(
-    //     {
-    //       id: initVals.user2Category1Project1Task1Entry1Id,
-    //     },
-    //     initVals.user1Token,
-    //     `
-    //     mutation MyMutation($id: Int!) {
-    //       completeEntry(input: {id: $id}) {
-    //         entry {
-    //           timerActive
-    //           timerEstimatedTime
-    //           timerTrackedTime
-    //           timerStartedAt
-    //           task {
-    //             complete
-    //           }
-    //         }
-    //       }
-    //     }
-    //     `,
-    //   )
+    it('failure if id not owned by user', async () => {
+      const result = await graphqlCall(
+        {
+          id: initVals.user2Category1Project1Task1Entry1Id,
+        },
+        initVals.user1Token,
+        `
+        mutation MyMutation($id: Int!) {
+          completeEntry(input: {id: $id}) {
+            entry {
+              timerActive
+              timerEstimatedTime
+              timerTrackedTime
+              timerStartedAt
+              complete
+              task {
+                complete
+              }
+            }
+          }
+        }
+        `,
+      )
 
-    //   expect(result.data.errors[0].message).toEqual(
-    //     'new row for relation "entries" violates check constraint "person_owns_task"',
-    //   )
-    // })
+      expect(result.data.errors[0].message).toEqual(
+        'You do not have permission to update this entry',
+      )
+    })
+  })
+  describe('restartEntry', () => {
+    it('successfully restart entry', async () => {
+      const result = await graphqlCall(
+        {
+          id: initVals.user1Category1Project1Task6Entry1Id,
+        },
+        initVals.user1Token,
+        `
+        mutation MyMutation($id: Int!) {
+          restartEntry(input: {id: $id}) {
+            entry {
+              complete
+              task {
+                complete
+              }
+            }
+          }
+        }
+        `,
+      )
+      const expectedResult = {
+        complete: false,
+        task: {
+          complete: false,
+        },
+      }
+      expect(result.data.data.restartEntry.entry).toEqual(expectedResult)
+    })
+
+    it('failure if id not owned by user', async () => {
+      const result = await graphqlCall(
+        {
+          id: initVals.user2Category1Project1Task1Entry1Id,
+        },
+        initVals.user1Token,
+        `
+        mutation MyMutation($id: Int!) {
+          restartEntry(input: {id: $id}) {
+            entry {
+              complete
+              task {
+                complete
+              }
+            }
+          }
+        }
+        `,
+      )
+
+      expect(result.data.errors[0].message).toEqual(
+        'You do not have permission to update this entry',
+      )
+    })
   })
 })

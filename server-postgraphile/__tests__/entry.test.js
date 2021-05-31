@@ -467,4 +467,73 @@ describe('entries', () => {
       )
     })
   })
+  describe('createEntryWithTask', () => {
+    it('successfully create entry with task', async () => {
+      const result = await graphqlCall(
+        {
+          description: 'Test Task',
+          projectId: initVals.user1Category1Project1Id,
+          timerEstimatedTime: 600,
+        },
+        initVals.user1Token,
+        `
+        mutation MyMutation($description: String!, $projectId: Int, $timerEstimatedTime: Int) {
+          createEntryWithTask(input: {description: $description, projectId: $projectId, timerEstimatedTime: $timerEstimatedTime}) {
+            entry {
+              timerEstimatedTime
+              task {
+                complete
+                description
+                projectId
+              }
+            }
+          }
+        }
+        `,
+      )
+      const expectedResult = {
+        timerEstimatedTime: 600,
+        task: {
+          complete: false,
+          description: 'Test Task',
+          projectId: initVals.user1Category1Project1Id,
+        },
+      }
+      expect(result.data.data.createEntryWithTask.entry).toEqual(expectedResult)
+    })
+
+    it('failure if project id not owned by user', async () => {
+      const result = await graphqlCall(
+        {
+          description: 'Test Task',
+          projectId: initVals.user2Category1Project1Id,
+        },
+        initVals.user1Token,
+        `
+        mutation MyMutation($description: String!, $projectId: Int, $timerEstimatedTime: Int) {
+          createEntryWithTask(input: {description: $description, projectId: $projectId, timerEstimatedTime: $timerEstimatedTime}) {
+            entry {
+              timerEstimatedTime
+              task {
+                complete
+                description
+                projectId
+              }
+            }
+          }
+        }
+        `,
+      )
+      const expectedResult = {
+        task: {
+          complete: false,
+          description: 'Test Task',
+          projectId: initVals.user1Category1Project1Id,
+        },
+      }
+      expect(result.data.errors[0].message).toEqual(
+        'new row for relation "tasks" violates check constraint "person_owns_project"',
+      )
+    })
+  })
 })

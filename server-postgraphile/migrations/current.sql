@@ -400,6 +400,27 @@ BEGIN
 END;
 $$ language plpgsql;
 
+create function app_public.create_entry_with_task(
+    description text,
+    project_id int,
+    timer_estimated_time int default 0
+) returns app_public.entries AS $$
+DECLARE
+    task app_public.tasks;
+    entry app_public.entries;
+BEGIN
+    INSERT INTO app_public.tasks (description, project_id, person_id)
+    VALUES (description, project_id, app_public.current_user_id())
+    RETURNING * into task;
+
+    INSERT INTO app_public.entries (description, task_id, person_id, timer_estimated_time)
+    VALUES (description, task.id, app_public.current_user_id(), timer_estimated_time)
+    RETURNING * into entry;
+
+    RETURN entry;
+END;
+$$ language plpgsql;
+
 grant app_anonymous to app_postgraphile;
 grant app_person to app_postgraphile;
 grant usage on schema app_public to app_anonymous;

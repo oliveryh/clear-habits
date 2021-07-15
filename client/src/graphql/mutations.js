@@ -1,7 +1,7 @@
 // category
-import M_CATEGORY_CREATE from '@/graphql/category/categoryCreate.gql'
-import M_CATEGORY_UPDATE from '@/graphql/category/categoryUpdate.gql'
-import M_CATEGORY_DELETE from '@/graphql/category/categoryDelete.gql'
+import M_CATEGORY_CREATE from '@/graphql/category/createCategory.gql'
+import M_CATEGORY_UPDATE from '@/graphql/category/updateCategory.gql'
+import M_CATEGORY_DELETE from '@/graphql/category/deleteCategory.gql'
 
 // project
 import M_PROJECT_CREATE from '@/graphql/project/projectCreate.gql'

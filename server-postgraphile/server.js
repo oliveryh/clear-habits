@@ -15,6 +15,8 @@ const middleware = postgraphile(config.db.url, 'app_public', {
     require('@graphile-contrib/pg-simplify-inflector'),
     require('@graphile/pg-aggregates').default,
   ],
+  simpleCollections: 'only',
+  graphileBuildOptions: { pgOmitListSuffix: true },
 })
 
 const app = express()

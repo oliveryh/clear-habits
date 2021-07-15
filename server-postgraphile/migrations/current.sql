@@ -144,6 +144,10 @@ create table app_public.categories (
 );
 
 comment on table app_public.categories is E'@omit create';
+comment on column app_public.categories.id is E'@omit update';
+comment on column app_public.categories.color_contrast is E'@omit update';
+comment on column app_public.categories.created_at is E'@omit update';
+comment on column app_public.categories.person_id is E'@omit update';
 
 create function app_public.create_category(
     description text,

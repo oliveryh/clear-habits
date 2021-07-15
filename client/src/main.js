@@ -179,7 +179,7 @@ export const mixins = {
           mutation,
           variables,
           update: (store, { data }) => {
-            const fragmentUpdate = data[objectType]
+            const fragmentUpdate = data[objectType.toLowerCase()][objectType]
             const fragmentId = objectType + ':' + fragmentUpdate.id
             const fragmentNew = store.readFragment({
               id: fragmentId,
@@ -203,7 +203,14 @@ export const mixins = {
         .mutate({
           mutation: M_CATEGORY_CREATE,
           variables: category,
-          update: (store, { data: { Category } }) => {
+          update: (
+            store,
+            {
+              data: {
+                category: { Category },
+              },
+            },
+          ) => {
             const data = store.readQuery({
               query: Q_CATEGORY,
             })

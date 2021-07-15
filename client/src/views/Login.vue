@@ -82,26 +82,26 @@ export default {
           this.$apollo
             .mutate({
               mutation: gql`
-                mutation($login: String!, $password: String!) {
-                  signIn(login: $login, password: $password) {
-                    token
+                mutation ($email: String!, $password: String!) {
+                  signIn(input: { email: $email, password: $password }) {
+                    jwtToken
                   }
                 }
               `,
               variables: {
-                login: this.email,
+                email: this.email,
                 password: this.password,
               },
               update: async (
                 store,
                 {
                   data: {
-                    signIn: { token },
+                    signIn: { jwtToken },
                   },
                 },
               ) => {
-                this.result = token
-                await onLogin(token)
+                this.result = jwtToken
+                await onLogin(jwtToken)
               },
             })
             .then(() => this.$router.push({ name: 'home' }))

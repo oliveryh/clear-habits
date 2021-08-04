@@ -47,13 +47,13 @@
                   outlined
                   v-model="newProjectDescription"
                   label="New Project"
-                  @keydown.enter="projectCreateLocal"
+                  @keydown.enter="createProjectLocal"
                 ></q-input>
               </q-form>
             </q-card-section>
             <q-card-actions align="right" class="text-primary">
               <q-btn flat label="Cancel" @click="addProjectDialog = false" />
-              <q-btn flat label="Add" @click="projectCreateLocal" />
+              <q-btn flat label="Add" @click="createProjectLocal" />
             </q-card-actions>
           </q-card>
         </q-dialog>
@@ -146,13 +146,13 @@ export default {
     newProjectDescription: null,
   }),
   methods: {
-    projectCreateLocal() {
+    createProjectLocal() {
       this.addProjectDialog = false
       const newProject = {
         categoryId: this.category.id,
         description: this.newProjectDescription,
       }
-      this.projectCreate(newProject)
+      this.createProject(newProject)
       this.newProjectDescription = null
     },
     // editor

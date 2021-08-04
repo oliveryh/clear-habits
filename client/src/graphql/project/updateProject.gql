@@ -1,0 +1,10 @@
+mutation($id: Int!, $description: String!) {
+  Project: updateProject(
+    input: { patch: { description: $description }, id: $id }
+  ) {
+    project {
+      id
+      description
+    }
+  }
+}

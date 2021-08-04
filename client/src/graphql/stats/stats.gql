@@ -1,8 +1,0 @@
-query($startDate: String!, $period: String!) {
-  stats(startDate: $startDate, period: $period) {
-    statsBarCategory
-    statsPieCategory
-    statsBarProject
-    statsPieProject
-  }
-}

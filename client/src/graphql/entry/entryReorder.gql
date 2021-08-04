@@ -1,8 +1,0 @@
-#import "../EntryFragment.gql"
-
-mutation($date: String!, $entries: [EntryReorder!]!) {
-  entryReorder(date: $date, entries: $entries) {
-    ...Entry
-    date
-  }
-}

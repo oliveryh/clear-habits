@@ -50,7 +50,7 @@ export const F_ENTRY = gql`
   fragment Entry on Entry {
     id
     description
-    order
+    listOrder
     complete
     timerActive
     timerTrackedTime

@@ -83,7 +83,7 @@
               outlined
               v-model="newEntry.description"
               label="New Entry"
-              @keydown.enter="entryCreateWithTask"
+              @keydown.enter="createEntryWithTask"
             ></q-input>
             <q-input
               class="q-pa-sm"
@@ -91,7 +91,7 @@
               v-model="newEntryEstimatedTime"
               mask="time"
               :rules="['time']"
-              @keydown.enter="entryCreateWithTask"
+              @keydown.enter="createEntryWithTask"
             >
               <template v-slot:append>
                 <q-icon name="access_time" class="cursor-pointer">
@@ -117,7 +117,7 @@
         </q-card-section>
         <q-card-actions align="right" class="text-primary">
           <q-btn flat label="Cancel" @click="editorDialog = false" />
-          <q-btn flat label="Add" @click="entryCreateWithTask" />
+          <q-btn flat label="Add" @click="createEntryWithTask" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -179,22 +179,22 @@ export default {
         for (let i = 0; i < reorderedEntries.length; i++) {
           reorderedEntriesOrders.push({
             id: reorderedEntries[i].id,
-            order: i,
+            listOrder: i,
+            date: this.date,
           })
         }
 
         this.$apollo.mutate({
           mutation: M_ENTRY_REORDER,
           variables: {
-            date: this.date,
-            entries: reorderedEntriesOrders,
+            entryOrders: reorderedEntriesOrders,
           },
-          update: (store, { data: { entryReorder } }) => {
+          update: (store, { data: { reorderEntries } }) => {
             const data = store.readQuery({
               query: Q_ENTRY,
             })
 
-            entryReorder.forEach((entry) => {
+            reorderEntries.forEach((entry) => {
               const alteredEntry = data.entries.find((e) => e.id === entry.id)
               Object.assign(alteredEntry, entry)
             })
@@ -244,8 +244,8 @@ export default {
     },
   },
   methods: {
-    // TODO: Validate form before entryCreate runs
-    entryCreateWithTask() {
+    // TODO: Validate form before createEntry runs
+    createEntryWithTask() {
       this.editorDialog = false
       var entry = {
         description: this.newEntry.description,
@@ -261,11 +261,18 @@ export default {
         .mutate({
           mutation: M_ENTRY_CREATE_WITH_TASK,
           variables: entry,
-          update: (store, { data: { entryCreateWithTask } }) => {
+          update: (
+            store,
+            {
+              data: {
+                createEntryWithTask: { entry },
+              },
+            },
+          ) => {
             const data = store.readQuery({
               query: Q_ENTRY,
             })
-            data.entries.push(entryCreateWithTask)
+            data.entries.push(entry)
             store.writeQuery({
               query: Q_ENTRY,
               data,

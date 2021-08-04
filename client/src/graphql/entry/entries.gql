@@ -9,11 +9,11 @@ query {
       description
       project {
         id
-        color
         description
         category {
           id
           color
+          colorContrast
           description
         }
       }

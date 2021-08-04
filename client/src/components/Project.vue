@@ -45,7 +45,7 @@
             flat
             label="Delete"
             color="warning"
-            @click="projectDelete(project)"
+            @click="deleteProject(project)"
             v-close-popup
           />
         </q-card-actions>
@@ -78,7 +78,7 @@ export default {
       this.$refs.form.validate().then((success) => {
         if (success) {
           this.editorDialog = false
-          this.projectUpdate(this.editedProject)
+          this.updateProject(this.editedProject)
         }
       })
     },

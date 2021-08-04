@@ -1,0 +1,39 @@
+#import "../EntryFragment.gql"
+
+mutation(
+  $projectId: Int!
+  $description: String!
+  $date: String
+  $timerEstimatedTime: Int
+) {
+  createEntryWithTask(
+    input: {
+      description: $description
+      projectId: $projectId
+      timerEstimatedTime: $timerEstimatedTime
+      date: $date
+    }
+  ) {
+    entry {
+      ...Entry
+      date
+      task {
+        id
+        description
+        project {
+          id
+          description
+          category {
+            id
+            color
+            colorContrast
+            description
+          }
+        }
+        entries {
+          id
+        }
+      }
+    }
+  }
+}

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <q-card>
+    <q-card v-if="series.length > 0">
       <q-card-section>
         <div class="row">
           <div class="col col-8">

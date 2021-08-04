@@ -61,19 +61,23 @@
       <p>Loading...</p>
     </div>
     <div v-else>
-      <div v-if="period == 'daily'">
+      <div>
         <div class="row">
           <div class="col-12 col-md-4 q-pa-md">
             <ch-chart-pie-categorical
-              :data="getPieCategorical"
+              :data="statsPieCategory"
               :colors="getColors"
             ></ch-chart-pie-categorical>
           </div>
           <div class="col-12 col-md-8 q-pa-md">
             <ch-chart-time-categorical
-              :data="getTimesCategorical"
-              :dateRange="dateSpread(this.startDate)"
-              xaxisType="datetime"
+              :data="statsTimeCategory"
+              :dateRange="
+                period == 'daily'
+                  ? dateSpread(startDate)
+                  : weekSpread(startDate)
+              "
+              :xaxisType="period == 'daily' ? 'datetime' : 'categories'"
               :colors="getColors"
             ></ch-chart-time-categorical>
           </div>
@@ -81,46 +85,18 @@
         <div v-if="categorySelected" class="row">
           <div class="col-12 col-md-4 q-pa-md">
             <ch-chart-pie-categorical
-              :data="getProjects"
+              :data="statsPieProject"
             ></ch-chart-pie-categorical>
           </div>
           <div class="col-12 col-md-8 q-pa-md">
             <ch-chart-time-categorical
-              :data="getProjectsSum"
-              :dateRange="dateSpread(this.startDate)"
-              xaxisType="datetime"
-            ></ch-chart-time-categorical>
-          </div>
-        </div>
-      </div>
-      <div v-else>
-        <div class="row">
-          <div class="col-12 col-md-4 q-pa-md">
-            <ch-chart-pie-categorical
-              :data="getPieCategorical"
-              :colors="getColors"
-            ></ch-chart-pie-categorical>
-          </div>
-          <div class="col-12 col-md-8 q-pa-md">
-            <ch-chart-time-categorical
-              :data="getTimesCategorical"
-              :dateRange="weekSpread(this.startDate)"
-              xaxisType="categories"
-              :colors="getColors"
-            ></ch-chart-time-categorical>
-          </div>
-        </div>
-        <div v-if="categorySelected" class="row">
-          <div class="col-12 col-md-4 q-pa-md">
-            <ch-chart-pie-categorical
-              :data="getProjects"
-            ></ch-chart-pie-categorical>
-          </div>
-          <div class="col-12 col-md-8 q-pa-md">
-            <ch-chart-time-categorical
-              :data="getProjectsSum"
-              :dateRange="weekSpread(this.startDate)"
-              xaxisType="categories"
+              :data="statsTimeProject"
+              :dateRange="
+                period == 'daily'
+                  ? dateSpread(startDate)
+                  : weekSpread(startDate)
+              "
+              :xaxisType="period == 'daily' ? 'datetime' : 'categories'"
             ></ch-chart-time-categorical>
           </div>
         </div>
@@ -134,7 +110,127 @@ import ChChartPieCategorical from '@/components/ChartPieCategorical.vue'
 import ChDateSelector from '@/components/DateSelector.vue'
 import ChProjectPicker from '@/components/ProjectPicker'
 
-import { Q_CATEGORY, Q_STATS } from '@/graphql/queries'
+import {
+  Q_CATEGORY,
+  Q_STATS_PIE_CATEGORY,
+  Q_STATS_TIME_CATEGORY,
+  Q_STATS_PIE_PROJECT,
+  Q_STATS_TIME_PROJECT,
+} from '@/graphql/queries'
+
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1)
+}
+
+const queryMapping = {
+  'time,category': Q_STATS_TIME_CATEGORY,
+  'time,project': Q_STATS_TIME_PROJECT,
+  'pie,category': Q_STATS_PIE_CATEGORY,
+  'pie,project': Q_STATS_PIE_PROJECT,
+}
+
+let generateQuery = (graphType, level) => {
+  return {
+    skip() {
+      if (level == 'project') {
+        return !this.categorySelected
+      } else {
+        return false
+      }
+    },
+    variables() {
+      var statFilter = {}
+      if (level == 'project') {
+        statFilter['categoryId'] = {
+          equalTo: this.categorySelected.id,
+        }
+      }
+      var groupBy = []
+      if (this.period == 'daily') {
+        if (graphType == 'time') {
+          groupBy.push('ENTRY_DATE')
+        }
+        statFilter['entryDate'] = { in: this.dateSpread(this.startDate) }
+      } else {
+        if (graphType == 'time') {
+          groupBy.push('ENTRY_WEEK_NUMBER')
+        }
+        statFilter['entryWeekNumber'] = {
+          in: this.weekSpread(this.startDate),
+        }
+      }
+      groupBy = groupBy.concat([
+        `${level.toUpperCase()}_DESCRIPTION`,
+        `${level.toUpperCase()}_ID`,
+      ])
+      return {
+        statFilter,
+        groupBy,
+      }
+    },
+    query: queryMapping[[graphType, level]],
+  }
+}
+
+let generatePie = (level) => {
+  const generatedQuery = generateQuery('pie', level)
+  return {
+    ...generatedQuery,
+    result({ data, loading }) {
+      if (!loading) {
+        const listSums = data[
+          `statsPie${capitalizeFirstLetter(level)}`
+        ].groupedAggregates.sort((a, b) => (a.keys[0] > b.keys[0] ? 1 : -1))
+        const series = listSums.map((sum) => {
+          return sum.sum.entryTimerTrackedTime / 3600
+        })
+        const labels = listSums.map((sum) => {
+          return sum.keys[0]
+        })
+        this[`statsPie${capitalizeFirstLetter(level)}`] = {
+          labels,
+          series,
+        }
+      }
+    },
+  }
+}
+
+let generateBar = (level) => {
+  const generatedQuery = generateQuery('time', level)
+  return {
+    ...generatedQuery,
+    result({ data, loading }) {
+      if (!loading) {
+        const listSums =
+          data[`statsTime${capitalizeFirstLetter(level)}`].groupedAggregates
+        const barChartData = listSums.reduce((acc, curr) => {
+          if (!acc[curr.keys[1]]) acc[curr.keys[1]] = {}
+          acc[curr.keys[1]][curr.keys[0]] = curr.sum.entryTimerTrackedTime
+          return acc
+        }, {})
+        const dates =
+          this.period == 'daily'
+            ? this.dateSpread(this.startDate)
+            : this.weekSpread(this.startDate)
+
+        this[`statsTime${capitalizeFirstLetter(level)}`] = Object.keys(
+          barChartData,
+        )
+          .map((key) => {
+            return {
+              name: key,
+              data: dates.map(
+                (date) => Number(barChartData[key][date]) / 3600 || 0,
+              ),
+            }
+          })
+          .sort((a, b) => (a.name > b.name ? 1 : -1))
+        this.isLoading = false
+      }
+    },
+  }
+}
 
 export default {
   name: 'Stats',
@@ -149,7 +245,10 @@ export default {
       startDate: '2021-01-01',
       categorySelected: null,
       period: 'daily',
-      stats: [],
+      statsPieCategory: {},
+      statsTimeCategory: [],
+      statsPieProject: {},
+      statsTimeProject: [],
       isLoading: true,
     }
   },
@@ -160,70 +259,29 @@ export default {
     period() {
       this.statsRetrieve()
     },
+    categorySelected() {
+      this.$apollo.queries.statsPieProject.refresh()
+      this.$apollo.queries.statsTimeProject.refresh()
+    },
   },
   apollo: {
     categories: {
       query: Q_CATEGORY,
     },
-    stats: {
-      query: Q_STATS,
-      variables() {
-        return {
-          startDate: this.startDate,
-          period: this.period,
-        }
-      },
-      result({ data, loading }) {
-        if (!loading) {
-          this.stats = data.stats
-          this.isLoading = false
-        }
-      },
-    },
+    statsPieCategory: generatePie('category'),
+    statsPieProject: generatePie('project'),
+    statsTimeCategory: generateBar('category'),
+    statsTimeProject: generateBar('project'),
   },
   computed: {
-    getTimesCategorical() {
-      if (Object.keys(this.stats).length !== 0) {
-        return this.stats.statsBarCategory
-      }
-      return []
-    },
-    getPieCategorical() {
-      if (Object.keys(this.stats).length !== 0) {
-        return this.stats.statsPieCategory
-      }
-      return {}
-    },
-    getProjects() {
-      if (Object.keys(this.stats).length !== 0) {
-        if (this.categorySelected != null) {
-          return (
-            this.stats.statsPieProject[this.categorySelected.description] || {
-              labels: [],
-              series: [],
-            }
-          )
-        }
-      }
-      return {}
-    },
-    getProjectsSum() {
-      if (Object.keys(this.stats).length !== 0) {
-        if (this.categorySelected != null) {
-          return this.stats.statsBarProject[this.categorySelected.description]
-        }
-      }
-      return []
-    },
     getColors() {
-      if (Object.keys(this.stats).length !== 0) {
+      if (Object.keys(this.statsPieCategory).length !== 0) {
         var colorDict = {}
         this.categories.map((value) => {
           colorDict[value['description']] = value['color']
         })
-
-        return this.stats.statsBarCategory.map((value) => {
-          return colorDict[value['name']] || '#000'
+        return this.statsPieCategory.labels.map((value) => {
+          return colorDict[value] || '#000'
         })
       }
       return []
@@ -231,10 +289,11 @@ export default {
   },
   methods: {
     statsRetrieve() {
-      this.$apollo.queries.stats.refresh()
+      this.$apollo.queries.statsPieCategory.refresh()
+      this.$apollo.queries.statsTimeProject.refetch()
     },
     refreshStats() {
-      this.$apollo.queries.stats.refetch()
+      this.$apollo.queries.statsPieCategory.refetch()
     },
     getWeekNumber(d) {
       d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()))
@@ -245,7 +304,7 @@ export default {
       var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1))
       // Calculate full weeks to nearest Thursday
       var weekNo = Math.ceil(((d - yearStart) / 86400000 + 1) / 7)
-      var year = d.getUTCFullYear().toString().substr(-2)
+      var year = d.getUTCFullYear().toString()
       return [year, weekNo]
     },
     weekSpread(startDate) {
@@ -256,7 +315,7 @@ export default {
         var weekStart = Math.max(0, weekNum - 7)
         return [...Array(8).keys()]
           .map((i) => i + weekStart)
-          .map((j) => `${year}W${j}`)
+          .map((j) => `${year}-${j}`)
       } else {
         return []
       }

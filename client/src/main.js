@@ -115,35 +115,6 @@ export const mixins = {
         }),
       )
     },
-    hexToRgb(hex) {
-      var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i
-      hex = hex.replace(shorthandRegex, function(m, r, g, b) {
-        return r + r + g + g + b + b
-      })
-
-      var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
-      return result
-        ? {
-            r: parseInt(result[1], 16),
-            g: parseInt(result[2], 16),
-            b: parseInt(result[3], 16),
-          }
-        : 'none'
-    },
-    highContrastText(colorRGB) {
-      const brightness = Math.round(
-        (parseInt(colorRGB.r) * 299 +
-          parseInt(colorRGB.g) * 587 +
-          parseInt(colorRGB.b) * 114) /
-          1000,
-      )
-      const textColour = brightness > 125 ? 'black' : 'white'
-      return textColour
-    },
-    highContrastColor(colorHEX) {
-      const colorRGB = this.hexToRgb(colorHEX)
-      return this.highContrastText(colorRGB)
-    },
     createFragment(variables, mutation, fragment, objectType) {
       // TODO: Add to flattened structure too
       const parent = objectParts[objectType]?.parent
@@ -153,7 +124,7 @@ export const mixins = {
           mutation,
           variables,
           update: (store, { data }) => {
-            const fragmentUpdate = data[objectType]
+            const fragmentUpdate = data[objectType][objectType.toLowerCase()]
             const fragmentId =
               parent + ':' + fragmentUpdate[parent.toLowerCase()].id
             const fragmentNew = store.readFragment({
@@ -179,7 +150,7 @@ export const mixins = {
           mutation,
           variables,
           update: (store, { data }) => {
-            const fragmentUpdate = data[objectType]
+            const fragmentUpdate = data[objectType][objectType.toLowerCase()]
             const fragmentId = objectType + ':' + fragmentUpdate.id
             const fragmentNew = store.readFragment({
               id: fragmentId,
@@ -203,7 +174,14 @@ export const mixins = {
         .mutate({
           mutation: M_CATEGORY_CREATE,
           variables: category,
-          update: (store, { data: { Category } }) => {
+          update: (
+            store,
+            {
+              data: {
+                category: { Category },
+              },
+            },
+          ) => {
             const data = store.readQuery({
               query: Q_CATEGORY,
             })
@@ -269,7 +247,7 @@ export const mixins = {
       })
     },
     // Project
-    projectCreate(project) {
+    createProject(project) {
       this.createFragment(
         project,
         M_PROJECT_CREATE,
@@ -277,10 +255,10 @@ export const mixins = {
         'Project',
       )
     },
-    projectUpdate(project) {
+    updateProject(project) {
       this.updateFragment(project, M_PROJECT_UPDATE, 'Project')
     },
-    projectDelete(project) {
+    deleteProject(project) {
       this.deleteFragment(
         project,
         M_PROJECT_DELETE,
@@ -289,32 +267,32 @@ export const mixins = {
       )
     },
     // Task
-    taskCreate(task) {
+    createTask(task) {
       this.createFragment(task, M_TASK_CREATE, F_PROJECT_TASKS, 'Task')
     },
-    taskUpdate(task) {
+    updateTask(task) {
       this.updateFragment(task, M_TASK_UPDATE, 'Task')
     },
     // Entry
-    entryCreate(entry) {
+    createEntry(entry) {
       this.createFragment(entry, M_ENTRY_CREATE, F_TASK_ENTRIES, 'Entry')
     },
-    entryUpdate(entry) {
+    updateEntry(entry) {
       this.updateFragment(entry, M_ENTRY_UPDATE, 'Entry')
     },
-    entryTimerStop(entry) {
+    stopEntry(entry) {
       this.updateFragment({ id: entry.id }, M_ENTRY_STOP, 'Entry')
     },
-    entryTimerStart(entry) {
+    startEntry(entry) {
       this.updateFragment({ id: entry.id }, M_ENTRY_START, 'Entry')
     },
-    entryRestart(entry) {
+    restartEntry(entry) {
       this.updateFragment({ id: entry.id }, M_ENTRY_RESTART, 'Entry')
     },
-    entryComplete(id) {
+    completeEntry(id) {
       this.updateFragment({ id }, M_ENTRY_COMPLETE, 'Entry')
     },
-    entryDelete(entry) {
+    deleteEntry(entry) {
       this.deleteFragment(entry, M_ENTRY_DELETE, F_TASK_ENTRIES, 'Entry')
     },
     settingsUpdate(variables) {

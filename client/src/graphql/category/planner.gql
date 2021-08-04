@@ -1,10 +1,11 @@
 #import "../EntryFragment.gql"
 
 query {
-  planner {
+  categories {
     id
     description
     color
+    colorContrast
     projects {
       id
       description

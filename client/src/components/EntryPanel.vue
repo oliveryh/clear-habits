@@ -158,7 +158,7 @@ export default {
     getEntryList(date) {
       var entries = this.filteredEntries
         .filter((entry) => entry.date == date)
-        .sort((a, b) => a['order'] - b['order'])
+        .sort((a, b) => a['listOrder'] - b['listOrder'])
       return entries
     },
   },

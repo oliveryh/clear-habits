@@ -85,10 +85,10 @@ export default {
           node.nodeId = node.__typename + node.id
         }
 
-        data.planner.forEach((category) => {
+        data.categories.forEach((category) => {
           processNode(category)
         })
-        return data.planner
+        return data.categories
       },
     },
   },

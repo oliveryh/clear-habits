@@ -3,6 +3,7 @@ query {
     id
     description
     color
+    colorContrast
     projects {
       id
       description

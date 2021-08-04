@@ -11,7 +11,7 @@ const AUTH_TOKEN = 'apollo-token'
 
 // Http endpoint
 const httpEndpoint =
-  process.env.VUE_APP_GRAPHQL_HTTP || 'http://localhost:8000/graphql'
+  process.env.VUE_APP_GRAPHQL_HTTP || 'http://localhost:3000/graphql'
 // Files URL root
 export const filesRoot =
   process.env.VUE_APP_FILES_ROOT ||
@@ -72,6 +72,14 @@ const typeDefs = gql`
 
   extend type Query {
     settings: Settings!
+  }
+
+  enum StatsGroupBy {
+    ENTRY_DATE
+    CATEGORY_DESCRIPTION
+    CATEGORY_ID
+    PROJECT_DESCRIPTION
+    PROJECT_ID
   }
 
   type Mutation {

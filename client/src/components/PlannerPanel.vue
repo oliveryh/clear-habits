@@ -26,7 +26,7 @@
                 'background-color: ' +
                 prop.node.color +
                 '; color: ' +
-                highContrastColor(prop.node.color)
+                (prop.node.colorContrast ? 'black' : 'white')
               "
               style="
                 border-radius: 5px;
@@ -84,7 +84,7 @@
               class="font-m-bold q-ml-sm"
               color="primary"
               icon="mdi-check"
-              @click="taskUpdate({ id: prop.node.id, complete: true })"
+              @click="updateTask({ id: prop.node.id, complete: true })"
             />
             <q-btn
               flat
@@ -158,7 +158,7 @@
             flat
             round
             color="orange"
-            @click="entryUpdate({ id: prop.node.id, complete: false })"
+            @click="updateEntry({ id: prop.node.id, complete: false })"
             icon="mdi-undo-variant"
           ></q-btn>
           <q-btn
@@ -167,7 +167,7 @@
             round
             color="primary"
             icon="mdi-check"
-            @click="entryComplete(prop.node.id)"
+            @click="completeEntry(prop.node.id)"
           />
           <q-btn
             flat
@@ -175,7 +175,7 @@
             color="grey"
             @click="
               () => {
-                entryUpdate({
+                updateEntry({
                   id: prop.node.id,
                   date: new Date().toISOString().substring(0, 10),
                 })
@@ -218,7 +218,7 @@
               outlined
               v-model="newEntry.description"
               label="New Entry"
-              @keydown.enter="entryCreateLocal"
+              @keydown.enter="createEntryLocal"
             ></q-input>
             <q-input
               class="q-pa-sm"
@@ -226,7 +226,7 @@
               v-model="newEntryEstimatedTime"
               mask="time"
               :rules="['time']"
-              @keydown.enter="entryCreateLocal"
+              @keydown.enter="createEntryLocal"
             >
               <template v-slot:append>
                 <q-icon name="access_time" class="cursor-pointer">
@@ -252,7 +252,7 @@
         </q-card-section>
         <q-card-actions align="right" class="text-primary">
           <q-btn flat label="Cancel" @click="addEntryDialog = false" />
-          <q-btn flat label="Add" @click="entryCreateLocal" />
+          <q-btn flat label="Add" @click="createEntryLocal" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -266,13 +266,13 @@
               outlined
               v-model="newTask.description"
               label="New Task"
-              @keydown.enter="taskCreateLocal"
+              @keydown.enter="createTaskLocal"
             ></q-input>
           </q-form>
         </q-card-section>
         <q-card-actions align="right" class="text-primary">
           <q-btn flat label="Cancel" @click="addTaskDialog = false" />
-          <q-btn flat label="Add" @click="taskCreateLocal" />
+          <q-btn flat label="Add" @click="createTaskLocal" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -390,7 +390,7 @@
             label="Save"
             @click="
               () => {
-                entryUpdate(editedEntry)
+                updateEntry(editedEntry)
                 updateEntryDialog = false
               }
             "
@@ -426,7 +426,7 @@
             label="Save"
             @click="
               () => {
-                taskUpdate(editedTask)
+                updateTask(editedTask)
                 this.updateTaskDialog = false
               }
             "
@@ -472,23 +472,23 @@ export default {
     addTask() {
       this.addTaskDialog = true
     },
-    entryCreateLocal() {
+    createEntryLocal() {
       this.addEntryDialog = false
       var entry = this.newEntry
       if (this.newEntry.timerEstimatedTime) {
         entry.timerEstimatedTime = this.newEntry.timerEstimatedTime
       }
-      this.entryCreate(entry)
+      this.createEntry(entry)
       this.newEntry = {
         description: null,
         date: 'backlog',
         timerEstimatedTime: null,
       }
     },
-    taskCreateLocal() {
+    createTaskLocal() {
       this.addTaskDialog = false
       var task = this.newTask
-      this.taskCreate(task)
+      this.createTask(task)
       this.newTask = {
         description: null,
       }

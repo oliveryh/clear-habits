@@ -46,7 +46,7 @@ export default {
   },
   computed: {
     series() {
-      return this.data.series
+      return this.data?.series || []
     },
     options() {
       return {
@@ -55,7 +55,7 @@ export default {
           type: 'donut',
         },
         colors: this.colors != null ? this.colors : this.tenColorPalette,
-        labels: this.data.labels,
+        labels: this.data?.labels,
         legend: {
           show: true,
         },

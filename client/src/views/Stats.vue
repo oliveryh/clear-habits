@@ -42,16 +42,23 @@
           @click="refreshStats"
         />
       </div>
-      <div
-        class="col-8 col-sm-12 col-lg-6 q-pa-md"
-        style="padding: 10px 10px 5px 10px"
-      >
+      <div class="col-6 col-md-3" style="padding: 10px 10px 5px 10px">
         <q-form ref="form" @submit.prevent>
           <ch-project-picker
             v-model="categorySelected"
             :projects="categories"
             label="Category"
             :showAvatar="true"
+          ></ch-project-picker>
+        </q-form>
+      </div>
+      <div class="col-6 col-md-3" style="padding: 10px 10px 5px 10px">
+        <q-form ref="form" @submit.prevent>
+          <ch-project-picker
+            v-model="settings.projectSelected"
+            :projects="filteredProjects"
+            label="Project"
+            :showAvatar="false"
           ></ch-project-picker>
         </q-form>
       </div>
@@ -100,6 +107,24 @@
             ></ch-chart-time-categorical>
           </div>
         </div>
+        <div v-if="settings.projectSelected" class="row">
+          <div class="col-12 col-md-4 q-pa-md">
+            <ch-chart-pie-categorical
+              :data="statsPieTask"
+            ></ch-chart-pie-categorical>
+          </div>
+          <div class="col-12 col-md-8 q-pa-md">
+            <ch-chart-time-categorical
+              :data="statsTimeTask"
+              :dateRange="
+                period == 'daily'
+                  ? dateSpread(startDate)
+                  : weekSpread(startDate)
+              "
+              :xaxisType="period == 'daily' ? 'datetime' : 'categories'"
+            ></ch-chart-time-categorical>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -112,10 +137,14 @@ import ChProjectPicker from '@/components/ProjectPicker'
 
 import {
   Q_CATEGORY,
+  Q_PROJECT,
+  Q_SETTINGS,
   Q_STATS_PIE_CATEGORY,
   Q_STATS_TIME_CATEGORY,
   Q_STATS_PIE_PROJECT,
   Q_STATS_TIME_PROJECT,
+  Q_STATS_PIE_TASK,
+  Q_STATS_TIME_TASK,
 } from '@/graphql/queries'
 
 function capitalizeFirstLetter(string) {
@@ -125,8 +154,10 @@ function capitalizeFirstLetter(string) {
 const queryMapping = {
   'time,category': Q_STATS_TIME_CATEGORY,
   'time,project': Q_STATS_TIME_PROJECT,
+  'time,task': Q_STATS_TIME_TASK,
   'pie,category': Q_STATS_PIE_CATEGORY,
   'pie,project': Q_STATS_PIE_PROJECT,
+  'pie,task': Q_STATS_PIE_TASK,
 }
 
 let generateQuery = (graphType, level) => {
@@ -134,6 +165,9 @@ let generateQuery = (graphType, level) => {
     skip() {
       if (level == 'project') {
         return !this.categorySelected
+      }
+      if (level == 'task') {
+        return !this.settings.projectSelected
       } else {
         return false
       }
@@ -143,6 +177,10 @@ let generateQuery = (graphType, level) => {
       if (level == 'project') {
         statFilter['categoryId'] = {
           equalTo: this.categorySelected.id,
+        }
+      } else if (level == 'task') {
+        statFilter['projectId'] = {
+          equalTo: this.settings.projectSelected.id,
         }
       }
       var groupBy = []
@@ -159,10 +197,10 @@ let generateQuery = (graphType, level) => {
           in: this.weekSpread(this.startDate),
         }
       }
-      groupBy = groupBy.concat([
-        `${level.toUpperCase()}_DESCRIPTION`,
-        `${level.toUpperCase()}_ID`,
-      ])
+      groupBy.push(`${level.toUpperCase()}_DESCRIPTION`)
+      if (level != 'task') {
+        groupBy.push(`${level.toUpperCase()}_ID`)
+      }
       return {
         statFilter,
         groupBy,
@@ -268,10 +306,18 @@ export default {
     categories: {
       query: Q_CATEGORY,
     },
+    projects: {
+      query: Q_PROJECT,
+    },
+    settings: {
+      query: Q_SETTINGS,
+    },
     statsPieCategory: generatePie('category'),
     statsPieProject: generatePie('project'),
+    statsPieTask: generatePie('task'),
     statsTimeCategory: generateBar('category'),
     statsTimeProject: generateBar('project'),
+    statsTimeTask: generateBar('task'),
   },
   computed: {
     getColors() {
@@ -285,6 +331,15 @@ export default {
         })
       }
       return []
+    },
+    filteredProjects() {
+      var projects_filtered = this.projects
+      if (this.categorySelected) {
+        projects_filtered = projects_filtered.filter(
+          (project) => project.category.id == this.categorySelected.id,
+        )
+      }
+      return projects_filtered
     },
   },
   methods: {

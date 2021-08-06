@@ -152,7 +152,7 @@ export default {
       }
     },
     series() {
-      return this.data
+      return this.data || []
     },
   },
 }

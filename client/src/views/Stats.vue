@@ -315,7 +315,7 @@ export default {
         var weekStart = Math.max(0, weekNum - 7)
         return [...Array(8).keys()]
           .map((i) => i + weekStart)
-          .map((j) => `${year}-${j}`)
+          .map((j) => `${year}-${String(j).padStart(2, '0')}`)
       } else {
         return []
       }

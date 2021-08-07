@@ -31,20 +31,51 @@
         />
       </div>
       <div
-        class="col-4 col-sm-4 col-lg-2 q-pa-md"
+        class="col-12 col-md-4 col-lg-2 q-pa-md"
         style="padding: 10px 10px 5px 10px"
       >
-        <q-btn
+        <q-btn-group
           rounded
           color="white"
           unelevated
           text-color="primary"
-          icon="refresh"
-          label="Refresh"
           class="font-m-bold"
-          @click="refreshStats"
-        />
+        >
+          <q-btn
+            text-color="primary"
+            icon="refresh"
+            label="Refresh"
+            class="font-m-bold"
+            @click="refreshStats"
+          />
+          <q-btn-dropdown
+            v-if="period == 'weekly'"
+            rounded
+            spread
+            color="white"
+            unelevated
+            text-color="primary"
+            class="font-m-bold"
+            style="border: 2px solid #027be3"
+            :label="numWeeks + ' weeks'"
+          >
+            <q-list>
+              <q-item
+                clickable
+                v-close-popup
+                @click="numWeeks = weekNumber"
+                v-for="weekNumber in [5, 10, 20]"
+                :key="weekNumber"
+              >
+                <q-item-section>
+                  <q-item-label>{{ weekNumber }}</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
+        </q-btn-group>
       </div>
+
       <div class="col-6 col-md-3" style="padding: 10px 10px 5px 10px">
         <q-form ref="form" @submit.prevent>
           <ch-project-picker
@@ -85,7 +116,7 @@
               :dateRange="
                 period == 'daily'
                   ? dateSpread(settings.startDate)
-                  : weekSpread(settings.startDate)
+                  : weekSpread(settings.startDate, numWeeks)
               "
               :xaxisType="period == 'daily' ? 'datetime' : 'categories'"
               :colors="getColors"
@@ -104,7 +135,7 @@
               :dateRange="
                 period == 'daily'
                   ? dateSpread(settings.startDate)
-                  : weekSpread(settings.startDate)
+                  : weekSpread(settings.startDate, numWeeks)
               "
               :xaxisType="period == 'daily' ? 'datetime' : 'categories'"
             ></ch-chart-time-categorical>
@@ -122,7 +153,7 @@
               :dateRange="
                 period == 'daily'
                   ? dateSpread(settings.startDate)
-                  : weekSpread(settings.startDate)
+                  : weekSpread(settings.startDate, numWeeks)
               "
               :xaxisType="period == 'daily' ? 'datetime' : 'categories'"
             ></ch-chart-time-categorical>
@@ -199,7 +230,7 @@ let generateQuery = (graphType, level) => {
           groupBy.push('ENTRY_WEEK_NUMBER')
         }
         statFilter['entryWeekNumber'] = {
-          in: this.weekSpread(this.settings.startDate),
+          in: this.weekSpread(this.settings.startDate, this.numWeeks),
         }
       }
       groupBy.push(`${level.toUpperCase()}_DESCRIPTION`)
@@ -255,8 +286,7 @@ let generateBar = (level) => {
         const dates =
           this.period == 'daily'
             ? this.dateSpread(this.settings.startDate)
-            : this.weekSpread(this.settings.startDate)
-
+            : this.weekSpread(this.settings.startDate, this.numWeeks)
         this[`statsTime${capitalizeFirstLetter(level)}`] = Object.keys(
           barChartData,
         )
@@ -292,6 +322,7 @@ export default {
       statsPieProject: {},
       statsTimeProject: [],
       isLoading: true,
+      numWeeks: 5,
     }
   },
   watch: {
@@ -304,6 +335,9 @@ export default {
     categorySelected() {
       this.$apollo.queries.statsPieProject.refresh()
       this.$apollo.queries.statsTimeProject.refresh()
+    },
+    numWeeks() {
+      this.statsRetrieve()
     },
     watch: {
       settings: {
@@ -357,7 +391,11 @@ export default {
   methods: {
     statsRetrieve() {
       this.$apollo.queries.statsPieCategory.refresh()
-      this.$apollo.queries.statsTimeProject.refetch()
+      this.$apollo.queries.statsPieProject.refresh()
+      this.$apollo.queries.statsPieTask.refresh()
+      this.$apollo.queries.statsTimeCategory.refresh()
+      this.$apollo.queries.statsTimeProject.refresh()
+      this.$apollo.queries.statsTimeTask.refresh()
     },
     refreshStats() {
       this.$apollo.queries.statsPieCategory.refetch()
@@ -374,13 +412,13 @@ export default {
       var year = d.getUTCFullYear().toString()
       return [year, weekNo]
     },
-    weekSpread(startDate) {
+    weekSpread(startDate, numWeeks) {
       if (startDate != null) {
         var weekFull = this.getWeekNumber(new Date(startDate))
         var year = weekFull[0]
         var weekNum = weekFull[1]
-        var weekStart = Math.max(0, weekNum - 7)
-        return [...Array(8).keys()]
+        var weekStart = Math.max(0, weekNum - numWeeks)
+        return [...Array(numWeeks + 1).keys()]
           .map((i) => i + weekStart)
           .map((j) => `${year}-${String(j).padStart(2, '0')}`)
       } else {

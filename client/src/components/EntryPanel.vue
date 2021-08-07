@@ -153,6 +153,26 @@ export default {
         this.settingsUpdate(settings)
       },
     },
+    entries: {
+      deep: true,
+      handler(entries) {
+        const favicon = document.getElementById('favicon')
+        console.log(favicon)
+        if (entries.some((entry) => entry.timerActive)) {
+          const newLink = favicon.href.replace(
+            'favicon.png',
+            'favicon-recording.png',
+          )
+          favicon.href = newLink
+        } else {
+          const newLink = favicon.href.replace(
+            'favicon-recording.png',
+            'favicon.png',
+          )
+          favicon.href = newLink
+        }
+      },
+    },
   },
   methods: {
     getEntryList(date) {

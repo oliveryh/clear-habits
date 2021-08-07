@@ -5,7 +5,10 @@
         class="col-6 col-sm-4 col-lg-2 q-pa-md"
         style="padding: 10px 10px 5px 10px"
       >
-        <ch-date-selector v-model="startDate" period="week"></ch-date-selector>
+        <ch-date-selector
+          v-model="settings.startDate"
+          period="week"
+        ></ch-date-selector>
       </div>
       <div
         class="col-6 col-sm-4 col-lg-2 q-pa-md"
@@ -81,8 +84,8 @@
               :data="statsTimeCategory"
               :dateRange="
                 period == 'daily'
-                  ? dateSpread(startDate)
-                  : weekSpread(startDate)
+                  ? dateSpread(settings.startDate)
+                  : weekSpread(settings.startDate)
               "
               :xaxisType="period == 'daily' ? 'datetime' : 'categories'"
               :colors="getColors"
@@ -100,8 +103,8 @@
               :data="statsTimeProject"
               :dateRange="
                 period == 'daily'
-                  ? dateSpread(startDate)
-                  : weekSpread(startDate)
+                  ? dateSpread(settings.startDate)
+                  : weekSpread(settings.startDate)
               "
               :xaxisType="period == 'daily' ? 'datetime' : 'categories'"
             ></ch-chart-time-categorical>
@@ -118,8 +121,8 @@
               :data="statsTimeTask"
               :dateRange="
                 period == 'daily'
-                  ? dateSpread(startDate)
-                  : weekSpread(startDate)
+                  ? dateSpread(settings.startDate)
+                  : weekSpread(settings.startDate)
               "
               :xaxisType="period == 'daily' ? 'datetime' : 'categories'"
             ></ch-chart-time-categorical>
@@ -188,13 +191,15 @@ let generateQuery = (graphType, level) => {
         if (graphType == 'time') {
           groupBy.push('ENTRY_DATE')
         }
-        statFilter['entryDate'] = { in: this.dateSpread(this.startDate) }
+        statFilter['entryDate'] = {
+          in: this.dateSpread(this.settings.startDate),
+        }
       } else {
         if (graphType == 'time') {
           groupBy.push('ENTRY_WEEK_NUMBER')
         }
         statFilter['entryWeekNumber'] = {
-          in: this.weekSpread(this.startDate),
+          in: this.weekSpread(this.settings.startDate),
         }
       }
       groupBy.push(`${level.toUpperCase()}_DESCRIPTION`)
@@ -249,8 +254,8 @@ let generateBar = (level) => {
         }, {})
         const dates =
           this.period == 'daily'
-            ? this.dateSpread(this.startDate)
-            : this.weekSpread(this.startDate)
+            ? this.dateSpread(this.settings.startDate)
+            : this.weekSpread(this.settings.startDate)
 
         this[`statsTime${capitalizeFirstLetter(level)}`] = Object.keys(
           barChartData,
@@ -280,7 +285,6 @@ export default {
   },
   data() {
     return {
-      startDate: '2021-01-01',
       categorySelected: null,
       period: 'daily',
       statsPieCategory: {},
@@ -300,6 +304,14 @@ export default {
     categorySelected() {
       this.$apollo.queries.statsPieProject.refresh()
       this.$apollo.queries.statsTimeProject.refresh()
+    },
+    watch: {
+      settings: {
+        deep: true,
+        handler(settings) {
+          this.settingsUpdate(settings)
+        },
+      },
     },
   },
   apollo: {

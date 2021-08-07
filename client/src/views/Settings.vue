@@ -15,7 +15,6 @@ export default {
   name: 'Settings',
   data() {
     return {
-      startDate: null,
       editedCategory: null,
       newProject: null,
       newCategory: null,

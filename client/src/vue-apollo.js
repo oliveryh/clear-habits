@@ -87,6 +87,7 @@ const typeDefs = gql`
       categorySelected: Number
       dateZoomed: String
       projectSelected: Project
+      startDate: String
     ): Settings!
   }
 
@@ -94,6 +95,7 @@ const typeDefs = gql`
     categorySelected: Number
     dateZoomed: String
     projectSeleted: Project
+    startDate: String
   }
 `
 
@@ -123,6 +125,7 @@ const defaultData = {
     categorySelected: null,
     dateZoomed: null,
     projectSelected: null,
+    startDate: null,
   },
 }
 

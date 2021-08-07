@@ -184,27 +184,40 @@ export default {
           })
         }
 
-        this.$apollo.mutate({
-          mutation: M_ENTRY_REORDER,
-          variables: {
-            entryOrders: reorderedEntriesOrders,
-          },
-          update: (store, { data: { reorderEntries } }) => {
-            const data = store.readQuery({
-              query: Q_ENTRY,
-            })
+        if (reorderedEntriesOrders.length) {
+          this.$apollo.mutate({
+            mutation: M_ENTRY_REORDER,
+            variables: {
+              entryOrders: reorderedEntriesOrders,
+            },
+            update: (store, { data: { reorderEntries } }) => {
+              const variables = {
+                datesIn: this.dateSpread(this.settings.startDate).concat([
+                  'backlog',
+                ]),
+              }
+              const data = store.readQuery({
+                query: Q_ENTRY,
+                variables,
+              })
 
-            reorderEntries.forEach((entry) => {
-              const alteredEntry = data.entries.find((e) => e.id === entry.id)
-              Object.assign(alteredEntry, entry)
-            })
+              reorderEntries.entries.forEach((entry) => {
+                const alteredEntry = data.entries.find((e) => e.id === entry.id)
+                Object.assign(alteredEntry, entry)
+              })
 
-            store.writeQuery({
-              query: Q_ENTRY,
-              data,
-            })
-          },
-        })
+              store.writeQuery({
+                query: Q_ENTRY,
+                data,
+                variables: {
+                  datesIn: this.dateSpread(this.settings.startDate).concat([
+                    'backlog',
+                  ]),
+                },
+              })
+            },
+          })
+        }
       },
     },
     newEntryEstimatedTime: {
@@ -271,10 +284,20 @@ export default {
           ) => {
             const data = store.readQuery({
               query: Q_ENTRY,
+              variables: {
+                datesIn: this.dateSpread(this.settings.startDate).concat([
+                  'backlog',
+                ]),
+              },
             })
             data.entries.push(entry)
             store.writeQuery({
               query: Q_ENTRY,
+              variables: {
+                datesIn: this.dateSpread(this.settings.startDate).concat([
+                  'backlog',
+                ]),
+              },
               data,
             })
           },

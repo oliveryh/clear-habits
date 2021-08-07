@@ -1,7 +1,7 @@
 #import "../EntryFragment.gql"
 
-query {
-  entries {
+query($datesIn: [String!]!) {
+  entries(filter: { date: { in: $datesIn } }) {
     ...Entry
     date
     task {

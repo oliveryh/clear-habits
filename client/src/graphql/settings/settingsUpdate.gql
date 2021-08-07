@@ -2,14 +2,17 @@ mutation(
   $categorySelected: Number
   $dateZoomed: String
   $projectSelected: Project
+  $startDate: String
 ) {
   settingsUpdate(
     categorySelected: $categorySelected
     dateZoomed: $dateZoomed
     projectSelected: $projectSelected
+    startDate: $startDate
   ) @client {
     categorySelected @client
     dateZoomed @client
     projectSelected @client
+    startDate @client
   }
 }

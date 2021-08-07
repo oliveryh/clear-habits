@@ -42,6 +42,9 @@
     </div>
     <div class="row" style="text-align: center">
       <div v-if="settings.dateZoomed" class="col">
+        <ch-entry-list date="backlog" :entries="getEntryList('backlog')" />
+      </div>
+      <div v-if="settings.dateZoomed" class="col">
         <ch-entry-list
           :date="settings.dateZoomed"
           :entries="getEntryList(settings.dateZoomed)"
@@ -87,7 +90,9 @@ export default {
       query: Q_ENTRY,
       variables() {
         return {
-          datesIn: this.dateSpread(this.settings.startDate).concat(['backlog']),
+          datesIn: this.dateSpread(
+            this.settings.dateZoomed || this.settings.startDate,
+          ).concat(['backlog']),
         }
       },
     },

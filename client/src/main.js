@@ -301,6 +301,11 @@ export const mixins = {
         variables,
       })
     },
+    isMobile() {
+      return /Android|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent,
+      )
+    },
   },
   filters: {
     zeroPad: function(value, num) {

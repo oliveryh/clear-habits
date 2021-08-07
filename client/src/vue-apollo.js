@@ -119,11 +119,17 @@ const { apolloClient, wsClient } = createApolloClient({
 
 apolloClient.wsClient = wsClient
 
+const isMobile = () => {
+  return /Android|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent,
+  )
+}
+
 const defaultData = {
   settings: {
     __typename: 'Settings',
     categorySelected: null,
-    dateZoomed: null,
+    dateZoomed: isMobile() ? new Date().toISOString().split('T')[0] : null,
     projectSelected: null,
     startDate: null,
   },

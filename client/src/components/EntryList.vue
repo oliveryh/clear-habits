@@ -49,28 +49,30 @@
       </div>
       <div class="col col-12" :class="settings.dateZoomed ? 'col-lg-12' : ''">
         <button-add objectName="Task" @click="addTask" class="float-left" />
-        <q-btn
-          @click="zoomOut()"
-          v-if="settings.dateZoomed"
-          round
-          dense
-          flat
-          color="primary"
-          icon="mdi-magnify-minus-outline"
-          class="float-right"
-          size="md"
-        ></q-btn>
-        <q-btn
-          @click="zoomIn()"
-          v-else
-          round
-          dense
-          flat
-          color="primary"
-          icon="mdi-magnify-plus-outline"
-          class="float-right"
-          size="md"
-        ></q-btn>
+        <template v-if="!isMobile()">
+          <q-btn
+            @click="zoomOut()"
+            v-if="settings.dateZoomed"
+            round
+            dense
+            flat
+            color="primary"
+            icon="mdi-magnify-minus-outline"
+            class="float-right"
+            size="md"
+          ></q-btn>
+          <q-btn
+            @click="zoomIn()"
+            v-else
+            round
+            dense
+            flat
+            color="primary"
+            icon="mdi-magnify-plus-outline"
+            class="float-right"
+            size="md"
+          ></q-btn>
+        </template>
       </div>
     </div>
     <q-dialog v-model="editorDialog">

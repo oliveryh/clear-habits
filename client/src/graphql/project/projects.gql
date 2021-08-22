@@ -2,6 +2,7 @@ query {
   projects {
     id
     description
+    targetDays
     category {
       id
       description

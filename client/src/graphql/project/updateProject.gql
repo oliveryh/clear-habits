@@ -1,10 +1,14 @@
-mutation($id: Int!, $description: String!) {
+mutation($id: Int!, $description: String!, $targetDays: Int) {
   Project: updateProject(
-    input: { patch: { description: $description }, id: $id }
+    input: {
+      patch: { description: $description, targetDays: $targetDays }
+      id: $id
+    }
   ) {
     project {
       id
       description
+      targetDays
     }
   }
 }

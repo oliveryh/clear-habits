@@ -2,6 +2,11 @@
   <div>
     <q-item>
       <q-item-section>{{ project.description }}</q-item-section>
+      <q-item-section avatar>
+        <q-chip v-if="project.targetDays" icon="mdi-bullseye-arrow"
+          >{{ project.targetDays }} Days</q-chip
+        >
+      </q-item-section>
       <q-item-section side>
         <q-btn round flat color="grey" icon="mdi-pencil" @click="editorOpen" />
       </q-item-section>
@@ -19,7 +24,17 @@
             label="Delete"
             @click="deleteDialog = true"
           />
+          <q-input
+            v-model.number="editedProject.targetDays"
+            type="number"
+            icon="mdi-bullseye-arrow"
+            min="1"
+            :rules="integerRules"
+            label="Target Days"
+            clearable
+          />
         </q-card-section>
+
         <q-card-actions align="right" class="text-primary">
           <q-btn
             flat
@@ -67,6 +82,7 @@ export default {
     editorDialog: false,
     editedProject: null,
     deleteDialog: false,
+    integerRules: [(v) => /^\d*$/.test(v) || 'Must be an integer'],
   }),
   methods: {
     // editor

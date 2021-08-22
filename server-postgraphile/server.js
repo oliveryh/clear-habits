@@ -1,5 +1,6 @@
 const express = require('express')
 const { postgraphile } = require('postgraphile')
+const { CustomBuildHooksPlugin } = require('./CustomBuildHooksPlugin.js')
 require('dotenv').config()
 const config = require('./config.js')
 const middleware = postgraphile(config.db.url, 'app_public', {
@@ -14,6 +15,7 @@ const middleware = postgraphile(config.db.url, 'app_public', {
     require('@graphile-contrib/pg-simplify-inflector'),
     require('@graphile/pg-aggregates').default,
     require('postgraphile-plugin-connection-filter'),
+    CustomBuildHooksPlugin,
   ],
   simpleCollections: 'both',
   graphileBuildOptions: { pgOmitListSuffix: true },

@@ -5,6 +5,7 @@ mutation($categoryId: Int!, $description: String!) {
     project {
       id
       description
+      targetDays
       category {
         id
         description

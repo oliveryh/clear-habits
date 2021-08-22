@@ -29,6 +29,14 @@
           <q-btn
             padding="sm"
             outline
+            icon="mdi-bullseye-arrow"
+            to="/targets"
+            exact
+            ><q-tooltip>Targets</q-tooltip></q-btn
+          >
+          <q-btn
+            padding="sm"
+            outline
             icon="mdi-cog"
             to="/settings"
             exact

@@ -9,6 +9,9 @@ import Q_STATS_PIE_PROJECT from '@/graphql/stats/statsPieProject.gql'
 import Q_STATS_TIME_PROJECT from '@/graphql/stats/statsTimeProject.gql'
 import Q_STATS_PIE_TASK from '@/graphql/stats/statsPieTask.gql'
 import Q_STATS_TIME_TASK from '@/graphql/stats/statsTimeTask.gql'
+import Q_TARGETS_NEXT_SCHEDULED from '@/graphql/targets/targetsScheduled.gql'
+import Q_TARGETS_LAST_ENTRY from '@/graphql/targets/targetsLastEntry.gql'
+
 import Q_PLANNER from '@/graphql/category/planner.gql'
 
 export {
@@ -23,5 +26,7 @@ export {
   Q_STATS_TIME_PROJECT,
   Q_STATS_PIE_TASK,
   Q_STATS_TIME_TASK,
+  Q_TARGETS_LAST_ENTRY,
+  Q_TARGETS_NEXT_SCHEDULED,
   Q_PLANNER,
 }

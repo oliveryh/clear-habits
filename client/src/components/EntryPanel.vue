@@ -89,10 +89,15 @@ export default {
     entries: {
       query: Q_ENTRY,
       variables() {
+        let settings = this.settings
+        let monday
+        if (settings.dateZoomed) {
+          monday = this.mondayOfWeek(new Date(settings.dateZoomed))
+        } else {
+          monday = settings.startDate
+        }
         return {
-          datesIn: this.dateSpread(
-            this.settings.dateZoomed || this.settings.startDate,
-          ).concat(['backlog']),
+          datesIn: this.dateSpread(monday).concat(['backlog']),
         }
       },
     },

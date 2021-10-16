@@ -193,11 +193,7 @@ export default {
               entryOrders: reorderedEntriesOrders,
             },
             update: (store, { data: { reorderEntries } }) => {
-              const variables = {
-                datesIn: this.dateSpread(this.settings.startDate).concat([
-                  'backlog',
-                ]),
-              }
+              const variables = this.getWeekDates(store)
               const data = store.readQuery({
                 query: Q_ENTRY,
                 variables,
@@ -211,11 +207,7 @@ export default {
               store.writeQuery({
                 query: Q_ENTRY,
                 data,
-                variables: {
-                  datesIn: this.dateSpread(this.settings.startDate).concat([
-                    'backlog',
-                  ]),
-                },
+                variables,
               })
             },
           })
@@ -284,22 +276,15 @@ export default {
               },
             },
           ) => {
+            const variables = this.getWeekDates(store)
             const data = store.readQuery({
               query: Q_ENTRY,
-              variables: {
-                datesIn: this.dateSpread(this.settings.startDate).concat([
-                  'backlog',
-                ]),
-              },
+              variables,
             })
             data.entries.push(entry)
             store.writeQuery({
               query: Q_ENTRY,
-              variables: {
-                datesIn: this.dateSpread(this.settings.startDate).concat([
-                  'backlog',
-                ]),
-              },
+              variables,
               data,
             })
           },

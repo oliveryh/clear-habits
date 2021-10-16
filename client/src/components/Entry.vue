@@ -261,7 +261,7 @@
             flat
             label="Delete"
             color="warning"
-            @click="deleteEntry(entry)"
+            @click="deletePaginatedEntry(entry) && (editorDialog = false)"
             v-close-popup
           />
         </q-card-actions>
@@ -375,14 +375,14 @@ export default {
         description: this.entry.description,
         date: this.entry.date,
         taskId: this.entry.task.id,
+        timerEstimatedTime: this.entry.timerEstimatedTime,
       }
-      this.createEntry(entry)
+      this.createEntryPaginated(entry)
       this.editorDialog = false
     },
     // editor
     editorOpen() {
       this.editedEntry = Object.assign({}, this.entry)
-      if (this.entry.timerActive) this.stopEntry(this.entry)
       this.editorDialog = true
     },
     saveEntry() {

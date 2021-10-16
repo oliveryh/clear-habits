@@ -31,6 +31,11 @@
         ></apexchart>
       </q-card-section>
     </q-card>
+    <q-card v-else>
+      <div class="q-pa-xl text-h4 text-weight-light text-grey-5">
+        <q-icon name="mdi-database-off" /> No Data to Show
+      </div>
+    </q-card>
   </div>
 </template>
 <script>

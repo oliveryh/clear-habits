@@ -44,7 +44,13 @@ import {
   M_CATEGORY_DELETE,
   M_SETTINGS_UPDATE,
 } from '@/graphql/mutations'
-import { Q_CATEGORY, Q_ENTRY, Q_TASK, Q_PROJECT } from '@/graphql/queries'
+import {
+  Q_CATEGORY,
+  Q_ENTRY,
+  Q_TASK,
+  Q_PROJECT,
+  Q_SETTINGS,
+} from '@/graphql/queries'
 
 const objectParts = {
   Entry: {
@@ -234,7 +240,6 @@ export const mixins = {
             const data = store.readQuery({
               query,
             })
-            console.log('data', data)
             data[children] = data[children].filter(p => {
               return p.id !== variables.id
             })
@@ -274,6 +279,36 @@ export const mixins = {
       this.updateFragment(task, M_TASK_UPDATE, 'Task')
     },
     // Entry
+    createEntryPaginated(entry) {
+      this.$apollo
+        .mutate({
+          mutation: M_ENTRY_CREATE,
+          variables: entry,
+          update: (
+            store,
+            {
+              data: {
+                Entry: { entry },
+              },
+            },
+          ) => {
+            const variables = this.getWeekDates(store)
+            const data = store.readQuery({
+              query: Q_ENTRY,
+              variables,
+            })
+            data.entries.push(entry)
+            store.writeQuery({
+              query: Q_ENTRY,
+              variables,
+              data,
+            })
+          },
+        })
+        .catch(error => {
+          this.showErrors(error)
+        })
+    },
     createEntry(entry) {
       this.createFragment(entry, M_ENTRY_CREATE, F_TASK_ENTRIES, 'Entry')
     },
@@ -295,6 +330,47 @@ export const mixins = {
     deleteEntry(entry) {
       this.deleteFragment(entry, M_ENTRY_DELETE, F_TASK_ENTRIES, 'Entry')
     },
+    deletePaginatedEntry(entry) {
+      this.$apollo.mutate({
+        mutation: M_ENTRY_DELETE,
+        variables: {
+          id: entry.id,
+        },
+        update: store => {
+          const variables = this.getWeekDates(store)
+          let data = store.readQuery({
+            query: Q_ENTRY,
+            variables,
+          })
+
+          let newEntries = data.entries
+
+          data.entries = newEntries.filter(c => {
+            return c.id !== entry.id
+          })
+
+          store.writeQuery({
+            query: Q_ENTRY,
+            data,
+            variables,
+          })
+        },
+      })
+    },
+    getWeekDates(store) {
+      const { settings } = store.readQuery({
+        query: Q_SETTINGS,
+      })
+      let monday
+      if (settings.dateZoomed) {
+        monday = this.mondayOfWeek(new Date(settings.dateZoomed))
+      } else {
+        monday = settings.startDate
+      }
+      return {
+        datesIn: this.dateSpread(monday).concat(['backlog']),
+      }
+    },
     settingsUpdate(variables) {
       this.$apollo.mutate({
         mutation: M_SETTINGS_UPDATE,
@@ -305,6 +381,14 @@ export const mixins = {
       return /Android|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
         navigator.userAgent,
       )
+    },
+    mondayOfWeek(date) {
+      var newDate = date
+      const dayOffset = newDate.getDay()
+      newDate.setDate(newDate.getDate() - ((dayOffset + 6) % 7))
+      const tzOffset = newDate.getTimezoneOffset()
+      newDate = new Date(newDate.getTime() - tzOffset * 60 * 1000)
+      return newDate
     },
   },
   filters: {

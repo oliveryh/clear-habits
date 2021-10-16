@@ -100,11 +100,19 @@ export default {
                   },
                 },
               ) => {
-                this.result = jwtToken
-                await onLogin(jwtToken)
+                if (jwtToken) {
+                  this.result = jwtToken
+                  await onLogin(jwtToken)
+                  this.$router.push({ name: 'home' })
+                } else {
+                  this.$q.notify({
+                    group: false,
+                    message: 'The password or email you entered was incorrect',
+                    type: 'negative',
+                  })
+                }
               },
             })
-            .then(() => this.$router.push({ name: 'home' }))
             .catch((error) => {
               this.showErrors(error)
             })

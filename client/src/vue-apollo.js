@@ -156,14 +156,20 @@ export function createProvider() {
     },
     errorHandler({ networkError }) {
       // eslint-disable-next-line no-console
-      console.log(
-        '%cError',
-        'background: red; color: white; padding: 2px 4px; border-radius: 3px; font-weight: bold;',
-        networkError,
-      )
-      if (networkError.statusCode == 403 || networkError.statusCode == 401) {
-        JwtService.destroyToken()
-        this.$router.push({ name: 'login' })
+      if (networkError) {
+        console.log(
+          '%cError',
+          'background: red; color: white; padding: 2px 4px; border-radius: 3px; font-weight: bold;',
+          networkError,
+        )
+        if (
+          networkError.statusCode == 401 &&
+          networkError.result.errors[0].message == 'jwt expired'
+        ) {
+          console.log('Destroying token due to expired resonse')
+          JwtService.destroyToken()
+          this.$router.push({ name: 'login' })
+        }
       }
     },
   })

@@ -27,6 +27,7 @@
           :options="[
             { label: 'Daily', value: 'daily' },
             { label: 'Weekly', value: 'weekly' },
+            { label: 'Monthly', value: 'monthly' },
           ]"
         />
       </div>
@@ -113,11 +114,7 @@
           <div class="col-12 col-md-8 q-pa-md">
             <ch-chart-time-categorical
               :data="statsTimeCategory"
-              :dateRange="
-                period == 'daily'
-                  ? dateSpread(settings.startDate)
-                  : weekSpread(settings.startDate, numWeeks)
-              "
+              :dateRange="getSpread()"
               :xaxisType="period == 'daily' ? 'datetime' : 'categories'"
               :colors="getColors"
             ></ch-chart-time-categorical>
@@ -132,11 +129,7 @@
           <div class="col-12 col-md-8 q-pa-md">
             <ch-chart-time-categorical
               :data="statsTimeProject"
-              :dateRange="
-                period == 'daily'
-                  ? dateSpread(settings.startDate)
-                  : weekSpread(settings.startDate, numWeeks)
-              "
+              :dateRange="getSpread()"
               :xaxisType="period == 'daily' ? 'datetime' : 'categories'"
             ></ch-chart-time-categorical>
           </div>
@@ -150,11 +143,7 @@
           <div class="col-12 col-md-8 q-pa-md">
             <ch-chart-time-categorical
               :data="statsTimeTask"
-              :dateRange="
-                period == 'daily'
-                  ? dateSpread(settings.startDate)
-                  : weekSpread(settings.startDate, numWeeks)
-              "
+              :dateRange="getSpread()"
               :xaxisType="period == 'daily' ? 'datetime' : 'categories'"
             ></ch-chart-time-categorical>
           </div>
@@ -225,12 +214,20 @@ let generateQuery = (graphType, level) => {
         statFilter['entryDate'] = {
           in: this.dateSpread(this.settings.startDate),
         }
-      } else {
+      } else if (this.period == 'weekly') {
         if (graphType == 'time') {
           groupBy.push('ENTRY_WEEK_NUMBER')
         }
         statFilter['entryWeekNumber'] = {
           in: this.weekSpread(this.settings.startDate, this.numWeeks),
+        }
+      } else if (this.period == 'monthly') {
+        if (graphType == 'time') {
+          groupBy.push('ENTRY_DATE_MONTH')
+        }
+        statFilter['entryDate'] = {
+          greaterThanOrEqualTo: '2021-01-01',
+          lessThan: '2022-01-01',
         }
       }
       groupBy.push(`${level.toUpperCase()}_DESCRIPTION`)
@@ -283,10 +280,7 @@ let generateBar = (level) => {
           acc[curr.keys[1]][curr.keys[0]] = curr.sum.entryTimerTrackedTime
           return acc
         }, {})
-        const dates =
-          this.period == 'daily'
-            ? this.dateSpread(this.settings.startDate)
-            : this.weekSpread(this.settings.startDate, this.numWeeks)
+        const dates = this.getSpread()
         this[`statsTime${capitalizeFirstLetter(level)}`] = Object.keys(
           barChartData,
         )
@@ -423,6 +417,20 @@ export default {
           .map((j) => `${year}-${String(j).padStart(2, '0')}`)
       } else {
         return []
+      }
+    },
+    monthSpread(year) {
+      return [...Array(12).keys()].map(
+        (j) => `${year}-${String(j + 1).padStart(2, '0')}`,
+      )
+    },
+    getSpread() {
+      if (this.period == 'daily') {
+        return this.dateSpread(this.settings.startDate)
+      } else if (this.period == 'weekly') {
+        return this.weekSpread(this.settings.startDate, this.numWeeks)
+      } else if (this.period == 'monthly') {
+        return this.monthSpread(2021)
       }
     },
   },

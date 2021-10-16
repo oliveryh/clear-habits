@@ -20,6 +20,21 @@ const CustomBuildHooksPlugin = (builder) => {
       sqlAggregateWrap: (sqlFrag) => sql.fragment`min(${sqlFrag})`,
     })
 
+    build.pgAggregateGroupBySpecs.push({
+      id: 'month',
+      humanLabel: 'monthmonth',
+      HumanLabel: 'monthmonth',
+      shouldApplyToEntity: (pgAttribute) => pgAttribute.name === 'entry_date',
+      isSuitableType: (pgType) => true,
+      sqlWrap: (sqlFrag) =>
+        sql.fragment`
+        CASE
+            WHEN ${sqlFrag} = 'backlog' THEN 'backlog'
+            ELSE to_char(TO_DATE(${sqlFrag},'YYYY-MM-DD'), 'IYYY-MM')
+        END
+        `,
+    })
+
     return build
   })
 }

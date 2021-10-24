@@ -117,17 +117,10 @@ export default {
         this.mondayThisWeek()
       }
     },
-    mondayOfWeek(date) {
-      var newDate = date
-      const dayOffset = newDate.getDay()
-      newDate.setDate(newDate.getDate() - ((dayOffset + 6) % 7))
-      const tzOffset = newDate.getTimezoneOffset()
-      newDate = new Date(newDate.getTime() - tzOffset * 60 * 1000)
-      this.setValue(newDate)
-    },
     mondayThisWeek() {
       var today = new Date()
-      this.mondayOfWeek(today)
+      var mondayOfToday = this.mondayOfWeek(today)
+      this.setValue(mondayOfToday)
     },
     today() {
       var today = new Date()

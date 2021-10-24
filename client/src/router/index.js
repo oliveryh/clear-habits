@@ -21,6 +21,11 @@ export default new Router({
       component: () => import('@/views/Stats'),
     },
     {
+      path: '/targets',
+      name: 'targets',
+      component: () => import('@/views/Targets'),
+    },
+    {
       path: '/settings',
       name: 'settings',
       component: () => import('@/views/Settings'),

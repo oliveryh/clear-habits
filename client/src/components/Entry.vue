@@ -8,7 +8,7 @@
               'background-color: ' +
               entry.task.project.category.color +
               '; color: ' +
-              highContrastColor(entry.task.project.category.color)
+              (entry.task.project.category.colorContrast ? 'black' : 'white')
             "
             style="
               border-radius: 5px;
@@ -40,7 +40,7 @@
           class="font-m-medium"
           style="border-radius: 10px; border: 4px"
           v-if="entry.timerActive"
-          @click="entryTimerStop(entry)"
+          @click="stopEntry(entry)"
           icon="mdi-stop"
         >
           <div v-html="timerLabel"></div
@@ -52,7 +52,7 @@
           class="font-m-medium"
           style="background: #ff0080; border-radius: 10px; border: 4px"
           v-else
-          @click="entryTimerStart(entry)"
+          @click="startEntry(entry)"
           icon="mdi-play"
         >
           <div v-html="timerLabel"></div
@@ -65,7 +65,7 @@
             color="orange"
             @click="
               entry.complete = false
-              entryRestart(entry)
+              restartEntry(entry)
             "
             icon="mdi-undo-variant"
           ></q-btn>
@@ -75,7 +75,7 @@
             color="green"
             dense
             round
-            @click="entryComplete(entry.id)"
+            @click="completeEntry(entry.id)"
             icon="mdi-check"
           ></q-btn>
           <q-btn
@@ -117,6 +117,14 @@
               label="Description"
             ></q-input>
           </q-form>
+          <q-btn
+            class="q-mt-md"
+            outlined
+            icon="mdi-sticker-plus-outline"
+            label="Copy Task"
+            @click="copyTaskWithEntry"
+            v-close-popup
+          />
           <q-card-actions align="right" class="text-primary">
             <q-btn
               flat
@@ -128,7 +136,6 @@
             />
             <q-btn flat label="Save" @click="saveTask()" />
           </q-card-actions>
-
           <div class="text-h6">Edit Entry</div>
           <q-form ref="entryForm" class="q-gutter-md" @submit.prevent>
             <q-input
@@ -261,7 +268,7 @@
             flat
             label="Delete"
             color="warning"
-            @click="entryDelete(entry)"
+            @click="deletePaginatedEntry(entry) && (editorDialog = false)"
             v-close-popup
           />
         </q-card-actions>
@@ -375,21 +382,30 @@ export default {
         description: this.entry.description,
         date: this.entry.date,
         taskId: this.entry.task.id,
+        timerEstimatedTime: this.entry.timerEstimatedTime,
       }
-      this.entryCreate(entry)
+      this.createEntryPaginated(entry)
       this.editorDialog = false
+    },
+    copyTaskWithEntry() {
+      var entryWithTask = {
+        description: this.entry.task.description,
+        projectId: this.entry.task.project.id,
+        date: this.entry.date,
+        timerEstimatedTime: this.entry.timerEstimatedTime,
+      }
+      this.createEntryWithTask(entryWithTask)
     },
     // editor
     editorOpen() {
       this.editedEntry = Object.assign({}, this.entry)
-      if (this.entry.timerActive) this.entryTimerStop(this.entry)
       this.editorDialog = true
     },
     saveEntry() {
       this.$refs.entryForm.validate().then((success) => {
         if (success) {
           this.editorDialog = false
-          this.entryUpdate(this.editedEntry)
+          this.updateEntry(this.editedEntry)
         }
       })
     },
@@ -399,7 +415,7 @@ export default {
         if (success) {
           this.editorDialog = false
           const task = this.editedEntry.task
-          this.taskUpdate({
+          this.updateTask({
             id: task.id,
             projectId: task.project.id,
             description: task.description,

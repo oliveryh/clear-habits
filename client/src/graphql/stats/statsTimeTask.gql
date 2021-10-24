@@ -1,0 +1,10 @@
+query($statFilter: StatFilter, $groupBy: [StatsGroupBy!]!) {
+  statsTimeTask: statsConnection(filter: $statFilter) {
+    groupedAggregates(groupBy: $groupBy) {
+      sum {
+        entryTimerTrackedTime
+      }
+      keys
+    }
+  }
+}

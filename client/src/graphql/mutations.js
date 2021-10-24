@@ -1,27 +1,27 @@
 // category
-import M_CATEGORY_CREATE from '@/graphql/category/categoryCreate.gql'
-import M_CATEGORY_UPDATE from '@/graphql/category/categoryUpdate.gql'
-import M_CATEGORY_DELETE from '@/graphql/category/categoryDelete.gql'
+import M_CATEGORY_CREATE from '@/graphql/category/createCategory.gql'
+import M_CATEGORY_UPDATE from '@/graphql/category/updateCategory.gql'
+import M_CATEGORY_DELETE from '@/graphql/category/deleteCategory.gql'
 
 // project
-import M_PROJECT_CREATE from '@/graphql/project/projectCreate.gql'
-import M_PROJECT_UPDATE from '@/graphql/project/projectUpdate.gql'
-import M_PROJECT_DELETE from '@/graphql/project/projectDelete.gql'
+import M_PROJECT_CREATE from '@/graphql/project/createProject.gql'
+import M_PROJECT_UPDATE from '@/graphql/project/updateProject.gql'
+import M_PROJECT_DELETE from '@/graphql/project/deleteProject.gql'
 
 // task
-import M_TASK_CREATE from '@/graphql/task/taskCreate.gql'
-import M_TASK_UPDATE from '@/graphql/task/taskUpdate.gql'
+import M_TASK_CREATE from '@/graphql/task/createTask.gql'
+import M_TASK_UPDATE from '@/graphql/task/updateTask.gql'
 
 // entry
-import M_ENTRY_START from '@/graphql/entry/entryStart.gql'
-import M_ENTRY_STOP from '@/graphql/entry/entryStop.gql'
-import M_ENTRY_UPDATE from '@/graphql/entry/entryUpdate.gql'
-import M_ENTRY_COMPLETE from '@/graphql/entry/entryComplete.gql'
-import M_ENTRY_RESTART from '@/graphql/entry/entryRestart.gql'
-import M_ENTRY_DELETE from '@/graphql/entry/entryDelete.gql'
-import M_ENTRY_CREATE from '@/graphql/entry/entryCreate.gql'
-import M_ENTRY_CREATE_WITH_TASK from '@/graphql/entry/entryCreateWithTask.gql'
-import M_ENTRY_REORDER from '@/graphql/entry/entryReorder.gql'
+import M_ENTRY_START from '@/graphql/entry/startEntry.gql'
+import M_ENTRY_STOP from '@/graphql/entry/stopEntry.gql'
+import M_ENTRY_UPDATE from '@/graphql/entry/updateEntry.gql'
+import M_ENTRY_COMPLETE from '@/graphql/entry/completeEntry.gql'
+import M_ENTRY_RESTART from '@/graphql/entry/restartEntry.gql'
+import M_ENTRY_DELETE from '@/graphql/entry/deleteEntry.gql'
+import M_ENTRY_CREATE from '@/graphql/entry/createEntry.gql'
+import M_ENTRY_CREATE_WITH_TASK from '@/graphql/entry/createEntryWithTask.gql'
+import M_ENTRY_REORDER from '@/graphql/entry/reorderEntries.gql'
 
 // settings
 import M_SETTINGS_UPDATE from '@/graphql/settings/settingsUpdate.gql'

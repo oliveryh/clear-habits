@@ -11,7 +11,7 @@ const AUTH_TOKEN = 'apollo-token'
 
 // Http endpoint
 const httpEndpoint =
-  process.env.VUE_APP_GRAPHQL_HTTP || 'http://localhost:8000/graphql'
+  process.env.VUE_APP_GRAPHQL_HTTP || 'http://localhost:3000/graphql'
 // Files URL root
 export const filesRoot =
   process.env.VUE_APP_FILES_ROOT ||
@@ -74,11 +74,20 @@ const typeDefs = gql`
     settings: Settings!
   }
 
+  enum StatsGroupBy {
+    ENTRY_DATE
+    CATEGORY_DESCRIPTION
+    CATEGORY_ID
+    PROJECT_DESCRIPTION
+    PROJECT_ID
+  }
+
   type Mutation {
     settingsUpdate(
       categorySelected: Number
       dateZoomed: String
       projectSelected: Project
+      startDate: String
     ): Settings!
   }
 
@@ -86,6 +95,7 @@ const typeDefs = gql`
     categorySelected: Number
     dateZoomed: String
     projectSeleted: Project
+    startDate: String
   }
 `
 
@@ -109,12 +119,19 @@ const { apolloClient, wsClient } = createApolloClient({
 
 apolloClient.wsClient = wsClient
 
+const isMobile = () => {
+  return /Android|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent,
+  )
+}
+
 const defaultData = {
   settings: {
     __typename: 'Settings',
     categorySelected: null,
-    dateZoomed: null,
+    dateZoomed: isMobile() ? new Date().toISOString().split('T')[0] : null,
     projectSelected: null,
+    startDate: null,
   },
 }
 
@@ -137,13 +154,23 @@ export function createProvider() {
         // fetchPolicy: 'cache-and-network',
       },
     },
-    errorHandler(error) {
+    errorHandler({ networkError }) {
       // eslint-disable-next-line no-console
-      console.log(
-        '%cError',
-        'background: red; color: white; padding: 2px 4px; border-radius: 3px; font-weight: bold;',
-        error.message,
-      )
+      if (networkError) {
+        console.log(
+          '%cError',
+          'background: red; color: white; padding: 2px 4px; border-radius: 3px; font-weight: bold;',
+          networkError,
+        )
+        if (
+          networkError.statusCode == 401 &&
+          networkError.result.errors[0].message == 'jwt expired'
+        ) {
+          console.log('Destroying token due to expired resonse')
+          JwtService.destroyToken()
+          this.$router.push({ name: 'login' })
+        }
+      }
     },
   })
 

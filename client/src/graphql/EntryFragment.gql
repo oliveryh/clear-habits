@@ -2,7 +2,7 @@ fragment Entry on Entry {
   id
   date
   description
-  order
+  listOrder
   complete
   timerActive
   timerTrackedTime

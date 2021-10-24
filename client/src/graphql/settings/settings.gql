@@ -3,5 +3,6 @@ query {
     categorySelected @client
     dateZoomed @client
     projectSelected @client
+    startDate @client
   }
 }

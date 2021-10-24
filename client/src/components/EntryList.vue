@@ -42,30 +42,37 @@
       </div>
     </div>
     <div class="row">
+      <div class="col col-12 q-py-none">
+        <h6 class="font-m-medium q-my-none q-mx-none text-left">
+          {{ timeSummary }}
+        </h6>
+      </div>
       <div class="col col-12" :class="settings.dateZoomed ? 'col-lg-12' : ''">
         <button-add objectName="Task" @click="addTask" class="float-left" />
-        <q-btn
-          @click="zoomOut()"
-          v-if="settings.dateZoomed"
-          round
-          dense
-          flat
-          color="primary"
-          icon="mdi-magnify-minus-outline"
-          class="float-right"
-          size="md"
-        ></q-btn>
-        <q-btn
-          @click="zoomIn()"
-          v-else
-          round
-          dense
-          flat
-          color="primary"
-          icon="mdi-magnify-plus-outline"
-          class="float-right"
-          size="md"
-        ></q-btn>
+        <template v-if="!isMobile()">
+          <q-btn
+            @click="zoomOut()"
+            v-if="settings.dateZoomed"
+            round
+            dense
+            flat
+            color="primary"
+            icon="mdi-magnify-minus-outline"
+            class="float-right"
+            size="md"
+          ></q-btn>
+          <q-btn
+            @click="zoomIn()"
+            v-else
+            round
+            dense
+            flat
+            color="primary"
+            icon="mdi-magnify-plus-outline"
+            class="float-right"
+            size="md"
+          ></q-btn>
+        </template>
       </div>
     </div>
     <q-dialog v-model="editorDialog">
@@ -78,7 +85,7 @@
               outlined
               v-model="newEntry.description"
               label="New Entry"
-              @keydown.enter="entryCreateWithTask"
+              @keydown.enter="createEntryWithTaskLocal"
             ></q-input>
             <q-input
               class="q-pa-sm"
@@ -86,7 +93,7 @@
               v-model="newEntryEstimatedTime"
               mask="time"
               :rules="['time']"
-              @keydown.enter="entryCreateWithTask"
+              @keydown.enter="createEntryWithTaskLocal"
             >
               <template v-slot:append>
                 <q-icon name="access_time" class="cursor-pointer">
@@ -112,7 +119,7 @@
         </q-card-section>
         <q-card-actions align="right" class="text-primary">
           <q-btn flat label="Cancel" @click="editorDialog = false" />
-          <q-btn flat label="Add" @click="entryCreateWithTask" />
+          <q-btn flat label="Add" @click="createEntryWithTaskLocal" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -131,7 +138,7 @@
 <script>
 import Entry from '@/components/Entry.vue'
 import draggable from 'vuedraggable'
-import { M_ENTRY_CREATE_WITH_TASK, M_ENTRY_REORDER } from '@/graphql/mutations'
+import { M_ENTRY_REORDER } from '@/graphql/mutations'
 import { Q_ENTRY, Q_SETTINGS } from '@/graphql/queries'
 import ButtonAdd from '@/components/ButtonAdd.vue'
 
@@ -174,32 +181,37 @@ export default {
         for (let i = 0; i < reorderedEntries.length; i++) {
           reorderedEntriesOrders.push({
             id: reorderedEntries[i].id,
-            order: i,
+            listOrder: i,
+            date: this.date,
           })
         }
 
-        this.$apollo.mutate({
-          mutation: M_ENTRY_REORDER,
-          variables: {
-            date: this.date,
-            entries: reorderedEntriesOrders,
-          },
-          update: (store, { data: { entryReorder } }) => {
-            const data = store.readQuery({
-              query: Q_ENTRY,
-            })
+        if (reorderedEntriesOrders.length) {
+          this.$apollo.mutate({
+            mutation: M_ENTRY_REORDER,
+            variables: {
+              entryOrders: reorderedEntriesOrders,
+            },
+            update: (store, { data: { reorderEntries } }) => {
+              const variables = this.getWeekDates(store)
+              const data = store.readQuery({
+                query: Q_ENTRY,
+                variables,
+              })
 
-            entryReorder.forEach((entry) => {
-              const alteredEntry = data.entries.find((e) => e.id === entry.id)
-              Object.assign(alteredEntry, entry)
-            })
+              reorderEntries.entries.forEach((entry) => {
+                const alteredEntry = data.entries.find((e) => e.id === entry.id)
+                Object.assign(alteredEntry, entry)
+              })
 
-            store.writeQuery({
-              query: Q_ENTRY,
-              data,
-            })
-          },
-        })
+              store.writeQuery({
+                query: Q_ENTRY,
+                data,
+                variables,
+              })
+            },
+          })
+        }
       },
     },
     newEntryEstimatedTime: {
@@ -239,8 +251,8 @@ export default {
     },
   },
   methods: {
-    // TODO: Validate form before entryCreate runs
-    entryCreateWithTask() {
+    // TODO: Validate form before createEntry runs
+    createEntryWithTaskLocal() {
       this.editorDialog = false
       var entry = {
         description: this.newEntry.description,
@@ -252,24 +264,7 @@ export default {
       if (this.newEntry.timerEstimatedTime) {
         entry.timerEstimatedTime = this.newEntry.timerEstimatedTime
       }
-      this.$apollo
-        .mutate({
-          mutation: M_ENTRY_CREATE_WITH_TASK,
-          variables: entry,
-          update: (store, { data: { entryCreateWithTask } }) => {
-            const data = store.readQuery({
-              query: Q_ENTRY,
-            })
-            data.entries.push(entryCreateWithTask)
-            store.writeQuery({
-              query: Q_ENTRY,
-              data,
-            })
-          },
-        })
-        .catch((error) => {
-          this.showErrors(error)
-        })
+      this.createEntryWithTask(entry)
       this.newEntry = {
         description: null,
         timerEstimatedTime: null,

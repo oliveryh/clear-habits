@@ -1,10 +1,15 @@
 <template>
   <div>
-    <q-card>
+    <q-card v-if="series.length > 0">
       <q-card-section>
         <div class="text-h4 text-weight-light">Time Taken</div>
         <apexchart type="pie" :options="options" :series="series"></apexchart>
       </q-card-section>
+    </q-card>
+    <q-card v-else>
+      <div class="q-pa-xl text-h4 text-weight-light text-grey-5">
+        <q-icon name="mdi-database-off" /> No Data to Show
+      </div>
     </q-card>
   </div>
 </template>
@@ -46,7 +51,7 @@ export default {
   },
   computed: {
     series() {
-      return this.data.series
+      return this.data?.series || []
     },
     options() {
       return {
@@ -55,7 +60,7 @@ export default {
           type: 'donut',
         },
         colors: this.colors != null ? this.colors : this.tenColorPalette,
-        labels: this.data.labels,
+        labels: this.data?.labels,
         legend: {
           show: true,
         },

@@ -9,7 +9,7 @@
         ></ch-date-selector>
         <ch-date-selector
           v-else
-          v-model="startDate"
+          v-model="settings.startDate"
           period="week"
         ></ch-date-selector>
       </div>
@@ -42,6 +42,9 @@
     </div>
     <div class="row" style="text-align: center">
       <div v-if="settings.dateZoomed" class="col">
+        <ch-entry-list date="backlog" :entries="getEntryList('backlog')" />
+      </div>
+      <div v-if="settings.dateZoomed" class="col">
         <ch-entry-list
           :date="settings.dateZoomed"
           :entries="getEntryList(settings.dateZoomed)"
@@ -52,7 +55,7 @@
           <ch-entry-list date="backlog" :entries="getEntryList('backlog')" />
         </div>
         <div
-          v-for="date in dateSpread(startDate)"
+          v-for="date in dateSpread(this.settings.startDate)"
           :key="date"
           class="custom8cols"
         >
@@ -68,13 +71,7 @@ import ChEntryList from '@/components/EntryList.vue'
 import ChDateSelector from '@/components/DateSelector.vue'
 import ChProjectPicker from '@/components/ProjectPicker'
 
-import {
-  Q_ENTRY,
-  Q_PROJECT,
-  Q_CATEGORY,
-  Q_TASK,
-  Q_SETTINGS,
-} from '@/graphql/queries'
+import { Q_ENTRY, Q_PROJECT, Q_CATEGORY, Q_SETTINGS } from '@/graphql/queries'
 
 export default {
   name: 'EntryPanel',
@@ -84,7 +81,6 @@ export default {
     ChProjectPicker,
   },
   data: () => ({
-    startDate: null,
     showCompleted: false,
     options: null,
     categorySelected: null,
@@ -92,15 +88,24 @@ export default {
   apollo: {
     entries: {
       query: Q_ENTRY,
+      variables() {
+        let settings = this.settings
+        let monday
+        if (settings.dateZoomed) {
+          monday = this.mondayOfWeek(new Date(settings.dateZoomed))
+        } else {
+          monday = settings.startDate
+        }
+        return {
+          datesIn: this.dateSpread(monday).concat(['backlog']),
+        }
+      },
     },
     projects: {
       query: Q_PROJECT,
     },
     categories: {
       query: Q_CATEGORY,
-    },
-    tasks: {
-      query: Q_TASK,
     },
     settings: {
       query: Q_SETTINGS,
@@ -153,12 +158,32 @@ export default {
         this.settingsUpdate(settings)
       },
     },
+    entries: {
+      deep: true,
+      handler(entries) {
+        const favicon = document.getElementById('favicon')
+        console.log(favicon)
+        if (entries.some((entry) => entry.timerActive)) {
+          const newLink = favicon.href.replace(
+            'favicon.png',
+            'favicon-recording.png',
+          )
+          favicon.href = newLink
+        } else {
+          const newLink = favicon.href.replace(
+            'favicon-recording.png',
+            'favicon.png',
+          )
+          favicon.href = newLink
+        }
+      },
+    },
   },
   methods: {
     getEntryList(date) {
       var entries = this.filteredEntries
         .filter((entry) => entry.date == date)
-        .sort((a, b) => a['order'] - b['order'])
+        .sort((a, b) => a['listOrder'] - b['listOrder'])
       return entries
     },
   },

@@ -22,11 +22,18 @@
             label="Your password *"
             hint="Password (>6 characters long)"
             lazy-rules
-            type="password"
+            :type="isPwd ? 'password' : 'text'"
             :rules="passwordRules"
           >
             <template v-slot:prepend>
               <q-icon name="mdi-lock" />
+            </template>
+            <template v-slot:append>
+              <q-icon
+                :name="isPwd ? 'mdi-eye-off' : 'mdi-eye'"
+                class="cursor-pointer"
+                @click="isPwd = !isPwd"
+              />
             </template>
           </q-input>
         </q-form>
@@ -53,6 +60,7 @@ import { onLogin } from '@/vue-apollo'
 export default {
   name: 'Login',
   data: () => ({
+    isPwd: true,
     valid: true,
     email: '',
     emailRules: [
@@ -74,29 +82,37 @@ export default {
           this.$apollo
             .mutate({
               mutation: gql`
-                mutation($login: String!, $password: String!) {
-                  signIn(login: $login, password: $password) {
-                    token
+                mutation ($email: String!, $password: String!) {
+                  signIn(input: { email: $email, password: $password }) {
+                    jwtToken
                   }
                 }
               `,
               variables: {
-                login: this.email,
+                email: this.email,
                 password: this.password,
               },
               update: async (
                 store,
                 {
                   data: {
-                    signIn: { token },
+                    signIn: { jwtToken },
                   },
                 },
               ) => {
-                this.result = token
-                await onLogin(token)
+                if (jwtToken) {
+                  this.result = jwtToken
+                  await onLogin(jwtToken)
+                  this.$router.push({ name: 'home' })
+                } else {
+                  this.$q.notify({
+                    group: false,
+                    message: 'The password or email you entered was incorrect',
+                    type: 'negative',
+                  })
+                }
               },
             })
-            .then(() => this.$router.push({ name: 'home' }))
             .catch((error) => {
               this.showErrors(error)
             })

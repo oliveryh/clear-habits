@@ -117,6 +117,14 @@
               label="Description"
             ></q-input>
           </q-form>
+          <q-btn
+            class="q-mt-md"
+            outlined
+            icon="mdi-sticker-plus-outline"
+            label="Copy Task"
+            @click="copyTaskWithEntry"
+            v-close-popup
+          />
           <q-card-actions align="right" class="text-primary">
             <q-btn
               flat
@@ -128,7 +136,6 @@
             />
             <q-btn flat label="Save" @click="saveTask()" />
           </q-card-actions>
-
           <div class="text-h6">Edit Entry</div>
           <q-form ref="entryForm" class="q-gutter-md" @submit.prevent>
             <q-input
@@ -379,6 +386,15 @@ export default {
       }
       this.createEntryPaginated(entry)
       this.editorDialog = false
+    },
+    copyTaskWithEntry() {
+      var entryWithTask = {
+        description: this.entry.task.description,
+        projectId: this.entry.task.project.id,
+        date: this.entry.date,
+        timerEstimatedTime: this.entry.timerEstimatedTime,
+      }
+      this.createEntryWithTask(entryWithTask)
     },
     // editor
     editorOpen() {

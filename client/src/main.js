@@ -34,6 +34,7 @@ import {
   M_ENTRY_START,
   M_ENTRY_RESTART,
   M_ENTRY_DELETE,
+  M_ENTRY_CREATE_WITH_TASK,
   M_TASK_CREATE,
   M_TASK_UPDATE,
   M_PROJECT_CREATE,
@@ -289,6 +290,36 @@ export const mixins = {
             {
               data: {
                 Entry: { entry },
+              },
+            },
+          ) => {
+            const variables = this.getWeekDates(store)
+            const data = store.readQuery({
+              query: Q_ENTRY,
+              variables,
+            })
+            data.entries.push(entry)
+            store.writeQuery({
+              query: Q_ENTRY,
+              variables,
+              data,
+            })
+          },
+        })
+        .catch(error => {
+          this.showErrors(error)
+        })
+    },
+    createEntryWithTask(entry) {
+      this.$apollo
+        .mutate({
+          mutation: M_ENTRY_CREATE_WITH_TASK,
+          variables: entry,
+          update: (
+            store,
+            {
+              data: {
+                createEntryWithTask: { entry },
               },
             },
           ) => {

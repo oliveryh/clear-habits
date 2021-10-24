@@ -85,7 +85,7 @@
               outlined
               v-model="newEntry.description"
               label="New Entry"
-              @keydown.enter="createEntryWithTask"
+              @keydown.enter="createEntryWithTaskLocal"
             ></q-input>
             <q-input
               class="q-pa-sm"
@@ -93,7 +93,7 @@
               v-model="newEntryEstimatedTime"
               mask="time"
               :rules="['time']"
-              @keydown.enter="createEntryWithTask"
+              @keydown.enter="createEntryWithTaskLocal"
             >
               <template v-slot:append>
                 <q-icon name="access_time" class="cursor-pointer">
@@ -119,7 +119,7 @@
         </q-card-section>
         <q-card-actions align="right" class="text-primary">
           <q-btn flat label="Cancel" @click="editorDialog = false" />
-          <q-btn flat label="Add" @click="createEntryWithTask" />
+          <q-btn flat label="Add" @click="createEntryWithTaskLocal" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -138,7 +138,7 @@
 <script>
 import Entry from '@/components/Entry.vue'
 import draggable from 'vuedraggable'
-import { M_ENTRY_CREATE_WITH_TASK, M_ENTRY_REORDER } from '@/graphql/mutations'
+import { M_ENTRY_REORDER } from '@/graphql/mutations'
 import { Q_ENTRY, Q_SETTINGS } from '@/graphql/queries'
 import ButtonAdd from '@/components/ButtonAdd.vue'
 
@@ -252,7 +252,7 @@ export default {
   },
   methods: {
     // TODO: Validate form before createEntry runs
-    createEntryWithTask() {
+    createEntryWithTaskLocal() {
       this.editorDialog = false
       var entry = {
         description: this.newEntry.description,
@@ -264,34 +264,7 @@ export default {
       if (this.newEntry.timerEstimatedTime) {
         entry.timerEstimatedTime = this.newEntry.timerEstimatedTime
       }
-      this.$apollo
-        .mutate({
-          mutation: M_ENTRY_CREATE_WITH_TASK,
-          variables: entry,
-          update: (
-            store,
-            {
-              data: {
-                createEntryWithTask: { entry },
-              },
-            },
-          ) => {
-            const variables = this.getWeekDates(store)
-            const data = store.readQuery({
-              query: Q_ENTRY,
-              variables,
-            })
-            data.entries.push(entry)
-            store.writeQuery({
-              query: Q_ENTRY,
-              variables,
-              data,
-            })
-          },
-        })
-        .catch((error) => {
-          this.showErrors(error)
-        })
+      this.createEntryWithTask(entry)
       this.newEntry = {
         description: null,
         timerEstimatedTime: null,

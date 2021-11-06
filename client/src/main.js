@@ -169,6 +169,26 @@ export const mixins = {
               fragment,
               data: fragmentNew,
             })
+            if (objectType == 'Entry') {
+              const weekVariables = this.getWeekDates(store, fragmentNew.date)
+              const storeData = store.readQuery({
+                query: Q_ENTRY,
+                variables: weekVariables,
+              })
+              const upsert = (array, element) => {
+                const i = array.findIndex(
+                  _element => _element.id === element.id,
+                )
+                if (i > -1) Object.update(array[i], element)
+                else array.push(element)
+              }
+              upsert(storeData.entries, fragmentNew)
+              store.writeQuery({
+                query: Q_ENTRY,
+                variables: weekVariables,
+                data: storeData,
+              })
+            }
           },
         })
         .catch(error => {
@@ -388,12 +408,14 @@ export const mixins = {
         },
       })
     },
-    getWeekDates(store) {
+    getWeekDates(store, providedDate) {
       const { settings } = store.readQuery({
         query: Q_SETTINGS,
       })
       let monday
-      if (settings.dateZoomed) {
+      if (providedDate) {
+        monday = this.mondayOfWeek(new Date(providedDate))
+      } else if (settings.dateZoomed) {
         monday = this.mondayOfWeek(new Date(settings.dateZoomed))
       } else {
         monday = settings.startDate

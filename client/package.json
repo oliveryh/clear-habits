@@ -18,13 +18,11 @@
     "core-js": "^3.6.5",
     "d3": "^7.2.1",
     "draggable": "^4.2.0",
-    "echarts": "^5.2.2",
     "quasar": "^1.0.0",
     "vue": "^2.6.11",
     "vue-apexcharts": "^1.6.0",
     "vue-apollo": "^3.0.5",
     "vue-axios": "^2.1.5",
-    "vue-echarts": "^6.0.0",
     "vue-router": "^3.4.3",
     "vuedraggable": "^2.24.1",
     "vuex-map-fields": "^1.4.0"

@@ -437,10 +437,6 @@ export default {
 }
 </script>
 <style scoped>
-.echarts {
-  width: 100%;
-  height: 400px;
-}
 .q-btn {
   border: 2.5px solid;
 }

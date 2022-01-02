@@ -24,6 +24,26 @@
         <div v-else class="text-headline text-left">NONE</div>
         <div class="text-subtitle-2 text-weight-medium text-left font-m-medium">
           {{ entry.task.description }}
+          <q-btn
+            class="q-px-none"
+            flat
+            size="sm"
+            color="grey"
+            round
+            dense
+            @click="showTaskDetails()"
+            icon="mdi-chart-bar"
+          ></q-btn>
+          <q-btn
+            class="q-px-none"
+            flat
+            size="sm"
+            color="grey"
+            round
+            dense
+            @click="showSimilarTasks()"
+            icon="mdi-calendar-multiple-check"
+          ></q-btn>
         </div>
         <div
           v-if="entry.description"
@@ -63,6 +83,8 @@
             v-if="entry.complete"
             flat
             color="orange"
+            dense
+            round
             @click="
               entry.complete = false
               restartEntry(entry)
@@ -274,13 +296,152 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <q-dialog v-model="taskDetailsDialog" v-close-popup>
+      <q-card style="width: 1000px; max-width: 1500px">
+        <q-card-section class="row items-center">
+          <div
+            :style="
+              'background-color: ' +
+              entry.task.project.category.color +
+              '; color: ' +
+              (entry.task.project.category.colorContrast ? 'black' : 'white')
+            "
+            style="
+              border-radius: 5px;
+              padding: 2px 5px 2px;
+              margin-bottom: 4px;
+              display: inline-block;
+            "
+            class="font-m-bold"
+          >
+            {{ entry.task.project.description | allCapitals }}
+          </div>
+          <span class="q-px-sm"><strong>/</strong></span>
+          <div
+            class="text-subtitle-2 text-weight-medium text-left font-m-medium"
+          >
+            {{ entry.task.description }}
+          </div>
+        </q-card-section>
+        <q-card-section class="row items-center">
+          <div class="col col-12" style="min-width: 200px" v-if="taskDetails">
+            <div class="row q-pb-lg">
+              <div class="col col-12 col-sm-6 q-pb-md text-center">
+                <div class="text-h2 text-weight-light">
+                  {{
+                    hoursToReadable(
+                      taskDetails.aggregates.sum.timerEstimatedTime / 3600,
+                    )
+                  }}
+                </div>
+                <div class="text-headline font-m-medium">
+                  <q-icon name="mdi-clock-outline" />
+                  Estimated Time
+                </div>
+              </div>
+              <div class="col col-12 col-sm-6 q-pb-md text-center">
+                <div class="text-h2 text-weight-light">
+                  {{
+                    hoursToReadable(
+                      taskDetails.aggregates.sum.timerTrackedTime / 3600,
+                    )
+                  }}
+                </div>
+                <div class="text-headline font-m-medium">
+                  <q-icon name="mdi-clock" />
+                  Tracked Time
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col col-12 col-md-6">
+                <div
+                  class="row"
+                  v-for="entry in taskDetails.nodes"
+                  :key="entry.id"
+                >
+                  <q-icon
+                    v-if="entry.complete"
+                    name="mdi-check"
+                    class="q-mr-sm"
+                  />
+                  <q-icon v-else name="mdi-blank" class="q-mr-sm" />
+                  {{ entry.date }}
+                  -
+                  {{
+                    secondsToTimestamp(entry.timerTrackedTime, {
+                      zeroPad: true,
+                    })
+                  }}
+                  -
+                  {{ entry.description }}
+                </div>
+              </div>
+              <div class="col col-12 col-md-6">
+                <ccv-stacked-bar-chart
+                  :data="barChart.data"
+                  :options="barChart.options"
+                ></ccv-stacked-bar-chart>
+              </div>
+            </div>
+          </div>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
+    <q-dialog v-model="tasksSimilarDialog" v-close-popup>
+      <q-card style="width: 1000px; max-width: 1500px">
+        <q-card-section class="row items-center">
+          <div
+            :style="
+              'background-color: ' +
+              entry.task.project.category.color +
+              '; color: ' +
+              (entry.task.project.category.colorContrast ? 'black' : 'white')
+            "
+            style="
+              border-radius: 5px;
+              padding: 2px 5px 2px;
+              margin-bottom: 4px;
+              display: inline-block;
+            "
+            class="font-m-bold"
+          >
+            {{ entry.task.project.description | allCapitals }}
+          </div>
+          <span class="q-px-sm"><strong>/</strong></span>
+          <div
+            class="text-subtitle-2 text-weight-medium text-left font-m-medium"
+          >
+            {{ entry.task.description }}
+          </div>
+        </q-card-section>
+        <q-card-section class="row items-center">
+          <div class="col col-12" style="min-width: 200px">
+            <div class="row">
+              <div class="col col-12" style="height: 400px">
+                <ccv-stacked-bar-chart
+                  :data="barChartSimilar.data"
+                  :options="barChartSimilar.options"
+                ></ccv-stacked-bar-chart>
+              </div>
+            </div>
+          </div>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
 <script>
-import { Q_PROJECT } from '@/graphql/queries'
+import { Q_PROJECT, Q_TASK_DETAILS } from '@/graphql/queries'
 
 import ChProjectPicker from '@/components/ProjectPicker'
+import {
+  Q_STATS_TIME_ENTRY,
+  Q_STATS_TIME_SIMILAR_TASK,
+} from '@/graphql/queries'
+
+// import { formatTick } from '@carbon/charts/services/time-series'
 
 export default {
   name: 'Entry',
@@ -296,6 +457,146 @@ export default {
     projects: {
       query: Q_PROJECT,
     },
+    taskDetails: {
+      query: Q_TASK_DETAILS,
+      skip() {
+        return !this.taskDetailsDialog
+      },
+      variables() {
+        return {
+          taskId: this.entry.task.id,
+        }
+      },
+    },
+    statsTimeEntry: {
+      query: Q_STATS_TIME_ENTRY,
+      skip() {
+        return !this.taskDetails
+      },
+      variables() {
+        return {
+          groupBy: ['ENTRY_DATE', 'ENTRY_COMPLETE'],
+          statFilter: {
+            taskId: {
+              equalTo: this.entry.task.id,
+            },
+            entryDate: {
+              notEqualTo: 'backlog',
+            },
+          },
+        }
+      },
+      result({ data, loading }) {
+        if (!loading) {
+          console.log('DATA', data)
+          const listSums = data.statsTimeEntry.groupedAggregates
+          const barChartData = listSums.reduce((acc, curr) => {
+            if (!acc[curr.keys[0]]) acc[curr.keys[0]] = {}
+            acc[curr.keys[0]][curr.keys[1]] = curr.sum
+            return acc
+          }, {})
+          console.log(barChartData)
+          const formatted = Object.keys(barChartData).reduce((acc, date) => {
+            const completeTracked = Number(
+              barChartData[date][true]?.entryTimerTrackedTime || 0,
+            )
+            const incompleteEstimated = Number(
+              barChartData[date][false]?.entryTimerEstimatedTime || 0,
+            )
+            const incompleteTracked = Number(
+              barChartData[date][false]?.entryTimerTrackedTime || 0,
+            )
+            const estimatedTime =
+              Math.max(0, incompleteEstimated - incompleteTracked) / 3600
+            const trackedTime =
+              Math.max(0, incompleteTracked + completeTracked) / 3600
+            return acc.concat([
+              {
+                group: 'Estimated',
+                date: date,
+                value: estimatedTime,
+              },
+              {
+                group: 'Tracked',
+                date: date,
+                value: trackedTime,
+              },
+            ])
+          }, [])
+          this.barChartData = formatted
+        } else {
+          this.barChartData = []
+        }
+      },
+    },
+    statsTimeSimilarTask: {
+      query: Q_STATS_TIME_SIMILAR_TASK,
+      skip() {
+        return !this.tasksSimilarDialog
+      },
+      variables() {
+        return {
+          groupBy: ['ENTRY_WEEK_NUMBER', 'ENTRY_COMPLETE'],
+          statFilter: {
+            entryDate: {
+              notEqualTo: 'backlog',
+            },
+            projectId: {
+              equalTo: this.entry.task.project.id,
+            },
+            taskDescription: {
+              equalTo: this.entry.task.description,
+            },
+          },
+        }
+      },
+      result({ data, loading }) {
+        if (!loading) {
+          const listSums = data.statsTimeSimilarTask.groupedAggregates
+          const barChartData = listSums.reduce((acc, curr) => {
+            if (!acc[curr.keys[0]]) acc[curr.keys[0]] = {}
+            acc[curr.keys[0]][curr.keys[1]] = curr.sum
+            return acc
+          }, {})
+          console.log(barChartData)
+          const formatted = Object.keys(barChartData).reduce((acc, date) => {
+            const completeTracked = Number(
+              barChartData[date][true]?.entryTimerTrackedTime || 0,
+            )
+            const incompleteEstimated = Number(
+              barChartData[date][false]?.entryTimerEstimatedTime || 0,
+            )
+            const incompleteTracked = Number(
+              barChartData[date][false]?.entryTimerTrackedTime || 0,
+            )
+            const estimatedTime =
+              Math.max(0, incompleteEstimated - incompleteTracked) / 3600
+            const trackedTime =
+              Math.max(0, incompleteTracked + completeTracked) / 3600
+            return acc.concat([
+              {
+                group: 'Estimated',
+                date: date,
+                value: estimatedTime,
+              },
+              {
+                group: 'Tracked',
+                date: date,
+                value: trackedTime,
+              },
+            ])
+          }, [])
+          const allDates = listSums.map((s) => s.keys[0]).sort()
+          const dateMin = allDates[0]
+          const dateMax = allDates[allDates.length - 1]
+          const datesDomain = this.weekSpreadSequential(dateMin, dateMax)
+          this.barChartSimilarDomain = datesDomain
+          this.barChartSimilarData = formatted
+        } else {
+          this.barChartSimilarData = []
+        }
+      },
+    },
   },
   data: () => ({
     entryRules: [(v) => !!v || 'Description required'],
@@ -304,6 +605,11 @@ export default {
     editorDialog: false,
     editedEntry: null,
     deleteDialog: null,
+    taskDetailsDialog: null,
+    tasksSimilarDialog: null,
+    taskDetailsTaskId: null,
+    barChartData: [],
+    barChartSimilarData: [],
   }),
   created() {
     this.timerSet()
@@ -337,6 +643,81 @@ export default {
         this.editedEntry.timerEstimatedTime = this.timestampToSeconds(timestamp)
       },
     },
+    barChart() {
+      return {
+        data: this.barChartData,
+        options: {
+          axes: {
+            left: {
+              title: 'Time',
+              mapsTo: 'value',
+              stacked: true,
+              ticks: {
+                formatter: this.hoursToReadable,
+              },
+            },
+            bottom: {
+              mapsTo: 'date',
+              scaleType: 'time',
+              // ticks: {
+              //   formatter: (t, i) =>
+              //     formatTick(t, i, [0, 1, 2], 'daily', {
+              //       showDayName: false,
+              //       timeIntervalFormats: {
+              //         daily: { primary: 'MMM d', secondary: 'd' },
+              //       },
+              //     }),
+              //   number: 8,
+              // },
+            },
+          },
+          color: {
+            scale: {
+              Tracked: '#22bb22',
+              Estimated: '#bbb',
+            },
+          },
+          legend: {
+            position: 'top',
+            order: ['Tracked', 'Estimated'],
+          },
+          height: '400px',
+        },
+      }
+    },
+    barChartSimilar() {
+      return {
+        data: this.barChartSimilarData,
+        options: {
+          axes: {
+            left: {
+              title: 'Time',
+              mapsTo: 'value',
+              stacked: true,
+              ticks: {
+                formatter: this.hoursToReadable,
+              },
+            },
+            bottom: {
+              scaleType: 'labels',
+              mapsTo: 'date',
+              domain: this.barChartSimilarDomain,
+            },
+          },
+          color: {
+            scale: {
+              Tracked: '#22bb22',
+              Estimated: '#bbb',
+            },
+          },
+          legend: {
+            position: 'top',
+            order: ['Tracked', 'Estimated'],
+          },
+          height: '400px',
+        },
+      }
+    },
     progress() {
       if (this.entry.timerEstimatedTime !== 0) {
         return this.timerTrackedTime / this.entry.timerEstimatedTime
@@ -356,6 +737,31 @@ export default {
     },
   },
   methods: {
+    getWeekNumber(d) {
+      d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()))
+      // Set to nearest Thursday: current date + 4 - current day number
+      // Make Sunday's day number 7
+      d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7))
+      // Get first day of year
+      var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1))
+      // Calculate full weeks to nearest Thursday
+      var weekNo = Math.ceil(((d - yearStart) / 86400000 + 1) / 7)
+      var year = d.getUTCFullYear().toString()
+      return [year, weekNo]
+    },
+    weekSpreadSequential(startYearWeek, endYearWeek) {
+      const startYear = Number(startYearWeek.slice(0, 4))
+      const startWeek = Number(startYearWeek.slice(5, 7))
+      const endYear = Number(endYearWeek.slice(0, 4))
+      const endWeek = Number(endYearWeek.slice(5, 7))
+      const numWeeks = 53 * (endYear - startYear) + endWeek - startWeek
+      return [...Array(numWeeks + 1).keys()]
+        .map((i) => i + startWeek)
+        .map(
+          (j) =>
+            `${startYear + parseInt(j / 53)}-${String(j).padStart(2, '0')}`,
+        )
+    },
     // timer
     timerSet() {
       this.timerTrackedTime = this.entry.timerTrackedTime
@@ -423,6 +829,14 @@ export default {
         }
       })
     },
+    showTaskDetails() {
+      this.taskDetailsTaskId = this.entry.task.id
+      this.taskDetailsDialog = true
+    },
+    showSimilarTasks() {
+      this.taskDetailsTaskId = this.entry.task.id
+      this.tasksSimilarDialog = true
+    },
   },
 }
 </script>
@@ -430,5 +844,9 @@ export default {
 <style>
 .q-btn--outline .q-btn__wrapper::before {
   border: 2.5px solid;
+}
+.bx--chart-holder.fullscreen {
+  background-color: white;
+  padding: 50px;
 }
 </style>

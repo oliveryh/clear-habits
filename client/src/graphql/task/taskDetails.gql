@@ -1,0 +1,18 @@
+#import "../EntryFragment.gql"
+
+query($taskId: Int) {
+  taskDetails: entriesConnection(
+    filter: { taskId: { equalTo: $taskId } }
+    orderBy: DATE_ASC
+  ) {
+    nodes {
+      ...Entry
+    }
+    aggregates {
+      sum {
+        timerEstimatedTime
+        timerTrackedTime
+      }
+    }
+  }
+}

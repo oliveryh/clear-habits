@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
+import ECharts from 'vue-echarts'
 
 import JwtService from '@/common/jwt.service'
 import ErrorFilter from './common/error.filter'
@@ -16,6 +17,19 @@ router.beforeEach((to, from, next) => {
     next({ name: 'login' })
   else next()
 })
+
+import 'echarts'
+
+import { CanvasRenderer } from 'echarts/renderers'
+import { BarChart } from 'echarts/charts'
+import { use } from 'echarts/core'
+
+import '@carbon/charts/styles.css'
+import chartsVue from '@carbon/charts-vue'
+import './styles/plex-and-carbon-components.css'
+Vue.use(chartsVue)
+
+use([CanvasRenderer, BarChart])
 
 import {
   F_CATEGORY,
@@ -77,9 +91,17 @@ const objectParts = {
 
 export const mixins = {
   methods: {
-    dateSpread(startDate) {
-      return Array.from(Array(7).keys()).map(num =>
-        new Date(new Date(startDate).getTime() + num * 86400000)
+    dateSpread(startDate, endDate) {
+      let startDateObj = new Date(startDate)
+      let numDays = 7
+      if (endDate) {
+        let endDateObj = new Date(endDate)
+        var timeDifference = endDateObj.getTime() - startDateObj.getTime()
+        // To calculate the no. of days between two dates
+        numDays = timeDifference / (1000 * 3600 * 24) + 1
+      }
+      return Array.from(Array(numDays).keys()).map(num =>
+        new Date(startDateObj.getTime() + num * 86400000)
           .toISOString()
           .substring(0, 10),
       )
@@ -460,6 +482,8 @@ export const mixins = {
 }
 
 Vue.mixin(mixins)
+
+Vue.component('v-chart', ECharts)
 
 new Vue({
   router,

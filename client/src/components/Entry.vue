@@ -441,6 +441,8 @@ import {
   Q_STATS_TIME_SIMILAR_TASK,
 } from '@/graphql/queries'
 
+import utils from '@/common/utils'
+
 // import { formatTick } from '@carbon/charts/services/time-series'
 
 export default {
@@ -749,19 +751,7 @@ export default {
       var year = d.getUTCFullYear().toString()
       return [year, weekNo]
     },
-    weekSpreadSequential(startYearWeek, endYearWeek) {
-      const startYear = Number(startYearWeek.slice(0, 4))
-      const startWeek = Number(startYearWeek.slice(5, 7))
-      const endYear = Number(endYearWeek.slice(0, 4))
-      const endWeek = Number(endYearWeek.slice(5, 7))
-      const numWeeks = 53 * (endYear - startYear) + endWeek - startWeek
-      return [...Array(numWeeks + 1).keys()]
-        .map((i) => i + startWeek)
-        .map(
-          (j) =>
-            `${startYear + parseInt(j / 53)}-${String(j).padStart(2, '0')}`,
-        )
-    },
+    weekSpreadSequential: utils.weekSpreadSequential,
     // timer
     timerSet() {
       this.timerTrackedTime = this.entry.timerTrackedTime

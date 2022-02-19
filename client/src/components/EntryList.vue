@@ -3,76 +3,140 @@
     <div class="row">
       <div class="col">
         <div v-if="date == 'backlog'" class="float-left">
-          <h6 class="font-m-medium" style="margin: auto">BACKLOG</h6>
-          <q-icon
-            size="4rem"
-            name="mdi-archive-outline"
-            class="float-left"
-            style="border-bottom: 3px solid #027be3; border-radius: 1.5px"
-          />
+          <div v-if="isMobile()">
+            <q-icon
+              size="1.5rem"
+              name="mdi-archive-outline"
+              class="float-left"
+              style="
+                border-bottom: 3px solid #027be3;
+                border-radius: 1.5px;
+                margin-right: 8px;
+              "
+            />
+            <h6 class="font-m-medium float-left" style="margin: auto">
+              BACKLOG
+            </h6>
+          </div>
+          <div v-else>
+            <h6 class="font-m-medium" style="margin: auto">BACKLOG</h6>
+            <q-icon
+              size="4rem"
+              name="mdi-archive-outline"
+              class="float-left"
+              style="border-bottom: 3px solid #027be3; border-radius: 1.5px"
+            />
+          </div>
         </div>
         <div v-else-if="isToday(date)" class="float-left">
-          <h6 class="font-m-medium" style="margin: auto">
-            {{ dateToString(date) }}
-          </h6>
-          <h2
-            style="
-              color: white;
-              background-color: #027be3;
-              border-radius: 10px;
-              padding: 2px 5px 2px;
-              display: inline-block;
-            "
-            class="font-m-medium q-my-none float-left"
-          >
-            {{ date | getDate }}
-          </h2>
+          <div v-if="isMobile()">
+            <h5
+              style="
+                color: white;
+                background-color: #027be3;
+                border-radius: 10px;
+                padding: 2px 5px 2px;
+                display: inline-block;
+                margin-right: 8px;
+              "
+              class="font-m-medium q-my-none float-left"
+            >
+              {{ date | getDate }}
+            </h5>
+            <h6 class="font-m-medium float-left" style="margin: auto">
+              {{ dateToString(date) }}
+            </h6>
+          </div>
+          <div v-else>
+            <h6 class="font-m-medium" style="margin: auto">
+              {{ dateToString(date) }}
+            </h6>
+            <h2
+              style="
+                color: white;
+                background-color: #027be3;
+                border-radius: 10px;
+                padding: 2px 5px 2px;
+                display: inline-block;
+              "
+              class="font-m-medium q-my-none float-left"
+            >
+              {{ date | getDate }}
+            </h2>
+          </div>
         </div>
         <div v-else class="float-left">
-          <h6 class="font-m-medium" style="margin: auto">
-            {{ dateToString(date) }}
-          </h6>
-          <h2
-            style="border-bottom: 3px solid #027be3; border-radius: 1.5px"
-            class="font-m-medium q-my-none float-left"
-          >
-            {{ date | getDate }}
-          </h2>
+          <div v-if="isMobile()">
+            <h5
+              style="
+                border-bottom: 3px solid #027be3;
+                border-radius: 1.5px;
+                margin-right: 8px;
+              "
+              class="font-m-medium q-my-none float-left"
+            >
+              {{ date | getDate }}
+            </h5>
+            <h6 class="font-m-medium float-left" style="margin: auto">
+              {{ dateToString(date) }}
+            </h6>
+          </div>
+          <div v-else>
+            <h6 class="font-m-medium" style="margin: auto">
+              {{ dateToString(date) }}
+            </h6>
+            <h2
+              style="border-bottom: 3px solid #027be3; border-radius: 1.5px"
+              class="font-m-medium q-my-none float-left"
+            >
+              {{ date | getDate }}
+            </h2>
+          </div>
         </div>
       </div>
     </div>
     <div class="row">
       <div class="col col-12 q-py-none">
-        <h6 class="font-m-medium q-my-none q-mx-none text-left">
+        <h6 class="font-m-medium q-my-none q-mx-none text-left float-left">
           {{ timeSummary }}
         </h6>
+        <button-add
+          v-if="isMobile()"
+          objectName="Task"
+          compact
+          compactIcon="mdi-sticker-plus-outline"
+          @click="addTask"
+          class="float-right"
+        />
       </div>
-      <div class="col col-12" :class="settings.dateZoomed ? 'col-lg-12' : ''">
+      <div
+        v-if="!isMobile()"
+        class="col col-12"
+        :class="settings.dateZoomed ? 'col-lg-12' : ''"
+      >
         <button-add objectName="Task" @click="addTask" class="float-left" />
-        <template v-if="!isMobile()">
-          <q-btn
-            @click="zoomOut()"
-            v-if="settings.dateZoomed"
-            round
-            dense
-            flat
-            color="primary"
-            icon="mdi-magnify-minus-outline"
-            class="float-right"
-            size="md"
-          ></q-btn>
-          <q-btn
-            @click="zoomIn()"
-            v-else
-            round
-            dense
-            flat
-            color="primary"
-            icon="mdi-magnify-plus-outline"
-            class="float-right"
-            size="md"
-          ></q-btn>
-        </template>
+        <q-btn
+          @click="zoomOut()"
+          v-if="settings.dateZoomed"
+          round
+          dense
+          flat
+          color="primary"
+          icon="mdi-magnify-minus-outline"
+          class="float-right"
+          size="md"
+        ></q-btn>
+        <q-btn
+          @click="zoomIn()"
+          v-else
+          round
+          dense
+          flat
+          color="primary"
+          icon="mdi-magnify-plus-outline"
+          class="float-right"
+          size="md"
+        ></q-btn>
       </div>
     </div>
     <q-dialog v-model="editorDialog">

@@ -4,14 +4,16 @@
     dense
     rounded
     color="grey"
-    :label="'Add ' + objectName"
+    :label="compact ? None : 'Add ' + objectName"
     objectName
+    :size="compact ? 'sm' : unset"
     align="between"
     class="font-m-bold q-pr-sm"
-    icon="mdi-plus"
+    :icon="compact ? compactIcon : 'mdi-plus'"
     @click="$emit('click')"
     @keypress.prevent
-  />
+  >
+  </q-btn>
 </template>
 <script>
 export default {
@@ -19,6 +21,12 @@ export default {
   props: {
     objectName: {
       type: String,
+    },
+    compactIcon: {
+      type: String,
+    },
+    compact: {
+      type: Boolean,
     },
   },
 }

@@ -52,13 +52,14 @@
           {{ entry.description }}
         </div>
       </q-card-section>
-      <q-card-actions align="left" style="margin: 2px">
+      <q-card-actions align="left" style="margin: 2px; padding-top: 4px">
         <q-btn
           color="red-12"
           push
           dense
+          :size="isMobile() ? '11px' : 'md'"
           class="font-m-medium"
-          style="border-radius: 10px; border: 4px"
+          style="border-radius: 10px; border: 4px; margin-top: 0"
           v-if="entry.timerActive"
           @click="stopEntry(entry)"
           icon="mdi-stop"
@@ -69,6 +70,7 @@
           :color="timerTrackedTime > 0 ? 'orange' : 'green-14'"
           outline
           dense
+          :size="isMobile() ? '11px' : 'md'"
           class="font-m-medium"
           style="background: #ff0080; border-radius: 10px; border: 4px"
           v-else
@@ -96,6 +98,7 @@
             flat
             color="green"
             dense
+            :size="isMobile() ? '11px' : 'md'"
             round
             @click="completeEntry(entry.id)"
             icon="mdi-check"
@@ -105,6 +108,7 @@
             flat
             color="grey"
             round
+            :size="isMobile() ? '11px' : 'md'"
             dense
             @click="editorOpen()"
             icon="mdi-pencil"

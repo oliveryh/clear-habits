@@ -3,7 +3,8 @@
     <q-header elevated class="bg-primary text-white" height-hint="98">
       <q-toolbar>
         <q-toolbar-title>
-          <q-icon name="mdi-sticker-check-outline"></q-icon>&nbsp;Clear Habits
+          <q-icon name="mdi-sticker-check-outline"></q-icon>
+          <span v-if="!isMobile()">&nbsp;Clear Habits</span>
         </q-toolbar-title>
         <q-btn-group class="q-pr-sm" outline rounded>
           <q-btn
@@ -47,7 +48,7 @@
         <q-btn
           v-if="username"
           outline
-          :label="username"
+          :label="!isMobile() ? username : None"
           rounded
           icon="mdi-account"
         >

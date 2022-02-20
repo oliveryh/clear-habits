@@ -105,7 +105,7 @@ const daysSinceTarget = (targetDays, lastEntry) => {
     const lastEntryDate = new Date(lastEntry).setHours(0, 0, 0, 0)
     const timeDifference = today - lastEntryDate
     const daysDifference = timeDifference / (1000 * 60 * 60 * 24)
-    return targetDays - daysDifference
+    return Math.floor(targetDays - daysDifference)
   }
 }
 

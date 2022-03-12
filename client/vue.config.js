@@ -1,5 +1,5 @@
 module.exports = {
-  transpileDependencies: ['quasar'],
+  transpileDependencies: ['quasar', '@carbon/charts-vue'],
 
   pluginOptions: {
     quasar: {

@@ -17,6 +17,11 @@ router.beforeEach((to, from, next) => {
   else next()
 })
 
+import '@carbon/charts/styles.css'
+import chartsVue from '@carbon/charts-vue'
+import './styles/plex-and-carbon-components.css'
+Vue.use(chartsVue)
+
 import {
   F_CATEGORY,
   F_CATEGORY_PROJECTS,
@@ -77,9 +82,17 @@ const objectParts = {
 
 export const mixins = {
   methods: {
-    dateSpread(startDate) {
-      return Array.from(Array(7).keys()).map(num =>
-        new Date(new Date(startDate).getTime() + num * 86400000)
+    dateSpread(startDate, endDate) {
+      let startDateObj = new Date(startDate)
+      let numDays = 7
+      if (endDate) {
+        let endDateObj = new Date(endDate)
+        var timeDifference = endDateObj.getTime() - startDateObj.getTime()
+        // To calculate the no. of days between two dates
+        numDays = timeDifference / (1000 * 3600 * 24) + 1
+      }
+      return Array.from(Array(numDays).keys()).map(num =>
+        new Date(startDateObj.getTime() + num * 86400000)
           .toISOString()
           .substring(0, 10),
       )
@@ -169,6 +182,26 @@ export const mixins = {
               fragment,
               data: fragmentNew,
             })
+            if (objectType == 'Entry') {
+              const weekVariables = this.getWeekDates(store, fragmentNew.date)
+              const storeData = store.readQuery({
+                query: Q_ENTRY,
+                variables: weekVariables,
+              })
+              const upsert = (array, element) => {
+                const i = array.findIndex(
+                  _element => _element.id === element.id,
+                )
+                if (i > -1) Object.update(array[i], element)
+                else array.push(element)
+              }
+              upsert(storeData.entries, fragmentNew)
+              store.writeQuery({
+                query: Q_ENTRY,
+                variables: weekVariables,
+                data: storeData,
+              })
+            }
           },
         })
         .catch(error => {
@@ -388,12 +421,14 @@ export const mixins = {
         },
       })
     },
-    getWeekDates(store) {
+    getWeekDates(store, providedDate) {
       const { settings } = store.readQuery({
         query: Q_SETTINGS,
       })
       let monday
-      if (settings.dateZoomed) {
+      if (providedDate) {
+        monday = this.mondayOfWeek(new Date(providedDate))
+      } else if (settings.dateZoomed) {
         monday = this.mondayOfWeek(new Date(settings.dateZoomed))
       } else {
         monday = settings.startDate
@@ -409,7 +444,7 @@ export const mixins = {
       })
     },
     isMobile() {
-      return /Android|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      return /Android|iPhone|iPod|BlackBerry|IEMobile|Opera Mini|KAIOS/i.test(
         navigator.userAgent,
       )
     },

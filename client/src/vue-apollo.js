@@ -120,7 +120,7 @@ const { apolloClient, wsClient } = createApolloClient({
 apolloClient.wsClient = wsClient
 
 const isMobile = () => {
-  return /Android|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+  return /Android|iPhone|iPod|BlackBerry|IEMobile|Opera Mini|KAIOS/i.test(
     navigator.userAgent,
   )
 }

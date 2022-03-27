@@ -41,14 +41,14 @@
       </div>
     </div>
     <div class="row" style="text-align: center">
-      <div v-if="settings.dateZoomed" class="col">
-        <ch-entry-list date="backlog" :entries="getEntryList('backlog')" />
-      </div>
-      <div v-if="settings.dateZoomed" class="col">
+      <div v-if="settings.dateZoomed" class="col col-12">
         <ch-entry-list
           :date="settings.dateZoomed"
           :entries="getEntryList(settings.dateZoomed)"
         />
+      </div>
+      <div v-if="settings.dateZoomed" class="col col-12">
+        <ch-entry-list date="backlog" :entries="getEntryList('backlog')" />
       </div>
       <template v-else>
         <div class="custom8cols">

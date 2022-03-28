@@ -204,6 +204,8 @@
               v-model="editedEstimatedTime"
               mask="time"
               :rules="['time']"
+              fill-mask
+              debounce="300"
               label="Estimated Time"
               outlined
               class="q-pb-none"
@@ -232,6 +234,8 @@
               v-model="editedEntryTime"
               mask="time"
               :rules="['time']"
+              fill-mask
+              debounce="300"
               label="Tracked Time"
               outlined
             >

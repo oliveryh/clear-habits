@@ -157,6 +157,8 @@
               v-model="newEntryEstimatedTime"
               mask="time"
               :rules="['time']"
+              fill-mask
+              debounce="300"
               @keydown.enter="createEntryWithTaskLocal"
             >
               <template v-slot:append>

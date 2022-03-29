@@ -229,7 +229,7 @@ let generateQuery = (graphType, level) => {
         }
         statFilter['entryDate'] = {
           greaterThanOrEqualTo: '2021-01-01',
-          lessThan: '2022-01-01',
+          lessThan: '2023-01-01',
         }
       }
       groupBy.push(`${level.toUpperCase()}_DESCRIPTION`)
@@ -397,18 +397,14 @@ export default {
       this.$apollo.queries.statsPieCategory.refetch()
     },
     weekSpread: utils.weekSpread,
-    monthSpread(year) {
-      return [...Array(12).keys()].map(
-        (j) => `${year}-${String(j + 1).padStart(2, '0')}`,
-      )
-    },
+    monthSpread: utils.monthSpread,
     getSpread() {
       if (this.period == 'daily') {
         return this.dateSpread(this.settings.startDate)
       } else if (this.period == 'weekly') {
         return this.weekSpread(this.settings.startDate, this.numWeeks)
       } else if (this.period == 'monthly') {
-        return this.monthSpread(2021)
+        return this.monthSpread(this.settings.startDate, 12)
       }
     },
   },

@@ -1,4 +1,4 @@
-import { weekSpread, weekSpreadSequential } from './utils'
+import { monthSpread, monthSpreadSequential, weekSpread, weekSpreadSequential } from './utils'
 
 describe('utils', () => {
   describe('weekSpread', () => {
@@ -23,13 +23,40 @@ describe('utils', () => {
       ])
     })
   })
-  describe('weekSpreadSequential', () => {
+  describe('monthSpread', () => {
     it('basic case', () => {
-      expect(weekSpreadSequential('2021-01', '2021-03')).toEqual([
+      expect(monthSpread('2021-05-15', 12)).toEqual([
+        '2020-06',
+        '2020-07',
+        '2020-08',
+        '2020-09',
+        '2020-10',
+        '2020-11',
+        '2020-12',
         '2021-01',
         '2021-02',
         '2021-03',
+        '2021-04',
+        '2021-05',
       ])
+    })
+  })
+  describe('monthSpreadSequential', () => {
+    it('basic case', () => {
+      expect(monthSpreadSequential('2021-01', '2021-03')).toEqual(['2021-01', '2021-02', '2021-03'])
+    })
+    it('across years', () => {
+      expect(monthSpreadSequential('2021-11', '2022-02')).toEqual([
+        '2021-11',
+        '2021-12',
+        '2022-01',
+        '2022-02',
+      ])
+    })
+  })
+  describe('weekSpreadSequential', () => {
+    it('basic case', () => {
+      expect(weekSpreadSequential('2021-01', '2021-03')).toEqual(['2021-01', '2021-02', '2021-03'])
     })
     it('across years', () => {
       expect(weekSpreadSequential('2020-52', '2021-02')).toEqual([

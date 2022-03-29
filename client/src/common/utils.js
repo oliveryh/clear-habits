@@ -17,6 +17,17 @@ const getWeekNumber = d => {
   return [year, weekNo]
 }
 
+const monthSpread = (endDate, numMonths) => {
+  const endDateObj = new Date(endDate)
+  const endMonth = endDateObj.getMonth() + 1
+  const endYear = endDateObj.getYear() + 1900
+  const startMonth = (12 % (endMonth - numMonths)) + 1
+  const startYear = endYear - Math.floor(numMonths / 12)
+  const endMonthString = `${endYear}-${String(endMonth).padStart(2, '0')}`
+  const startMonthString = `${startYear}-${String(startMonth).padStart(2, '0')}`
+  return monthSpreadSequential(startMonthString, endMonthString)
+}
+
 const weekSpread = (endDate, numWeeks) => {
   if (endDate != null) {
     const endDateObj = new Date(endDate)
@@ -56,4 +67,27 @@ const weekSpreadSequential = (startYearWeek, endYearWeek) => {
   }, [])
 }
 
-module.exports = { weekSpread, weekSpreadSequential }
+const monthSpreadSequential = (startYearMonth, endYearMonth) => {
+  const startYear = Number(startYearMonth.slice(0, 4))
+  const startMonth = Number(startYearMonth.slice(5, 7))
+  const endYear = Number(endYearMonth.slice(0, 4))
+  const endMonth = Number(endYearMonth.slice(5, 7))
+  const years =
+    startYear != endYear
+      ? [...Array(endYear - startYear + 1).keys()].map(i => endYear + i - 1)
+      : [startYear]
+  return years.reduce((monthList, year) => {
+    const numMonthsInYear = 12
+    let monthsInYear = Array.from({ length: numMonthsInYear }, (_, ac) => ac + 1)
+    if (year == startYear) {
+      monthsInYear = monthsInYear.filter(a => a >= startMonth)
+    }
+    if (year == endYear) {
+      monthsInYear = monthsInYear.filter(a => a <= endMonth)
+    }
+    monthsInYear = monthsInYear.map(a => `${year}-${String(a).padStart(2, '0')}`)
+    return [...monthList, ...monthsInYear]
+  }, [])
+}
+
+module.exports = { monthSpread, monthSpreadSequential, weekSpread, weekSpreadSequential }

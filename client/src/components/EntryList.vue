@@ -242,6 +242,9 @@ export default {
         return this.entries
       },
       set(reorderedEntries) {
+        // Eagerly set the expected change to prop
+        this.entries = reorderedEntries
+
         var reorderedEntriesOrders = []
 
         for (let i = 0; i < reorderedEntries.length; i++) {

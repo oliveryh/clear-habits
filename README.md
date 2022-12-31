@@ -30,6 +30,12 @@ Future features will include the ability to:
 
 The code for this project has been largely inspired by the [GoThinkster - Real World](https://github.com/gothinkster/realworld) suite of applications. In fact, the Node server example acted as a base for the server of this application.
 
+## Development
+
+1. Clone this repository
+2. Install node and npm
+3. `npm install` in both the `client` and `server-postgraphile` subdirectories
+
 ## Deployment
 
 Deployment is currently done using a cloud service and no domain. You can find the deployment script in `conf` directory.

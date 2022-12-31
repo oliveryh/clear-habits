@@ -33,7 +33,7 @@ The code for this project has been largely inspired by the [GoThinkster - Real W
 ## Development
 
 1. Clone this repository
-2. Install node and npm
+2. Install node v12 and npm v6
 3. `npm install` in both the `client` and `server-postgraphile` subdirectories
 
 ## Deployment

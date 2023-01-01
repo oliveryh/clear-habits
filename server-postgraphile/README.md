@@ -13,6 +13,17 @@ createdb clearhabits_postgraphile --owner=postgraphile
 createdb clearhabits_postgraphile_shadow --owner=postgraphile
 ```
 
+We'll also need to create some roles ([instructions](https://www.danlynch.io/graphql-backend/))
+
+``` bash
+create extension if not exists "pgcrypto";
+create role app_postgraphile login password 'changeme';
+create role app_anonymous;
+grant app_anonymous to app_postgraphile;
+create role app_user;
+grant app_user to app_postgraphile;
+```
+
 We when need to create an environment file that points to the newly created database (and shadow database for graphile-migrate to see).
 
 This is done in the `env.sh` file. We can then run the following sequence to setup the migration.

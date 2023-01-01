@@ -22,3 +22,9 @@ source env.sh
 graphile-migrate init
 graphile-migrate watch
 ```
+
+## Troubleshooting
+
+`psql: error: connection to server on socket "/var/run/postgresql/.s.PGSQL.5432" failed: FATAL:  Peer authentication failed for user "postgraphile"`
+
+Add the following to your `~/.bashrc` or `~/.zshrc`: `export PGHOST=/var/run/postgresql` ([source](https://github.com/graphile/postgraphile/issues/1197))

@@ -42,7 +42,7 @@
     "eslint-plugin-vue": "^6.2.2",
     "graphql-tag": "^2.12.6",
     "jest": "^27.5.1",
-    "node-sass": "^5.0.0",
+    "node-sass": "^7.0.0",
     "sass": "^1.49.9",
     "sass-loader": "^8.0.2",
     "vue-cli-plugin-apollo": "~0.22.2",

@@ -230,6 +230,34 @@
                 </q-icon>
               </template>
             </q-input>
+            <div class="q-gutter-sm q-ma-sm">
+              <q-btn
+                no-caps
+                padding="sm"
+                rounded
+                shadow-1
+                icon="mdi-refresh"
+                @click="editedEntry.timerEstimatedTime = 0"
+                exact
+              >
+              </q-btn>
+              <q-btn-group
+                rounded
+              >
+              <q-btn
+              v-for="addition in timerAdditionOptions"
+                :key="addition"
+                no-caps
+                padding="sm"
+                shadow-1
+                @click="editedEntry.timerEstimatedTime += 60 * addition"
+                exact
+              >
+                  <q-tooltip>Add {{addition}} minutes to timer</q-tooltip>
+                  +{{addition}}m
+                </q-btn>
+              </q-btn-group>
+            </div>
             <q-input
               v-model="editedEntryTime"
               mask="time"
@@ -238,6 +266,7 @@
               debounce="300"
               label="Tracked Time"
               outlined
+              class="q-pb-none"
             >
               <template v-slot:append>
                 <q-icon name="access_time" class="cursor-pointer">
@@ -259,6 +288,34 @@
                 </q-icon>
               </template>
             </q-input>
+            <div class="q-gutter-sm q-ma-sm">
+              <q-btn
+                no-caps
+                padding="sm"
+                rounded
+                shadow-1
+                icon="mdi-refresh"
+                @click="editedEntry.timerTrackedTime = 0"
+                exact
+              >
+              </q-btn>
+              <q-btn-group
+                rounded
+              >
+              <q-btn
+              v-for="addition in timerAdditionOptions"
+                :key="addition"
+                no-caps
+                padding="sm"
+                shadow-1
+                @click="editedEntry.timerTrackedTime += 60 * addition"
+                exact
+              >
+                  <q-tooltip>Add {{addition}} minutes to timer</q-tooltip>
+                  +{{addition}}m
+                </q-btn>
+              </q-btn-group>
+            </div>
             <q-btn
               outlined
               icon="mdi-plus-circle-multiple-outline"
@@ -620,6 +677,7 @@ export default {
     taskDetailsTaskId: null,
     barChartData: [],
     barChartSimilarData: [],
+    timerAdditionOptions: [5, 10, 15, 20, 30],
   }),
   created() {
     this.timerSet()

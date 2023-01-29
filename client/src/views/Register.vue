@@ -104,7 +104,7 @@ export default {
               `,
               variables: {
                 username: this.username,
-                email: this.email,
+                email: this.email.toLowerCase(),
                 password: this.password,
               },
               update: async (

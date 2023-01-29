@@ -89,7 +89,7 @@ export default {
                 }
               `,
               variables: {
-                email: this.email,
+                email: this.email.toLowerCase(),
                 password: this.password,
               },
               update: async (

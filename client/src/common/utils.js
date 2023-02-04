@@ -90,4 +90,23 @@ const monthSpreadSequential = (startYearMonth, endYearMonth) => {
   }, [])
 }
 
-module.exports = { monthSpread, monthSpreadSequential, weekSpread, weekSpreadSequential }
+const monthName = date => {
+  const month = new Date(date).getMonth()
+  const monthNames = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ]
+  return monthNames[month]
+}
+
+module.exports = { monthName, monthSpread, monthSpreadSequential, weekSpread, weekSpreadSequential }

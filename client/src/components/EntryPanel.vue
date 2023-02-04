@@ -55,11 +55,11 @@
           <ch-entry-list date="backlog" :entries="getEntryList('backlog')" />
         </div>
         <div
-          v-for="date in dateSpread(this.settings.startDate)"
+          v-for="(date, index) in dateSpread(this.settings.startDate)"
           :key="date"
           class="custom8cols"
         >
-          <ch-entry-list :date="date" :entries="getEntryList(date)" />
+          <ch-entry-list :date="date" :entries="getEntryList(date)" :isFirst="index == 0" />
         </div>
       </template>
     </div>

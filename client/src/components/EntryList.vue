@@ -48,6 +48,11 @@
             </h6>
           </div>
           <div v-else>
+            <div class="row q-pb-m">
+              <h5 class="font-m-medium float-left">
+                {{ displayMonth(date) ? monthName(date).toUpperCase() : '.'}}
+              </h5>
+            </div>
             <h6 class="font-m-medium" style="margin: auto">
               {{ dateToString(date) }}
             </h6>
@@ -82,7 +87,12 @@
             </h6>
           </div>
           <div v-else>
-            <h6 class="font-m-medium" style="margin: auto">
+            <div class="row q-pb-m">
+              <h5 class="font-m-medium float-left">
+              {{ displayMonth(date) ? monthName(date).toUpperCase() : '.'}}
+            </h5>
+            </div>
+            <h6 class="font-m-medium" style="text-align: left; margin: auto">
               {{ dateToString(date) }}
             </h6>
             <h2
@@ -207,6 +217,7 @@ import draggable from 'vuedraggable'
 import { M_ENTRY_REORDER } from '@/graphql/mutations'
 import { Q_ENTRY, Q_SETTINGS } from '@/graphql/queries'
 import ButtonAdd from '@/components/ButtonAdd.vue'
+import utils from '@/common/utils.js'
 
 export default {
   name: 'EntryList',
@@ -224,6 +235,9 @@ export default {
     },
     entries: {
       type: Array,
+    },
+    isFirst: {
+      type: Boolean,
     },
   },
   apollo: {
@@ -366,6 +380,10 @@ export default {
     addTask() {
       this.editorDialog = true
     },
+    displayMonth(date) {
+      return this.isFirst || date.substring(8, 10) == '01'
+    },
+    monthName: utils.monthName,
   },
 }
 </script>

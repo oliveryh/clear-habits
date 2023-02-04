@@ -1,0 +1,35 @@
+name: Node CI
+
+on: [push]
+
+defaults:
+  run:
+    working-directory: ./client
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install Node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+    - name: Install npm dependencies
+      run: npm install
+    - name: Run build task
+      run: npm run build --if-present
+    - name: Replace hostname
+      run: find dist -name "*.js" | xargs sed -i "s/localhost:3000/${{ secrets.SSH_HOST }}/g"
+    - name: Deploy to Server
+      uses: easingthemes/ssh-deploy@main
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        ARGS: "-rlgoDzvc -i --delete"
+        SOURCE: "client/dist/"
+        REMOTE_HOST: ${{ secrets.SSH_HOST }}
+        REMOTE_USER: ${{ secrets.SSH_USERNAME }}
+        TARGET: ${{ secrets.REMOTE_TARGET }}
+        EXCLUDE: "/node_modules/"

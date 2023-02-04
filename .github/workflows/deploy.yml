@@ -1,0 +1,32 @@
+name: Node CI
+
+on: [push]
+
+defaults:
+  run:
+    working-directory: ./client
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install Node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+    - name: List directory
+      run: ls -la; pwd; mkdir dist/; touch dist/index.html
+    - name: Deploy to Server
+      uses: easingthemes/ssh-deploy@main
+      working-directory: ./client
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        ARGS: "-rlgoDzvc -i --delete"
+        SOURCE: "dist/"
+        REMOTE_HOST: ${{ secrets.SSH_HOST }}
+        REMOTE_USER: ${{ secrets.SSH_USERNAME }}
+        TARGET: ${{ secrets.REMOTE_TARGET }}
+        EXCLUDE: "/node_modules/"

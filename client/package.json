@@ -11,8 +11,8 @@
     "test": "jest ./*.test.js"
   },
   "dependencies": {
-    "@carbon/charts": "^0.54.14",
-    "@carbon/charts-vue": "^0.54.14",
+    "@carbon/charts": "^1.6.4",
+    "@carbon/charts-vue": "^1.6.4",
     "@quasar/extras": "^1.13.4",
     "apexcharts": "^3.33.2",
     "axios": "^0.26.1",

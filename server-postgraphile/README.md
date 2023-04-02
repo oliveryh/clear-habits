@@ -24,6 +24,9 @@ create role app_user;
 grant app_user to app_postgraphile with admin option;
 ```
 
+> **Note**
+> This needs to be done in both the `clearhabits_postgraphile` and `clearhabits_postgraphile_shadow` databases.
+
 We when need to create an environment file that points to the newly created database (and shadow database for graphile-migrate to see).
 
 This is done in the `env.sh` file. We can then run the following sequence to setup the migration.

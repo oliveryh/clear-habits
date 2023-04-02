@@ -19,6 +19,7 @@ We'll also need to create some roles ([instructions](https://www.danlynch.io/gra
 create extension if not exists "pgcrypto";
 create role app_postgraphile login password 'changeme';
 create role app_anonymous;
+create role app_person;
 grant app_anonymous to app_postgraphile with admin option;
 create role app_user;
 grant app_user to app_postgraphile with admin option;

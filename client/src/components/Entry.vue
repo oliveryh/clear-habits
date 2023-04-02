@@ -804,6 +804,7 @@ export default {
   },
   methods: {
     weekSpreadSequential: utils.weekSpreadSequential,
+    hoursToReadable: utils.hoursToReadable,
     // timer
     timerSet() {
       this.timerTrackedTime = this.entry.timerTrackedTime

@@ -95,15 +95,6 @@ export const mixins = {
           .substring(0, 10),
       )
     },
-    hoursToReadable(value) {
-      var hours = parseInt(value)
-      var mins = parseInt((value * 60) % 60)
-      var retString = `${mins}m`
-      if (hours) {
-        retString = `${hours}h` + ' ' + retString
-      }
-      return retString
-    },
     secondsToTimestamp(val, { zeroPad = false, includeSeconds = false } = {}) {
       var tt = val
       var hours = zeroPad

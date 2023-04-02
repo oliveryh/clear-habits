@@ -1,68 +1,41 @@
 <template>
-  <div>
-    <q-card v-if="series.length > 0">
-      <q-card-section>
-        <div class="row">
-          <div class="col col-8">
-            <div class="text-h4 text-weight-light">Time Taken</div>
-          </div>
-          <div class="col col-4">
-            <q-toggle
-              class="float-right"
-              v-model="isStacked"
-              label="Stacked %"
-            />
-          </div>
-        </div>
-        <br />
-        <apexchart
-          v-if="isStacked"
-          :key="'stacked' + xaxisType"
-          type="bar"
-          :options="optionsStacked"
-          :series="series"
-        ></apexchart>
-        <apexchart
-          v-else
-          :key="'notstacked' + xaxisType"
-          type="bar"
-          :options="options"
-          :series="series"
-        ></apexchart>
-      </q-card-section>
-    </q-card>
-    <q-card v-else>
-      <div class="q-pa-xl text-h4 text-weight-light text-grey-5">
-        <q-icon name="mdi-database-off" /> No Data to Show
-      </div>
-    </q-card>
-  </div>
+  <v-chart class="chart" :option="option" autoresize />
 </template>
+
 <script>
-import VueApexCharts from 'vue-apexcharts'
-export default {
-  name: 'ChartTimeCategorical',
+import { use } from 'echarts/core';
+import { CanvasRenderer } from 'echarts/renderers';
+import { BarChart } from 'echarts/charts';
+import {
+  GridComponent,
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+  DataZoomComponent,
+} from 'echarts/components';
+import VChart, { THEME_KEY } from 'vue-echarts';
+import { watch, computed, ref, defineComponent, onMounted } from '@vue/composition-api';
+
+import { hoursToReadable } from '@/common/utils';
+
+use([
+  CanvasRenderer,
+  BarChart,
+  GridComponent,
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+  DataZoomComponent,
+]);
+
+
+export default defineComponent({
+  name: 'HelloWorld',
   components: {
-    apexchart: VueApexCharts,
+    VChart,
   },
-  data() {
-    return {
-      tenColorPalette: [
-        '#00c0c7',
-        '#5144d3',
-        '#e8871a',
-        '#da3490',
-        '#9089fa',
-        '#47e26f',
-        '#2780eb',
-        '#6f38b1',
-        '#dfbf03',
-        '#cb6f10',
-        '#268d6c',
-        '#9bec54',
-      ],
-      isStacked: false,
-    }
+  provide: {
+    [THEME_KEY]: 'light',
   },
   props: {
     dateRange: {
@@ -75,90 +48,81 @@ export default {
       type: Array,
     },
     colors: {
-      type: Array,
+      type: Object,
     },
   },
-  computed: {
-    optionsStacked() {
-      return {
-        chart: {
-          toolbar: {
-            show: false,
-          },
-          stacked: true,
-          stackType: '100%',
-          height: 400,
-        },
-        colors: this.colors != null ? this.colors : this.tenColorPalette,
-        dataLabels: {
-          formatter: function (value) {
-            return Math.round(value * 10) / 10 + '%'
-          },
-        },
+  setup(props) {
+    const option = ref({})
+    const updatedData = computed(() => { return props.data })
+    const updateChart = (newData) => {
+      option.value = {
+        backgroundColor: '#fff',
         legend: {
-          position: 'right',
-          offsetY: 40,
+          orient: 'horizontal',
+          right: 'center',
+          top: 20,
         },
-        xaxis: {
-          style: {
-            colors: [],
-            fontSize: '20px',
+        yAxis: {
+          type: 'value',
+          splitLine: {
+            lineStyle: {
+              color: '#eee',
+            },
           },
-          axisBorder: {
+          axisLabel: {
+            formatter: hoursToReadable,
+          }
+        },
+        xAxis: {
+          type: 'category',
+          data: props.dateRange,
+          axisLine: {
             show: false,
           },
-          type: this.xaxisType,
-          categories: this.dateRange,
-          labels: {
-            format: 'ddd',
-          },
-        },
-        yaxis: {
-          decimalsInFloat: 2,
-          labels: {
-            formatter: function (value) {
-              return Math.round(value * 10) / 10 + '%'
-            },
+          axisTick: {
+            show: false,
           },
         },
         tooltip: {
-          y: {
-            formatter: this.hoursToReadable,
-          },
+          show: true,
+          trigger: 'item',
+          valueFormatter: hoursToReadable,
         },
-      }
-    },
-    options() {
-      return {
-        ...this.optionsStacked,
-        ...{
-          yaxis: {
-            forceNiceScale: true,
-            style: {
-              colors: [],
-              fontSize: '20px',
-            },
-            min: 0,
-            labels: {
-              formatter: this.hoursToReadable,
-            },
-          },
-          dataLabels: {
-            formatter: this.hoursToReadable,
-          },
-          chart: {
-            toolbar: {
-              show: false,
-            },
-            stacked: true,
-            height: 400,
-          },
+        aria: {
+          show: true
         },
+        series: newData.map((datum) => {
+          return {
+            type: 'bar',
+            data: datum.data,
+            stack: 'x',
+            color: props.colors ? [props.colors[datum.name]] : undefined,
+            name: datum.name,
+            itemStyle: {
+              normal: {
+                borderRadius: 5,
+                borderColor: '#fff',
+                borderWidth: 1
+              },
+            },
+          }
+        })
       }
-    },
-    series() {
-      return this.data || []
-    },
+    }
+    onMounted(() => {
+      updateChart(updatedData.value)
+    })
+    watch(updatedData, (newVal) => {
+      updateChart(newVal)
+    })
+
+    return { option };
   },
-}
+});
 </script>
+
+<style scoped>
+.chart {
+  min-height: 300px;
+}
+</style>

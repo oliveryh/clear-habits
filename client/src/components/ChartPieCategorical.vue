@@ -1,42 +1,36 @@
 <template>
-  <div>
-    <q-card v-if="series.length > 0">
-      <q-card-section>
-        <div class="text-h4 text-weight-light">Time Taken</div>
-        <apexchart type="pie" :options="options" :series="series"></apexchart>
-      </q-card-section>
-    </q-card>
-    <q-card v-else>
-      <div class="q-pa-xl text-h4 text-weight-light text-grey-5">
-        <q-icon name="mdi-database-off" /> No Data to Show
-      </div>
-    </q-card>
-  </div>
+  <v-chart class="chart" :option="option" autoresize />
 </template>
+
 <script>
-import VueApexCharts from 'vue-apexcharts'
-export default {
-  name: 'ChartPieCategorical',
+import { use } from 'echarts/core';
+import { CanvasRenderer } from 'echarts/renderers';
+import { PieChart } from 'echarts/charts';
+import {
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+} from 'echarts/components';
+import VChart, { THEME_KEY } from 'vue-echarts';
+import { computed, watch, ref, defineComponent, onMounted } from '@vue/composition-api';
+
+import { hoursToReadable } from '@/common/utils';
+
+use([
+  CanvasRenderer,
+  PieChart,
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+]);
+
+export default defineComponent({
+  name: 'HelloWorld',
   components: {
-    apexchart: VueApexCharts,
+    VChart,
   },
-  data() {
-    return {
-      tenColorPalette: [
-        '#00c0c7',
-        '#5144d3',
-        '#e8871a',
-        '#da3490',
-        '#9089fa',
-        '#47e26f',
-        '#2780eb',
-        '#6f38b1',
-        '#dfbf03',
-        '#cb6f10',
-        '#268d6c',
-        '#9bec54',
-      ],
-    }
+  provide: {
+    [THEME_KEY]: 'light',
   },
   props: {
     dateRange: {
@@ -49,28 +43,57 @@ export default {
       type: Array,
     },
   },
-  computed: {
-    series() {
-      return this.data?.series || []
-    },
-    options() {
-      return {
-        chart: {
-          width: '100%',
-          type: 'donut',
-        },
-        colors: this.colors != null ? this.colors : this.tenColorPalette,
-        labels: this.data?.labels,
-        legend: {
-          show: true,
-        },
+  setup(props) {
+    const option = ref({})
+    const updatedData = computed(() => { return props.data })
+    const updateChart = (newData) => {
+      option.value = {
         tooltip: {
-          y: {
-            formatter: this.hoursToReadable,
-          },
+          trigger: 'item',
+          confine: true,
+          valueFormatter: hoursToReadable,
         },
+        color: props.colors,
+        series: [
+          {
+            type: 'pie',
+            radius: ['40%', '70%'],
+            avoidLabelOverlap: false,
+            itemStyle: {
+              borderRadius: 10,
+              borderColor: '#fff',
+              borderWidth: 2
+            },
+            label: {
+              show: false,
+              position: 'center'
+            },
+            labelLine: {
+              show: false
+            },
+            data: newData?.series.map((item, idx) => {
+              return {
+                value: item,
+                name: newData?.labels[idx],
+              }
+            }),
+          },
+        ],
       }
-    },
+    }
+    onMounted(() => {
+      updateChart(props.data)
+    })
+    watch(updatedData, (newVal) => {
+      updateChart(newVal)
+    });
+    return { option };
   },
-}
+});
 </script>
+
+<style scoped>
+.chart {
+  min-height: 300px;
+}
+</style>

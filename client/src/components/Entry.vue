@@ -443,10 +443,14 @@
                 </div>
               </div>
               <div class="col col-12 col-md-6">
-                <ccv-stacked-bar-chart
-                  :data="barChart.data"
-                  :options="barChart.options"
-                ></ccv-stacked-bar-chart>
+                <ch-chart-time-categorical
+                  :data="barChartData"
+                  :dateRange="barChartDomain"
+                  :colors="{
+                    Tracked: '#22bb22',
+                    Estimated: '#bbb',
+                  }"
+                />
               </div>
             </div>
           </div>
@@ -484,10 +488,14 @@
           <div class="col col-12" style="min-width: 200px">
             <div class="row">
               <div class="col col-12" style="height: 400px">
-                <ccv-stacked-bar-chart
-                  :data="barChartSimilar.data"
-                  :options="barChartSimilar.options"
-                ></ccv-stacked-bar-chart>
+                <ch-chart-time-categorical
+                  :data="barChartSimilarData"
+                  :dateRange="barChartSimilarDomain"
+                  :colors="{
+                    Tracked: '#22bb22',
+                    Estimated: '#bbb',
+                  }"
+                />
               </div>
             </div>
           </div>
@@ -500,6 +508,7 @@
 <script>
 import { Q_PROJECT, Q_TASK_DETAILS } from '@/graphql/queries'
 
+import ChChartTimeCategorical from '@/components/ChartTimeCategorical.vue'
 import ChProjectPicker from '@/components/ProjectPicker'
 import {
   Q_STATS_TIME_ENTRY,
@@ -507,8 +516,6 @@ import {
 } from '@/graphql/queries'
 
 import utils from '@/common/utils'
-
-// import { formatTick } from '@carbon/charts/services/time-series'
 
 export default {
   name: 'Entry',
@@ -518,6 +525,7 @@ export default {
     },
   },
   components: {
+    ChChartTimeCategorical,
     ChProjectPicker,
   },
   apollo: {
@@ -590,8 +598,26 @@ export default {
               },
             ])
           }, [])
-          this.barChartData = formatted
+          const keyed = formatted.reduce((acc, curr) => {
+            if (!acc[curr.date]) acc[curr.date] = {}
+            acc[curr.date][curr.group] = curr.value
+            return acc
+          }, {})
+
+          const allDates = listSums.map((s) => s.keys[0]).sort()
+          const dateMin = allDates[0]
+          const dateMax = allDates[allDates.length - 1]
+          const datesDomain = this.dateSpread(dateMin, dateMax)
+          const chartData = ['Tracked', 'Estimated'].reduce((acc, group) => {
+            return acc.concat({
+              name: group,
+              data: datesDomain.map((date) => keyed[date]?.[group] || 0),
+            })
+          }, [])
+          this.barChartDomain = datesDomain
+          this.barChartData = chartData
         } else {
+          this.barChartDomain = []
           this.barChartData = []
         }
       },
@@ -625,7 +651,6 @@ export default {
             acc[curr.keys[0]][curr.keys[1]] = curr.sum
             return acc
           }, {})
-          console.log(barChartData)
           const formatted = Object.keys(barChartData).reduce((acc, date) => {
             const completeTracked = Number(
               barChartData[date][true]?.entryTimerTrackedTime || 0,
@@ -657,9 +682,21 @@ export default {
           const dateMin = allDates[0]
           const dateMax = allDates[allDates.length - 1]
           const datesDomain = this.weekSpreadSequential(dateMin, dateMax)
+          const keyed = formatted.reduce((acc, curr) => {
+            if (!acc[curr.date]) acc[curr.date] = {}
+            acc[curr.date][curr.group] = curr.value
+            return acc
+          }, {})
+          const chartData = ['Tracked', 'Estimated'].reduce((acc, group) => {
+            return acc.concat({
+              name: group,
+              data: datesDomain.map((date) => keyed[date]?.[group] || 0),
+            })
+          }, [])
           this.barChartSimilarDomain = datesDomain
-          this.barChartSimilarData = formatted
+          this.barChartSimilarData = chartData
         } else {
+          this.barChartSimilarDomain = []
           this.barChartSimilarData = []
         }
       },
@@ -711,81 +748,6 @@ export default {
         this.editedEntry.timerEstimatedTime = this.timestampToSeconds(timestamp)
       },
     },
-    barChart() {
-      return {
-        data: this.barChartData,
-        options: {
-          axes: {
-            left: {
-              title: 'Time',
-              mapsTo: 'value',
-              stacked: true,
-              ticks: {
-                formatter: this.hoursToReadable,
-              },
-            },
-            bottom: {
-              mapsTo: 'date',
-              scaleType: 'time',
-              // ticks: {
-              //   formatter: (t, i) =>
-              //     formatTick(t, i, [0, 1, 2], 'daily', {
-              //       showDayName: false,
-              //       timeIntervalFormats: {
-              //         daily: { primary: 'MMM d', secondary: 'd' },
-              //       },
-              //     }),
-              //   number: 8,
-              // },
-            },
-          },
-          color: {
-            scale: {
-              Tracked: '#22bb22',
-              Estimated: '#bbb',
-            },
-          },
-          legend: {
-            position: 'top',
-            order: ['Tracked', 'Estimated'],
-          },
-          height: '400px',
-        },
-      }
-    },
-    barChartSimilar() {
-      return {
-        data: this.barChartSimilarData,
-        options: {
-          axes: {
-            left: {
-              title: 'Time',
-              mapsTo: 'value',
-              stacked: true,
-              ticks: {
-                formatter: this.hoursToReadable,
-              },
-            },
-            bottom: {
-              scaleType: 'labels',
-              mapsTo: 'date',
-              domain: this.barChartSimilarDomain,
-            },
-          },
-          color: {
-            scale: {
-              Tracked: '#22bb22',
-              Estimated: '#bbb',
-            },
-          },
-          legend: {
-            position: 'top',
-            order: ['Tracked', 'Estimated'],
-          },
-          height: '400px',
-        },
-      }
-    },
     progress() {
       if (this.entry.timerEstimatedTime !== 0) {
         return this.timerTrackedTime / this.entry.timerEstimatedTime
@@ -806,6 +768,7 @@ export default {
   },
   methods: {
     weekSpreadSequential: utils.weekSpreadSequential,
+    hoursToReadable: utils.hoursToReadable,
     // timer
     timerSet() {
       this.timerTrackedTime = this.entry.timerTrackedTime

@@ -109,4 +109,14 @@ const monthName = date => {
   return monthNames[month]
 }
 
-module.exports = { monthName, monthSpread, monthSpreadSequential, weekSpread, weekSpreadSequential }
+const hoursToReadable = hourDecimal => {
+  var hours = parseInt(hourDecimal)
+  var mins = parseInt((hourDecimal * 60) % 60)
+  var retString = `${mins}m`
+  if (hours) {
+    retString = `${hours}h` + ' ' + retString
+  }
+  return retString
+}
+
+module.exports = { hoursToReadable, monthName, monthSpread, monthSpreadSequential, weekSpread, weekSpreadSequential }

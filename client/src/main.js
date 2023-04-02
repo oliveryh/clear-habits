@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import VueCompositionAPI from '@vue/composition-api'
 import App from './App.vue'
 import router from './router'
 
@@ -17,10 +18,7 @@ router.beforeEach((to, from, next) => {
   else next()
 })
 
-import '@carbon/charts/styles.css'
-import chartsVue from '@carbon/charts-vue'
-import './styles/plex-and-carbon-components.css'
-Vue.use(chartsVue)
+Vue.use(VueCompositionAPI)
 
 import {
   F_CATEGORY,
@@ -96,15 +94,6 @@ export const mixins = {
           .toISOString()
           .substring(0, 10),
       )
-    },
-    hoursToReadable(value) {
-      var hours = parseInt(value)
-      var mins = parseInt((value * 60) % 60)
-      var retString = `${mins}m`
-      if (hours) {
-        retString = `${hours}h` + ' ' + retString
-      }
-      return retString
     },
     secondsToTimestamp(val, { zeroPad = false, includeSeconds = false } = {}) {
       var tt = val

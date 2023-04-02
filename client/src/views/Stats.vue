@@ -106,6 +106,11 @@
       <div>
         <div class="row">
           <div class="col-12 col-md-4 q-pa-md">
+            <div class="text-h4 text-weight-light">Overall</div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12 col-md-4 q-pa-md">
             <ch-chart-pie-categorical
               :data="statsPieCategory"
               :colors="getColors"
@@ -116,8 +121,13 @@
               :data="statsTimeCategory"
               :dateRange="getSpread()"
               :xaxisType="period == 'daily' ? 'datetime' : 'categories'"
-              :colors="getColors"
+              :colors="getColorDict"
             ></ch-chart-time-categorical>
+          </div>
+        </div>
+        <div v-if="categorySelected" class="row">
+          <div class="col-12 col-md-4 q-pa-md">
+            <div class="text-h4 text-weight-light">{{ categorySelected.description }}</div>
           </div>
         </div>
         <div v-if="categorySelected" class="row">
@@ -132,6 +142,11 @@
               :dateRange="getSpread()"
               :xaxisType="period == 'daily' ? 'datetime' : 'categories'"
             ></ch-chart-time-categorical>
+          </div>
+        </div>
+        <div v-if="settings.projectSelected" class="row">
+          <div class="col-12 col-md-4 q-pa-md">
+            <div class="text-h4 text-weight-light">{{ settings.projectSelected.description }}</div>
           </div>
         </div>
         <div v-if="settings.projectSelected" class="row">
@@ -373,6 +388,13 @@ export default {
         })
       }
       return []
+    },
+    getColorDict() {
+      var colorDict = {}
+      this.categories.map((value) => {
+        colorDict[value['description']] = value['color']
+      })
+      return colorDict
     },
     filteredProjects() {
       var projects_filtered = this.projects

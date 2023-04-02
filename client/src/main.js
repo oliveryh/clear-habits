@@ -18,10 +18,6 @@ router.beforeEach((to, from, next) => {
   else next()
 })
 
-import '@carbon/charts/styles.css'
-import chartsVue from '@carbon/charts-vue'
-import './styles/plex-and-carbon-components.css'
-Vue.use(chartsVue)
 Vue.use(VueCompositionAPI)
 
 import {

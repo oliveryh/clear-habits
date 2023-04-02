@@ -508,8 +508,6 @@ import {
 
 import utils from '@/common/utils'
 
-// import { formatTick } from '@carbon/charts/services/time-series'
-
 export default {
   name: 'Entry',
   props: {

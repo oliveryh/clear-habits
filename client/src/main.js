@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import VueCompositionAPI from '@vue/composition-api'
 import App from './App.vue'
 import router from './router'
 
@@ -21,6 +22,7 @@ import '@carbon/charts/styles.css'
 import chartsVue from '@carbon/charts-vue'
 import './styles/plex-and-carbon-components.css'
 Vue.use(chartsVue)
+Vue.use(VueCompositionAPI)
 
 import {
   F_CATEGORY,

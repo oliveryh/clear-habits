@@ -19,6 +19,11 @@
             </h6>
           </div>
           <div v-else>
+            <div class="row q-pb-m">
+              <h5 class="font-m-medium float-left q-my-none">
+                .
+              </h5>
+            </div>
             <h6 class="font-m-medium" style="margin: auto">BACKLOG</h6>
             <q-icon
               size="4rem"
@@ -49,7 +54,7 @@
           </div>
           <div v-else>
             <div class="row q-pb-m">
-              <h5 class="font-m-medium float-left">
+              <h5 class="font-m-medium float-left q-my-none">
                 {{ displayMonth(date) ? monthName(date).toUpperCase() : '.'}}
               </h5>
             </div>
@@ -88,7 +93,7 @@
           </div>
           <div v-else>
             <div class="row q-pb-m">
-              <h5 class="font-m-medium float-left">
+              <h5 class="font-m-medium float-left  q-my-none">
               {{ displayMonth(date) ? monthName(date).toUpperCase() : '.'}}
             </h5>
             </div>

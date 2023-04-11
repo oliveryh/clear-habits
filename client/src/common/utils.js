@@ -17,7 +17,7 @@ const getWeekNumber = d => {
   return [year, weekNo]
 }
 
-const monthSpread = (endDate, numMonths) => {
+const monthRange = (endDate, numMonths) => {
   const endDateObj = new Date(endDate)
   const endMonth = endDateObj.getMonth() + 1
   const endYear = endDateObj.getYear() + 1900
@@ -25,6 +25,11 @@ const monthSpread = (endDate, numMonths) => {
   const startYear = endYear - Math.floor(numMonths / 12)
   const endMonthString = `${endYear}-${String(endMonth).padStart(2, '0')}`
   const startMonthString = `${startYear}-${String(startMonth).padStart(2, '0')}`
+  return { startMonthString, endMonthString }
+}
+
+const monthSpread = (endDate, numMonths) => {
+  const { startMonthString, endMonthString } = monthRange(endDate, numMonths)
   return monthSpreadSequential(startMonthString, endMonthString)
 }
 
@@ -119,4 +124,4 @@ const hoursToReadable = hourDecimal => {
   return retString
 }
 
-module.exports = { hoursToReadable, monthName, monthSpread, monthSpreadSequential, weekSpread, weekSpreadSequential }
+module.exports = { hoursToReadable, monthName, monthRange, monthSpread, monthSpreadSequential, weekSpread, weekSpreadSequential }

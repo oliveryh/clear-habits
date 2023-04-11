@@ -1,4 +1,4 @@
-import { monthSpread, monthSpreadSequential, weekSpread, weekSpreadSequential } from './utils'
+import { monthRange, monthSpread, monthSpreadSequential, weekSpread, weekSpreadSequential } from './utils'
 
 describe('utils', () => {
   describe('weekSpread', () => {
@@ -65,6 +65,14 @@ describe('utils', () => {
         '2021-01',
         '2021-02',
       ])
+    })
+  })
+  describe('monthRange', () => {
+    it('basic case', () => {
+      expect(monthRange('2023-03-02', 2)).toEqual({
+        startMonthString: '2023-01',
+        endMonthString: '2023-03'
+      })
     })
   })
 })

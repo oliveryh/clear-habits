@@ -242,9 +242,13 @@ let generateQuery = (graphType, level) => {
         if (graphType == 'time') {
           groupBy.push('ENTRY_DATE_MONTH')
         }
+        const { startMonthString, endMonthString } = this.monthRange(
+          this.settings.startDate,
+          this.numMonths
+        )
         statFilter['entryDate'] = {
-          greaterThanOrEqualTo: '2021-01-01',
-          lessThan: '2023-01-01',
+          greaterThanOrEqualTo: `${startMonthString}-01`,
+          lessThanOrEqualTo: `${endMonthString}-01`,
         }
       }
       groupBy.push(`${level.toUpperCase()}_DESCRIPTION`)
@@ -334,6 +338,7 @@ export default {
       statsTimeProject: [],
       isLoading: true,
       numWeeks: 5,
+      numMonths: 12,
     }
   },
   watch: {
@@ -419,6 +424,7 @@ export default {
       this.$apollo.queries.statsPieCategory.refetch()
     },
     weekSpread: utils.weekSpread,
+    monthRange: utils.monthRange,
     monthSpread: utils.monthSpread,
     getSpread() {
       if (this.period == 'daily') {
@@ -426,7 +432,7 @@ export default {
       } else if (this.period == 'weekly') {
         return this.weekSpread(this.settings.startDate, this.numWeeks)
       } else if (this.period == 'monthly') {
-        return this.monthSpread(this.settings.startDate, 12)
+        return this.monthSpread(this.settings.startDate, this.numMonths)
       }
     },
   },

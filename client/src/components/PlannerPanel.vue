@@ -56,8 +56,8 @@
             objectName="Task"
             @click="
               () => {
-                Object.assign(newTask, { projectId: prop.node.id })
-                addTask()
+                project = prop.node
+                modal.taskCreate = true
               }
             "
             class="q-ml-sm"
@@ -94,7 +94,7 @@
               @click="
                 () => {
                   Object.assign(editedTask, prop.node)
-                  updateTaskDialog = true
+                  modal.taskUpdate = true
                 }
               "
             />
@@ -103,7 +103,7 @@
               @click="
                 () => {
                   Object.assign(newEntry, { taskId: prop.node.id })
-                  addEntry()
+                  modal.entryCreate = true
                 }
               "
               class="q-ml-sm"
@@ -179,7 +179,7 @@
                   id: prop.node.id,
                   date: new Date().toISOString().substring(0, 10),
                 })
-                updateEntryDialog = false
+                modal.entryUpdate = false
               }
             "
             icon="mdi-calendar-start"
@@ -193,7 +193,7 @@
             @click="
               () => {
                 editedEntry = prop.node
-                updateEntryDialog = true
+                modal.entryUpdate = true
               }
             "
           />
@@ -208,246 +208,50 @@
         </div>
       </template>
     </q-tree>
-    <q-dialog v-model="addEntryDialog">
-      <q-card>
-        <q-card-section>
-          <div class="text-h6">Add Entry</div>
-          <q-form ref="entryForm" class="q-gutter-md" @submit.prevent>
-            <q-input
-              class="q-pa-sm"
-              outlined
-              v-model="newEntry.description"
-              label="New Entry"
-              @keydown.enter="createEntryLocal"
-            ></q-input>
-            <q-input
-              class="q-pa-sm"
-              outlined
-              v-model="newEntryEstimatedTime"
-              mask="time"
-              :rules="['time']"
-              fill-mask
-              debounce="300"
-              @keydown.enter="createEntryLocal"
-            >
-              <template v-slot:append>
-                <q-icon name="access_time" class="cursor-pointer">
-                  <q-popup-proxy
-                    transition-show="scale"
-                    transition-hide="scale"
-                  >
-                    <q-time v-model="newEntryEstimatedTime" format24h>
-                      <div class="row items-center justify-end">
-                        <q-btn
-                          v-close-popup
-                          label="Close"
-                          color="primary"
-                          flat
-                        />
-                      </div>
-                    </q-time>
-                  </q-popup-proxy>
-                </q-icon>
-              </template>
-            </q-input>
-          </q-form>
-        </q-card-section>
-        <q-card-actions align="right" class="text-primary">
-          <q-btn flat label="Cancel" @click="addEntryDialog = false" />
-          <q-btn flat label="Add" @click="createEntryLocal" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-    <q-dialog v-model="addTaskDialog">
-      <q-card>
-        <q-card-section>
-          <div class="text-h6">Add Task</div>
-          <q-form ref="taskForm" class="q-gutter-md" @submit.prevent>
-            <q-input
-              class="q-pa-sm"
-              outlined
-              v-model="newTask.description"
-              label="New Task"
-              @keydown.enter="createTaskLocal"
-            ></q-input>
-          </q-form>
-        </q-card-section>
-        <q-card-actions align="right" class="text-primary">
-          <q-btn flat label="Cancel" @click="addTaskDialog = false" />
-          <q-btn flat label="Add" @click="createTaskLocal" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-    <q-dialog v-model="updateEntryDialog">
-      <q-card v-if="editedEntry">
-        <q-card-section>
-          <div class="text-h6">Edit Entry</div>
-          <q-form ref="entryForm" class="q-gutter-md" @submit.prevent>
-            <q-input
-              v-model="editedEntry.description"
-              outlined
-              label="Description"
-            ></q-input>
-            <q-input
-              v-model="editedEntry.date"
-              mask="####-##-##"
-              outlined
-              label="Date"
-            >
-              <template v-slot:append>
-                <q-icon name="event" class="cursor-pointer">
-                  <q-popup-proxy
-                    ref="qDateProxy"
-                    transition-show="scale"
-                    transition-hide="scale"
-                  >
-                    <q-date
-                      v-model="editedEntry.date"
-                      mask="YYYY-MM-DD"
-                      first-day-of-week="1"
-                    >
-                      <div class="row items-center justify-end">
-                        <q-btn
-                          v-close-popup
-                          label="Close"
-                          color="primary"
-                          flat
-                        />
-                      </div>
-                    </q-date>
-                  </q-popup-proxy>
-                </q-icon>
-              </template>
-            </q-input>
-            <q-input
-              v-model="editedEstimatedTime"
-              mask="time"
-              :rules="['time']"
-              fill-mask
-              debounce="300"
-              label="Estimated Time"
-              outlined
-              class="q-pb-none"
-            >
-              <template v-slot:append>
-                <q-icon name="access_time" class="cursor-pointer">
-                  <q-popup-proxy
-                    transition-show="scale"
-                    transition-hide="scale"
-                  >
-                    <q-time v-model="editedEstimatedTime" format24h>
-                      <div class="row items-center justify-end">
-                        <q-btn
-                          v-close-popup
-                          label="Close"
-                          color="primary"
-                          flat
-                        />
-                      </div>
-                    </q-time>
-                  </q-popup-proxy>
-                </q-icon>
-              </template>
-            </q-input>
-            <q-input
-              v-model="editedEntryTime"
-              mask="time"
-              :rules="['time']"
-              fill-mask
-              debounce="300"
-              label="Tracked Time"
-              outlined
-            >
-              <template v-slot:append>
-                <q-icon name="access_time" class="cursor-pointer">
-                  <q-popup-proxy
-                    transition-show="scale"
-                    transition-hide="scale"
-                  >
-                    <q-time v-model="editedEntryTime" format24h>
-                      <div class="row items-center justify-end">
-                        <q-btn
-                          v-close-popup
-                          label="Close"
-                          color="primary"
-                          flat
-                        />
-                      </div>
-                    </q-time>
-                  </q-popup-proxy>
-                </q-icon>
-              </template>
-            </q-input>
-          </q-form>
-        </q-card-section>
-        <q-card-actions align="right" class="text-primary">
-          <q-btn
-            flat
-            label="Cancel"
-            @click="
-              () => {
-                editedEntry = null
-                updateEntryDialog = false
-              }
-            "
-          />
-          <q-btn
-            flat
-            label="Save"
-            @click="
-              () => {
-                updateEntry(editedEntry)
-                updateEntryDialog = false
-              }
-            "
-          />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-    <q-dialog v-model="updateTaskDialog">
-      <q-card v-if="editedTask">
-        <q-card-section>
-          <div class="text-h6">Edit Task</div>
-          <q-form ref="entryForm" class="q-gutter-md" @submit.prevent>
-            <q-input
-              v-model="editedTask.description"
-              outlined
-              label="Description"
-            ></q-input>
-          </q-form>
-        </q-card-section>
-        <q-card-actions align="right" class="text-primary">
-          <q-btn
-            flat
-            label="Cancel"
-            @click="
-              () => {
-                editedTask = {}
-                updateTaskDialog = false
-              }
-            "
-          />
-          <q-btn
-            flat
-            label="Save"
-            @click="
-              () => {
-                updateTask(editedTask)
-                this.updateTaskDialog = false
-              }
-            "
-          />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
+    <ch-task-create-modal
+      :show="modal.taskCreate"
+      :project="project"
+      @hide="
+        () => {
+          modal.taskCreate = false
+          project = null
+        }
+      "
+    />
+    <ch-task-update-modal
+      :task="editedTask"
+      :show="modal.taskUpdate"
+      @hide="modal.taskUpdate = false"
+    />
+    <ch-entry-create-modal
+      :entry="newEntry"
+      :show="modal.entryCreate"
+      @hide="modal.entryCreate = false"
+    />
+    <ch-entry-update-modal
+      :entry="editedEntry"
+      :edit-task="false"
+      :show="modal.entryUpdate"
+      @hide="modal.entryUpdate = false"
+    />
   </div>
 </template>
 <script>
+import ChEntryCreateModal from '@/components/modal/EntryCreateModal.vue'
+import ChEntryUpdateModal from '@/components/modal/EntryUpdateModal.vue'
+import ChTaskCreateModal from '@/components/modal/TaskCreateModal.vue'
+import ChTaskUpdateModal from '@/components/modal/TaskUpdateModal.vue'
 import ButtonAdd from './ButtonAdd.vue'
 
 export default {
   name: 'PlannerPanel',
-  components: { ButtonAdd },
+  components: {
+    ButtonAdd,
+    ChEntryCreateModal,
+    ChTaskCreateModal,
+    ChEntryUpdateModal,
+    ChTaskUpdateModal,
+  },
   props: {
     planner: {
       type: Array,
@@ -460,79 +264,20 @@ export default {
         date: 'backlog',
         timerEstimatedTime: null,
       },
-      newTask: {
-        description: null,
-      },
-      addEntryDialog: false,
-      addTaskDialog: false,
-      updateEntryDialog: false,
-      editedEntry: null,
-      updateTaskDialog: false,
+      project: null,
+      editedEntry: {},
       editedTask: {},
+      modal: {
+        entryCreate: false,
+        entryUpdate: false,
+        taskCreate: false,
+        taskUpdate: false,
+      },
     }
   },
   methods: {
-    addEntry() {
-      this.addEntryDialog = true
-    },
-    addTask() {
-      this.addTaskDialog = true
-    },
-    createEntryLocal() {
-      this.addEntryDialog = false
-      var entry = this.newEntry
-      if (this.newEntry.timerEstimatedTime) {
-        entry.timerEstimatedTime = this.newEntry.timerEstimatedTime
-      }
-      this.createEntry(entry)
-      this.newEntry = {
-        description: null,
-        date: 'backlog',
-        timerEstimatedTime: null,
-      }
-    },
-    createTaskLocal() {
-      this.addTaskDialog = false
-      var task = this.newTask
-      this.createTask(task)
-      this.newTask = {
-        description: null,
-      }
-    },
     getProgress(tracked, estimated) {
       return estimated !== 0 ? tracked / estimated : 0
-    },
-  },
-  computed: {
-    newEntryEstimatedTime: {
-      get() {
-        return this.secondsToTimestamp(this.newEntry.timerEstimatedTime, {
-          zeroPad: true,
-        })
-      },
-      set(val) {
-        this.newEntry.timerEstimatedTime = this.timestampToSeconds(val)
-      },
-    },
-    editedEntryTime: {
-      get() {
-        return this.secondsToTimestamp(this.editedEntry.timerTrackedTime, {
-          zeroPad: true,
-        })
-      },
-      set(val) {
-        this.editedEntry.timerTrackedTime = this.timestampToSeconds(val)
-      },
-    },
-    editedEstimatedTime: {
-      get() {
-        return this.secondsToTimestamp(this.editedEntry.timerEstimatedTime, {
-          zeroPad: true,
-        })
-      },
-      set(val) {
-        this.editedEntry.timerEstimatedTime = this.timestampToSeconds(val)
-      },
     },
   },
 }

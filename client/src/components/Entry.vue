@@ -241,20 +241,18 @@
                 exact
               >
               </q-btn>
-              <q-btn-group
-                rounded
-              >
-              <q-btn
-              v-for="addition in timerAdditionOptions"
-                :key="addition"
-                no-caps
-                padding="sm"
-                shadow-1
-                @click="editedEntry.timerEstimatedTime += 60 * addition"
-                exact
-              >
-                  <q-tooltip>Add {{addition}} minutes to timer</q-tooltip>
-                  +{{addition}}m
+              <q-btn-group rounded>
+                <q-btn
+                  v-for="addition in timerAdditionOptions"
+                  :key="addition"
+                  no-caps
+                  padding="sm"
+                  shadow-1
+                  @click="editedEntry.timerEstimatedTime += 60 * addition"
+                  exact
+                >
+                  <q-tooltip>Add {{ addition }} minutes to timer</q-tooltip>
+                  +{{ addition }}m
                 </q-btn>
               </q-btn-group>
             </div>
@@ -299,20 +297,18 @@
                 exact
               >
               </q-btn>
-              <q-btn-group
-                rounded
-              >
-              <q-btn
-              v-for="addition in timerAdditionOptions"
-                :key="addition"
-                no-caps
-                padding="sm"
-                shadow-1
-                @click="editedEntry.timerTrackedTime += 60 * addition"
-                exact
-              >
-                  <q-tooltip>Add {{addition}} minutes to timer</q-tooltip>
-                  +{{addition}}m
+              <q-btn-group rounded>
+                <q-btn
+                  v-for="addition in timerAdditionOptions"
+                  :key="addition"
+                  no-caps
+                  padding="sm"
+                  shadow-1
+                  @click="editedEntry.timerTrackedTime += 60 * addition"
+                  exact
+                >
+                  <q-tooltip>Add {{ addition }} minutes to timer</q-tooltip>
+                  +{{ addition }}m
                 </q-btn>
               </q-btn-group>
             </div>
@@ -457,51 +453,11 @@
         </q-card-section>
       </q-card>
     </q-dialog>
-    <q-dialog v-model="tasksSimilarDialog" v-close-popup>
-      <q-card style="width: 1000px; max-width: 1500px">
-        <q-card-section class="row items-center">
-          <div
-            :style="
-              'background-color: ' +
-              entry.task.project.category.color +
-              '; color: ' +
-              (entry.task.project.category.colorContrast ? 'black' : 'white')
-            "
-            style="
-              border-radius: 5px;
-              padding: 2px 5px 2px;
-              margin-bottom: 4px;
-              display: inline-block;
-            "
-            class="font-m-bold"
-          >
-            {{ entry.task.project.description | allCapitals }}
-          </div>
-          <span class="q-px-sm"><strong>/</strong></span>
-          <div
-            class="text-subtitle-2 text-weight-medium text-left font-m-medium"
-          >
-            {{ entry.task.description }}
-          </div>
-        </q-card-section>
-        <q-card-section class="row items-center">
-          <div class="col col-12" style="min-width: 200px">
-            <div class="row">
-              <div class="col col-12" style="height: 400px">
-                <ch-chart-time-categorical
-                  :data="barChartSimilarData"
-                  :dateRange="barChartSimilarDomain"
-                  :colors="{
-                    Tracked: '#22bb22',
-                    Estimated: '#bbb',
-                  }"
-                />
-              </div>
-            </div>
-          </div>
-        </q-card-section>
-      </q-card>
-    </q-dialog>
+    <ch-similar-task-dialog
+      :entry="entry"
+      :show="tasksSimilarDialog"
+      @hide="tasksSimilarDialog = false"
+    />
   </div>
 </template>
 
@@ -509,11 +465,9 @@
 import { Q_PROJECT, Q_TASK_DETAILS } from '@/graphql/queries'
 
 import ChChartTimeCategorical from '@/components/ChartTimeCategorical.vue'
+import ChSimilarTaskDialog from '@/components/dialog/SimilarTaskDialog.vue'
 import ChProjectPicker from '@/components/ProjectPicker'
-import {
-  Q_STATS_TIME_ENTRY,
-  Q_STATS_TIME_SIMILAR_TASK,
-} from '@/graphql/queries'
+import { Q_STATS_TIME_ENTRY } from '@/graphql/queries'
 
 import utils from '@/common/utils'
 
@@ -527,6 +481,7 @@ export default {
   components: {
     ChChartTimeCategorical,
     ChProjectPicker,
+    ChSimilarTaskDialog,
   },
   apollo: {
     projects: {
@@ -622,85 +577,6 @@ export default {
         }
       },
     },
-    statsTimeSimilarTask: {
-      query: Q_STATS_TIME_SIMILAR_TASK,
-      skip() {
-        return !this.tasksSimilarDialog
-      },
-      variables() {
-        return {
-          groupBy: ['ENTRY_WEEK_NUMBER', 'ENTRY_COMPLETE'],
-          statFilter: {
-            entryDate: {
-              notEqualTo: 'backlog',
-            },
-            projectId: {
-              equalTo: this.entry.task.project.id,
-            },
-            taskDescription: {
-              equalTo: this.entry.task.description,
-            },
-          },
-        }
-      },
-      result({ data, loading }) {
-        if (!loading) {
-          const listSums = data.statsTimeSimilarTask.groupedAggregates
-          const barChartData = listSums.reduce((acc, curr) => {
-            if (!acc[curr.keys[0]]) acc[curr.keys[0]] = {}
-            acc[curr.keys[0]][curr.keys[1]] = curr.sum
-            return acc
-          }, {})
-          const formatted = Object.keys(barChartData).reduce((acc, date) => {
-            const completeTracked = Number(
-              barChartData[date][true]?.entryTimerTrackedTime || 0,
-            )
-            const incompleteEstimated = Number(
-              barChartData[date][false]?.entryTimerEstimatedTime || 0,
-            )
-            const incompleteTracked = Number(
-              barChartData[date][false]?.entryTimerTrackedTime || 0,
-            )
-            const estimatedTime =
-              Math.max(0, incompleteEstimated - incompleteTracked) / 3600
-            const trackedTime =
-              Math.max(0, incompleteTracked + completeTracked) / 3600
-            return acc.concat([
-              {
-                group: 'Estimated',
-                date: date,
-                value: estimatedTime,
-              },
-              {
-                group: 'Tracked',
-                date: date,
-                value: trackedTime,
-              },
-            ])
-          }, [])
-          const allDates = listSums.map((s) => s.keys[0]).sort()
-          const dateMin = allDates[0]
-          const dateMax = allDates[allDates.length - 1]
-          const datesDomain = this.weekSpreadSequential(dateMin, dateMax)
-          const keyed = formatted.reduce((acc, curr) => {
-            if (!acc[curr.date]) acc[curr.date] = {}
-            acc[curr.date][curr.group] = curr.value
-            return acc
-          }, {})
-          const chartData = ['Tracked', 'Estimated'].reduce((acc, group) => {
-            return acc.concat({
-              name: group,
-              data: datesDomain.map((date) => keyed[date]?.[group] || 0),
-            })
-          }, [])
-          this.barChartSimilarDomain = datesDomain
-          this.barChartSimilarData = chartData
-        } else {
-          this.barChartSimilarDomain = []
-          this.barChartSimilarData = []
-        }
-      },
-    },
   },
   data: () => ({
     entryRules: [(v) => !!v || 'Description required'],
@@ -767,7 +643,6 @@ export default {
     },
   },
   methods: {
-    weekSpreadSequential: utils.weekSpreadSequential,
     hoursToReadable: utils.hoursToReadable,
     // timer
     timerSet() {

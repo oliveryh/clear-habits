@@ -23,6 +23,22 @@
         <div class="text-subtitle-2 text-weight-medium text-left font-m-medium">
           {{ entry.task.description }}
         </div>
+        <q-btn-toggle
+          spread
+          rounded
+          bold
+          v-model="period"
+          toggle-color="primary"
+          color="white"
+          unelevated
+          text-color="primary"
+          class="font-m-bold"
+          style="border: 2px solid primary; margin-left: auto"
+          :options="[
+            { label: 'Weekly', value: 'weekly' },
+            { label: 'Monthly', value: 'monthly' },
+          ]"
+        />
       </q-card-section>
       <q-card-section class="row items-center">
         <div class="col col-12" style="min-width: 200px">
@@ -77,6 +93,7 @@ export default {
   data: () => ({
     data: [],
     dateRange: [],
+    period: 'monthly',
   }),
   methods: {
     weekSpreadSequential: utils.weekSpreadSequential,
@@ -88,8 +105,10 @@ export default {
         return !this.show
       },
       variables() {
+        const periodGrouping =
+          this.period === 'weekly' ? 'ENTRY_WEEK_NUMBER' : 'ENTRY_DATE_MONTH'
         return {
-          groupBy: ['ENTRY_WEEK_NUMBER', 'ENTRY_COMPLETE'],
+          groupBy: [periodGrouping, 'ENTRY_COMPLETE'],
           statFilter: {
             entryDate: {
               notEqualTo: 'backlog',
@@ -141,7 +160,12 @@ export default {
           const allDates = listSums.map((s) => s.keys[0]).sort()
           const dateMin = allDates[0]
           const dateMax = allDates[allDates.length - 1]
-          const dateRange = this.weekSpreadSequential(dateMin, dateMax)
+          let dateRange
+          if (this.period === 'weekly') {
+            dateRange = this.weekSpreadSequential(dateMin, dateMax)
+          } else {
+            dateRange = utils.monthSpreadSequential(dateMin, dateMax)
+          }
           const keyed = formatted.reduce((acc, curr) => {
             if (!acc[curr.date]) acc[curr.date] = {}
             acc[curr.date][curr.group] = curr.value
@@ -164,5 +188,3 @@ export default {
   },
 }
 </script>
-
-<style></style>

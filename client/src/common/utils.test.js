@@ -52,6 +52,11 @@ describe('utils', () => {
         '2021-02',
       ])
     })
+    it('across years 2', () => {
+      const weekSpreadResult = weekSpreadSequential('2021-52', '2023-01')
+      expect(weekSpreadResult[0]).toEqual('2021-52')
+      expect(weekSpreadResult[weekSpreadResult.length - 1]).toEqual('2023-01')
+    })
   })
 
   describe('weekRange', () => {

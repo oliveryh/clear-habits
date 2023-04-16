@@ -15,15 +15,17 @@
         style="padding: 10px 10px 5px 10px"
       >
         <q-btn-toggle
-          rounded
           spread
+          rounded
+          bold
+          outline
           v-model="period"
           toggle-color="primary"
           color="white"
           unelevated
           text-color="primary"
           class="font-m-bold"
-          style="border: 2px solid #027be3"
+          style="border: 2px solid primary; margin-left: auto"
           :options="[
             { label: 'Daily', value: 'daily' },
             { label: 'Weekly', value: 'weekly' },
@@ -57,7 +59,6 @@
             unelevated
             text-color="primary"
             class="font-m-bold"
-            style="border: 2px solid #027be3"
             :label="numWeeks + ' weeks'"
           >
             <q-list>

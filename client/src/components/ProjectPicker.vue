@@ -89,6 +89,6 @@ export default {
 </script>
 <style>
 .underlined .q-field__inner .q-field__control {
-  border-bottom: 3px solid #027be3;
+  border-bottom: 3px solid #218896;
 }
 </style>

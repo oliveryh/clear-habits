@@ -49,7 +49,7 @@ const monthSpreadSequential = (startYearMonth, endYearMonth) => {
   const endMonth = Number(endYearMonth.slice(5, 7))
   const years =
     startYear != endYear
-      ? [...Array(endYear - startYear + 1).keys()].map(i => endYear + i - 1)
+      ? [...Array(endYear - startYear + 1).keys()].map(i => startYear + i)
       : [startYear]
   return years.reduce((monthList, year) => {
     const numMonthsInYear = 12

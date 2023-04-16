@@ -131,12 +131,12 @@
         <q-card-section>
           <div class="text-h6">Edit Task</div>
           <q-form ref="taskForm" class="q-gutter-md" @submit.prevent>
-            <ch-project-picker
+            <ch-picker
               v-model="editedEntry.task.project"
-              :projects="projects"
+              :options="projects"
               label="Project"
               :showAvatar="false"
-            ></ch-project-picker>
+            ></ch-picker>
             <q-input
               v-model="editedEntry.task.description"
               outlined
@@ -375,7 +375,7 @@ import { Q_PROJECT, Q_TASK_DETAILS } from '@/graphql/queries'
 
 import ChSimilarTaskDialog from '@/components/dialog/SimilarTaskDialog.vue'
 import ChTaskDetailsDialog from '@/components/dialog/TaskDetailsDialog.vue'
-import ChProjectPicker from '@/components/ProjectPicker'
+import ChPicker from '@/components/Picker'
 
 export default {
   name: 'Entry',
@@ -385,7 +385,7 @@ export default {
     },
   },
   components: {
-    ChProjectPicker,
+    ChPicker,
     ChSimilarTaskDialog,
     ChTaskDetailsDialog,
   },

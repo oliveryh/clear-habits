@@ -68,6 +68,14 @@ export default {
         this.$emit('input', value)
       },
     },
+    sortedProjects() {
+      let sortedProjects = this.projects
+      return sortedProjects.sort((a, b) => {
+        if (a.description < b.description) return -1
+        if (a.description > b.description) return 1
+        return 0
+      })
+    },
   },
   data: () => ({
     options: null,
@@ -76,7 +84,7 @@ export default {
     filterFn(val, update) {
       update(() => {
         const needle = val.toLowerCase()
-        this.options = this.projects.filter(
+        this.options = this.sortedProjects.filter(
           (v) => v.description.toLowerCase().indexOf(needle) > -1,
         )
       })

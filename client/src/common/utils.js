@@ -13,63 +13,33 @@ const getWeekNumber = d => {
   var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1))
   // Calculate full weeks to nearest Thursday
   var weekNo = Math.ceil(((d - yearStart) / 86400000 + 1) / 7)
-  var year = d.getUTCFullYear().toString()
+  var year = d.getUTCFullYear()
   return [year, weekNo]
 }
 
-const monthRange = (endDate, numMonths) => {
-  const endDateObj = new Date(endDate)
-  const endMonth = endDateObj.getMonth() + 1
-  const endYear = endDateObj.getYear() + 1900
-  const startMonth = (12 % (endMonth - numMonths)) + 1
-  const startYear = endYear - Math.floor(numMonths / 12)
-  const endMonthString = `${endYear}-${String(endMonth).padStart(2, '0')}`
-  const startMonthString = `${startYear}-${String(startMonth).padStart(2, '0')}`
-  return { startMonthString, endMonthString }
+const lastDayOfMonth = date => {
+  const year = new Date(date).getFullYear()
+  const month = new Date(date).getMonth()
+  console.log(year, month)
+  return new Date(year, month + 1, 0, 23, 59, 59).toISOString().slice(0, 10)
 }
 
-const monthSpread = (endDate, numMonths) => {
-  const { startMonthString, endMonthString } = monthRange(endDate, numMonths)
-  return monthSpreadSequential(startMonthString, endMonthString)
+const firstDayOfMonth = date => {
+  const year = new Date(date).getFullYear()
+  const month = new Date(date).getMonth()
+  return new Date(year, month, 1, 1, 1, 1).toISOString().slice(0, 10)
 }
 
-const weekSpread = (endDate, numWeeks) => {
-  if (endDate != null) {
-    const endDateObj = new Date(endDate)
-    var startDateObj = new Date(endDate)
-    startDateObj.setDate(endDateObj.getDate() - numWeeks * 7)
-    const endWeek = getWeekNumber(endDateObj)
-    const startWeek = getWeekNumber(startDateObj)
-    const endWeekString = `${endWeek[0]}-${String(endWeek[1]).padStart(2, '0')}`
-    const startWeekString = `${startWeek[0]}-${String(startWeek[1]).padStart(2, '0')}`
+const monthRange = (date, numMonths) => {
+  const endDateObj = new Date(date)
+  const startDateObj = new Date(date)
 
-    return weekSpreadSequential(startWeekString, endWeekString)
-  } else {
-    return []
+  startDateObj.setMonth(startDateObj.getMonth() - (numMonths - 1))
+
+  return {
+    start: firstDayOfMonth(startDateObj),
+    end: lastDayOfMonth(endDateObj),
   }
-}
-
-const weekSpreadSequential = (startYearWeek, endYearWeek) => {
-  const startYear = Number(startYearWeek.slice(0, 4))
-  const startWeek = Number(startYearWeek.slice(5, 7))
-  const endYear = Number(endYearWeek.slice(0, 4))
-  const endWeek = Number(endYearWeek.slice(5, 7))
-  const years =
-    startYear != endYear
-      ? [...Array(endYear - startYear + 1).keys()].map(i => endYear + i - 1)
-      : [startYear]
-  return years.reduce((weekList, year) => {
-    const numWeeksInYear = dayjs(`${year}-01-01`).isoWeeksInYear()
-    let weeksInYear = Array.from({ length: numWeeksInYear }, (_, ac) => ac + 1)
-    if (year == startYear) {
-      weeksInYear = weeksInYear.filter(a => a >= startWeek)
-    }
-    if (year == endYear) {
-      weeksInYear = weeksInYear.filter(a => a <= endWeek)
-    }
-    weeksInYear = weeksInYear.map(a => `${year}-${String(a).padStart(2, '0')}`)
-    return [...weekList, ...weeksInYear]
-  }, [])
 }
 
 const monthSpreadSequential = (startYearMonth, endYearMonth) => {
@@ -93,6 +63,13 @@ const monthSpreadSequential = (startYearMonth, endYearMonth) => {
     monthsInYear = monthsInYear.map(a => `${year}-${String(a).padStart(2, '0')}`)
     return [...monthList, ...monthsInYear]
   }, [])
+}
+
+const monthRangeSpread = (endDate, numMonths) => {
+  const { start, end } = monthRange(endDate, numMonths)
+  const startMonthString = start.slice(0, 7)
+  const endMonthString = end.slice(0, 7)
+  return monthSpreadSequential(startMonthString, endMonthString)
 }
 
 const monthName = date => {
@@ -124,4 +101,106 @@ const hoursToReadable = hourDecimal => {
   return retString
 }
 
-module.exports = { hoursToReadable, monthName, monthRange, monthSpread, monthSpreadSequential, weekSpread, weekSpreadSequential }
+const getMonday = d => {
+  d = new Date(d)
+  const day = d.getDay()
+  const diff = d.getDate() - day + (day == 0 ? -6 : 1) // adjust when day is sunday
+  return new Date(d.setDate(diff))
+}
+
+const getSunday = d => {
+  d = new Date(d)
+  console.log(d)
+  const day = d.getDay()
+  const diff = d.getDate() - day + (day == 0 ? 0 : 7) // adjust when day is sunday
+  return new Date(d.setDate(diff))
+}
+
+const weekRange = (date, numWeeks) => {
+  const endDateObj = new Date(date)
+  const startDateObj = new Date(date)
+
+  startDateObj.setDate(endDateObj.getDate() - (numWeeks - 1) * 7)
+
+  const sundayOnEndWeek = getSunday(endDateObj)
+  const mondayOnStartWeek = getMonday(startDateObj)
+  return {
+    start: mondayOnStartWeek.toISOString().slice(0, 10),
+    end: sundayOnEndWeek.toISOString().slice(0, 10),
+  }
+}
+
+const weekSpreadSequential = (startYearWeek, endYearWeek) => {
+  const startYear = Number(startYearWeek.slice(0, 4))
+  const startWeek = Number(startYearWeek.slice(5, 7))
+  const endYear = Number(endYearWeek.slice(0, 4))
+  const endWeek = Number(endYearWeek.slice(5, 7))
+  const years =
+    startYear != endYear
+      ? [...Array(endYear - startYear + 1).keys()].map(i => endYear + i - 1)
+      : [startYear]
+  return years.reduce((weekList, year) => {
+    const numWeeksInYear = dayjs(`${year}-01-01`).isoWeeksInYear()
+    let weeksInYear = Array.from({ length: numWeeksInYear }, (_, ac) => ac + 1)
+    if (year == startYear) {
+      weeksInYear = weeksInYear.filter(a => a >= startWeek)
+    }
+    if (year == endYear) {
+      weeksInYear = weeksInYear.filter(a => a <= endWeek)
+    }
+    weeksInYear = weeksInYear.map(a => `${year}-${String(a).padStart(2, '0')}`)
+    return [...weekList, ...weeksInYear]
+  }, [])
+}
+
+const weekRangeSpread = (date, numWeeks) => {
+  const { start, end } = weekRange(date, numWeeks)
+  const [startYear, startWeek] = getWeekNumber(new Date(start))
+  const [endYear, endWeek] = getWeekNumber(new Date(end))
+  const startYearWeek = `${startYear}-${String(startWeek).padStart(2, '0')}`
+  const endYearWeek = `${endYear}-${String(endWeek).padStart(2, '0')}`
+  return weekSpreadSequential(startYearWeek, endYearWeek)
+}
+
+const dayRange = (date, numDays) => {
+  console.log(date, numDays)
+  const endDateObj = new Date(date)
+  const startDateObj = new Date(date)
+
+  startDateObj.setDate(endDateObj.getDate() - (numDays - 1))
+
+  return {
+    start: startDateObj.toISOString().slice(0, 10),
+    end: endDateObj.toISOString().slice(0, 10),
+  }
+}
+
+const dateSpread = (startDate, endDate) => {
+  let startDateObj = new Date(startDate)
+  let numDays = 7
+  if (endDate) {
+    let endDateObj = new Date(endDate)
+    var timeDifference = endDateObj.getTime() - startDateObj.getTime()
+    // To calculate the no. of days between two dates
+    numDays = timeDifference / (1000 * 3600 * 24) + 1
+  }
+  return Array.from(Array(numDays).keys()).map(num =>
+    new Date(startDateObj.getTime() + num * 86400000)
+      .toISOString()
+      .substring(0, 10),
+  )
+}
+
+module.exports = {
+  dateSpread,
+  dayRange,
+  getSunday,
+  hoursToReadable,
+  monthName,
+  monthRange,
+  monthRangeSpread,
+  monthSpreadSequential,
+  weekRange,
+  weekRangeSpread,
+  weekSpreadSequential,
+}

@@ -127,7 +127,9 @@
         </div>
         <div v-if="categorySelected" class="row">
           <div class="col-12 col-md-4 q-pa-md">
-            <div class="text-h4 text-weight-light">{{ categorySelected.description }}</div>
+            <div class="text-h4 text-weight-light">
+              {{ categorySelected.description }}
+            </div>
           </div>
         </div>
         <div v-if="categorySelected" class="row">
@@ -146,7 +148,9 @@
         </div>
         <div v-if="settings.projectSelected" class="row">
           <div class="col-12 col-md-4 q-pa-md">
-            <div class="text-h4 text-weight-light">{{ settings.projectSelected.description }}</div>
+            <div class="text-h4 text-weight-light">
+              {{ settings.projectSelected.description }}
+            </div>
           </div>
         </div>
         <div v-if="settings.projectSelected" class="row">
@@ -224,32 +228,28 @@ let generateQuery = (graphType, level) => {
         }
       }
       var groupBy = []
+      let dateRange = {}
       if (this.period == 'daily') {
         if (graphType == 'time') {
           groupBy.push('ENTRY_DATE')
         }
-        statFilter['entryDate'] = {
-          in: this.dateSpread(this.settings.startDate),
-        }
+        const nextSunday = this.getSunday(this.settings.startDate)
+        dateRange = this.dayRange(nextSunday, this.numDays)
       } else if (this.period == 'weekly') {
         if (graphType == 'time') {
           groupBy.push('ENTRY_WEEK_NUMBER')
         }
-        statFilter['entryWeekNumber'] = {
-          in: this.weekSpread(this.settings.startDate, this.numWeeks),
-        }
+        dateRange = this.weekRange(this.settings.startDate, this.numWeeks)
       } else if (this.period == 'monthly') {
         if (graphType == 'time') {
           groupBy.push('ENTRY_DATE_MONTH')
         }
-        const { startMonthString, endMonthString } = this.monthRange(
-          this.settings.startDate,
-          this.numMonths
-        )
-        statFilter['entryDate'] = {
-          greaterThanOrEqualTo: `${startMonthString}-01`,
-          lessThanOrEqualTo: `${endMonthString}-01`,
-        }
+        dateRange = this.monthRange(this.settings.startDate, this.numMonths)
+      }
+      const { start, end } = dateRange
+      statFilter['entryDate'] = {
+        greaterThanOrEqualTo: start,
+        lessThanOrEqualTo: end,
       }
       groupBy.push(`${level.toUpperCase()}_DESCRIPTION`)
       if (level != 'task') {
@@ -339,6 +339,7 @@ export default {
       isLoading: true,
       numWeeks: 5,
       numMonths: 12,
+      numDays: 7,
     }
   },
   watch: {
@@ -423,16 +424,19 @@ export default {
     refreshStats() {
       this.$apollo.queries.statsPieCategory.refetch()
     },
-    weekSpread: utils.weekSpread,
+    dayRange: utils.dayRange,
+    weekRange: utils.weekRange,
+    weekRangeSpread: utils.weekRangeSpread,
     monthRange: utils.monthRange,
-    monthSpread: utils.monthSpread,
+    monthRangeSpread: utils.monthRangeSpread,
+    getSunday: utils.getSunday,
     getSpread() {
       if (this.period == 'daily') {
         return this.dateSpread(this.settings.startDate)
       } else if (this.period == 'weekly') {
-        return this.weekSpread(this.settings.startDate, this.numWeeks)
+        return this.weekRangeSpread(this.settings.startDate, this.numWeeks)
       } else if (this.period == 'monthly') {
-        return this.monthSpread(this.settings.startDate, this.numMonths)
+        return this.monthRangeSpread(this.settings.startDate, this.numMonths)
       }
     },
   },

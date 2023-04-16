@@ -6,6 +6,7 @@ import router from './router'
 import JwtService from '@/common/jwt.service'
 import ErrorFilter from './common/error.filter'
 import './quasar'
+import utils from '@/common/utils'
 import { createProvider } from './vue-apollo'
 
 Vue.config.productionTip = false
@@ -80,21 +81,7 @@ const objectParts = {
 
 export const mixins = {
   methods: {
-    dateSpread(startDate, endDate) {
-      let startDateObj = new Date(startDate)
-      let numDays = 7
-      if (endDate) {
-        let endDateObj = new Date(endDate)
-        var timeDifference = endDateObj.getTime() - startDateObj.getTime()
-        // To calculate the no. of days between two dates
-        numDays = timeDifference / (1000 * 3600 * 24) + 1
-      }
-      return Array.from(Array(numDays).keys()).map(num =>
-        new Date(startDateObj.getTime() + num * 86400000)
-          .toISOString()
-          .substring(0, 10),
-      )
-    },
+    dateSpread: utils.dateSpread,
     secondsToTimestamp(val, { zeroPad = false, includeSeconds = false } = {}) {
       var tt = val
       var hours = zeroPad

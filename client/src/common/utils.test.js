@@ -39,6 +39,11 @@ describe('utils', () => {
         '2022-02',
       ])
     })
+    it('across years 2', () => {
+      const monthSpreadResult = monthSpreadSequential('2021-11', '2023-01')
+      expect(monthSpreadResult[0]).toEqual('2021-11')
+      expect(monthSpreadResult[monthSpreadResult.length - 1]).toEqual('2023-01')
+    })
   })
   describe('weekSpreadSequential', () => {
     it('basic case', () => {

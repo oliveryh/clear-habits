@@ -357,102 +357,11 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-    <q-dialog v-model="taskDetailsDialog" v-close-popup>
-      <q-card style="width: 1000px; max-width: 1500px">
-        <q-card-section class="row items-center">
-          <div
-            :style="
-              'background-color: ' +
-              entry.task.project.category.color +
-              '; color: ' +
-              (entry.task.project.category.colorContrast ? 'black' : 'white')
-            "
-            style="
-              border-radius: 5px;
-              padding: 2px 5px 2px;
-              margin-bottom: 4px;
-              display: inline-block;
-            "
-            class="font-m-bold"
-          >
-            {{ entry.task.project.description | allCapitals }}
-          </div>
-          <span class="q-px-sm"><strong>/</strong></span>
-          <div
-            class="text-subtitle-2 text-weight-medium text-left font-m-medium"
-          >
-            {{ entry.task.description }}
-          </div>
-        </q-card-section>
-        <q-card-section class="row items-center">
-          <div class="col col-12" style="min-width: 200px" v-if="taskDetails">
-            <div class="row q-pb-lg">
-              <div class="col col-12 col-sm-6 q-pb-md text-center">
-                <div class="text-h2 text-weight-light">
-                  {{
-                    hoursToReadable(
-                      taskDetails.aggregates.sum.timerEstimatedTime / 3600,
-                    )
-                  }}
-                </div>
-                <div class="text-headline font-m-medium">
-                  <q-icon name="mdi-clock-outline" />
-                  Estimated Time
-                </div>
-              </div>
-              <div class="col col-12 col-sm-6 q-pb-md text-center">
-                <div class="text-h2 text-weight-light">
-                  {{
-                    hoursToReadable(
-                      taskDetails.aggregates.sum.timerTrackedTime / 3600,
-                    )
-                  }}
-                </div>
-                <div class="text-headline font-m-medium">
-                  <q-icon name="mdi-clock" />
-                  Tracked Time
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col col-12 col-md-6">
-                <div
-                  class="row"
-                  v-for="entry in taskDetails.nodes"
-                  :key="entry.id"
-                >
-                  <q-icon
-                    v-if="entry.complete"
-                    name="mdi-check"
-                    class="q-mr-sm"
-                  />
-                  <q-icon v-else name="mdi-blank" class="q-mr-sm" />
-                  {{ entry.date }}
-                  -
-                  {{
-                    secondsToTimestamp(entry.timerTrackedTime, {
-                      zeroPad: true,
-                    })
-                  }}
-                  -
-                  {{ entry.description }}
-                </div>
-              </div>
-              <div class="col col-12 col-md-6">
-                <ch-chart-time-categorical
-                  :data="barChartData"
-                  :dateRange="barChartDomain"
-                  :colors="{
-                    Tracked: '#4bdd8d',
-                    Estimated: '#bbb',
-                  }"
-                />
-              </div>
-            </div>
-          </div>
-        </q-card-section>
-      </q-card>
-    </q-dialog>
+    <ch-task-details-dialog
+      :entry="entry"
+      :show="taskDetailsDialog"
+      @hide="taskDetailsDialog = false"
+    />
     <ch-similar-task-dialog
       :entry="entry"
       :show="tasksSimilarDialog"
@@ -464,12 +373,9 @@
 <script>
 import { Q_PROJECT, Q_TASK_DETAILS } from '@/graphql/queries'
 
-import ChChartTimeCategorical from '@/components/ChartTimeCategorical.vue'
 import ChSimilarTaskDialog from '@/components/dialog/SimilarTaskDialog.vue'
+import ChTaskDetailsDialog from '@/components/dialog/TaskDetailsDialog.vue'
 import ChProjectPicker from '@/components/ProjectPicker'
-import { Q_STATS_TIME_ENTRY } from '@/graphql/queries'
-
-import utils from '@/common/utils'
 
 export default {
   name: 'Entry',
@@ -479,9 +385,9 @@ export default {
     },
   },
   components: {
-    ChChartTimeCategorical,
     ChProjectPicker,
     ChSimilarTaskDialog,
+    ChTaskDetailsDialog,
   },
   apollo: {
     projects: {
@@ -498,85 +404,6 @@ export default {
         }
       },
     },
-    statsTimeEntry: {
-      query: Q_STATS_TIME_ENTRY,
-      skip() {
-        return !this.taskDetails
-      },
-      variables() {
-        return {
-          groupBy: ['ENTRY_DATE', 'ENTRY_COMPLETE'],
-          statFilter: {
-            taskId: {
-              equalTo: this.entry.task.id,
-            },
-            entryDate: {
-              notEqualTo: 'backlog',
-            },
-          },
-        }
-      },
-      result({ data, loading }) {
-        if (!loading) {
-          console.log('DATA', data)
-          const listSums = data.statsTimeEntry.groupedAggregates
-          const barChartData = listSums.reduce((acc, curr) => {
-            if (!acc[curr.keys[0]]) acc[curr.keys[0]] = {}
-            acc[curr.keys[0]][curr.keys[1]] = curr.sum
-            return acc
-          }, {})
-          console.log(barChartData)
-          const formatted = Object.keys(barChartData).reduce((acc, date) => {
-            const completeTracked = Number(
-              barChartData[date][true]?.entryTimerTrackedTime || 0,
-            )
-            const incompleteEstimated = Number(
-              barChartData[date][false]?.entryTimerEstimatedTime || 0,
-            )
-            const incompleteTracked = Number(
-              barChartData[date][false]?.entryTimerTrackedTime || 0,
-            )
-            const estimatedTime =
-              Math.max(0, incompleteEstimated - incompleteTracked) / 3600
-            const trackedTime =
-              Math.max(0, incompleteTracked + completeTracked) / 3600
-            return acc.concat([
-              {
-                group: 'Estimated',
-                date: date,
-                value: estimatedTime,
-              },
-              {
-                group: 'Tracked',
-                date: date,
-                value: trackedTime,
-              },
-            ])
-          }, [])
-          const keyed = formatted.reduce((acc, curr) => {
-            if (!acc[curr.date]) acc[curr.date] = {}
-            acc[curr.date][curr.group] = curr.value
-            return acc
-          }, {})
-
-          const allDates = listSums.map((s) => s.keys[0]).sort()
-          const dateMin = allDates[0]
-          const dateMax = allDates[allDates.length - 1]
-          const datesDomain = this.dateSpread(dateMin, dateMax)
-          const chartData = ['Tracked', 'Estimated'].reduce((acc, group) => {
-            return acc.concat({
-              name: group,
-              data: datesDomain.map((date) => keyed[date]?.[group] || 0),
-            })
-          }, [])
-          this.barChartDomain = datesDomain
-          this.barChartData = chartData
-        } else {
-          this.barChartDomain = []
-          this.barChartData = []
-        }
-      },
-    },
   },
   data: () => ({
     entryRules: [(v) => !!v || 'Description required'],
@@ -587,8 +414,6 @@ export default {
     deleteDialog: null,
     taskDetailsDialog: false,
     tasksSimilarDialog: false,
-    barChartData: [],
-    barChartSimilarData: [],
     timerAdditionOptions: [5, 10, 15, 20, 30],
   }),
   created() {
@@ -642,7 +467,6 @@ export default {
     },
   },
   methods: {
-    hoursToReadable: utils.hoursToReadable,
     // timer
     timerSet() {
       this.timerTrackedTime = this.entry.timerTrackedTime

@@ -137,7 +137,7 @@ const weekSpreadSequential = (startYearWeek, endYearWeek) => {
   const endWeek = Number(endYearWeek.slice(5, 7))
   const years =
     startYear != endYear
-      ? [...Array(endYear - startYear + 1).keys()].map(i => endYear + i - 1)
+      ? [...Array(endYear - startYear + 1).keys()].map(i => startYear + i)
       : [startYear]
   return years.reduce((weekList, year) => {
     const numWeeksInYear = dayjs(`${year}-01-01`).isoWeeksInYear()

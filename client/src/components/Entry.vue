@@ -31,7 +31,7 @@
             color="grey"
             round
             dense
-            @click="showTaskDetails()"
+            @click="() => (this.taskDetailsDialog = true)"
             icon="mdi-chart-bar"
           ></q-btn>
           <q-btn
@@ -41,7 +41,7 @@
             color="grey"
             round
             dense
-            @click="showSimilarTasks()"
+            @click="() => (this.tasksSimilarDialog = true)"
             icon="mdi-calendar-multiple-check"
           ></q-btn>
         </div>
@@ -585,9 +585,8 @@ export default {
     editorDialog: false,
     editedEntry: null,
     deleteDialog: null,
-    taskDetailsDialog: null,
-    tasksSimilarDialog: null,
-    taskDetailsTaskId: null,
+    taskDetailsDialog: false,
+    tasksSimilarDialog: false,
     barChartData: [],
     barChartSimilarData: [],
     timerAdditionOptions: [5, 10, 15, 20, 30],
@@ -710,14 +709,6 @@ export default {
           })
         }
       })
-    },
-    showTaskDetails() {
-      this.taskDetailsTaskId = this.entry.task.id
-      this.taskDetailsDialog = true
-    },
-    showSimilarTasks() {
-      this.taskDetailsTaskId = this.entry.task.id
-      this.tasksSimilarDialog = true
     },
   },
 }

@@ -443,7 +443,7 @@
                   :data="barChartData"
                   :dateRange="barChartDomain"
                   :colors="{
-                    Tracked: '#22bb22',
+                    Tracked: '#4bdd8d',
                     Estimated: '#bbb',
                   }"
                 />

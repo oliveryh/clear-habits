@@ -9,7 +9,7 @@
               name="mdi-archive-outline"
               class="float-left"
               style="
-                border-bottom: 3px solid #027be3;
+                border-bottom: 3px solid #218896;
                 border-radius: 1.5px;
                 margin-right: 8px;
               "
@@ -20,16 +20,14 @@
           </div>
           <div v-else>
             <div class="row q-pb-m">
-              <h5 class="font-m-medium float-left q-my-none">
-                .
-              </h5>
+              <h5 class="font-m-medium float-left q-my-none">.</h5>
             </div>
             <h6 class="font-m-medium" style="margin: auto">BACKLOG</h6>
             <q-icon
               size="4rem"
               name="mdi-archive-outline"
               class="float-left"
-              style="border-bottom: 3px solid #027be3; border-radius: 1.5px"
+              style="border-bottom: 3px solid #218896; border-radius: 1.5px"
             />
           </div>
         </div>
@@ -38,7 +36,7 @@
             <h5
               style="
                 color: white;
-                background-color: #027be3;
+                background-color: #218896;
                 border-radius: 10px;
                 padding: 2px 5px 2px;
                 display: inline-block;
@@ -55,7 +53,7 @@
           <div v-else>
             <div class="row q-pb-m">
               <h5 class="font-m-medium float-left q-my-none">
-                {{ displayMonth(date) ? monthName(date).toUpperCase() : '.'}}
+                {{ displayMonth(date) ? monthName(date).toUpperCase() : '.' }}
               </h5>
             </div>
             <h6 class="font-m-medium" style="margin: auto">
@@ -64,7 +62,7 @@
             <h2
               style="
                 color: white;
-                background-color: #027be3;
+                background-color: #218896;
                 border-radius: 10px;
                 padding: 2px 5px 2px;
                 display: inline-block;
@@ -79,7 +77,7 @@
           <div v-if="isMobile()">
             <h5
               style="
-                border-bottom: 3px solid #027be3;
+                border-bottom: 3px solid #218896;
                 border-radius: 1.5px;
                 margin-right: 8px;
               "
@@ -93,15 +91,15 @@
           </div>
           <div v-else>
             <div class="row q-pb-m">
-              <h5 class="font-m-medium float-left  q-my-none">
-              {{ displayMonth(date) ? monthName(date).toUpperCase() : '.'}}
-            </h5>
+              <h5 class="font-m-medium float-left q-my-none">
+                {{ displayMonth(date) ? monthName(date).toUpperCase() : '.' }}
+              </h5>
             </div>
             <h6 class="font-m-medium" style="text-align: left; margin: auto">
               {{ dateToString(date) }}
             </h6>
             <h2
-              style="border-bottom: 3px solid #027be3; border-radius: 1.5px"
+              style="border-bottom: 3px solid #218896; border-radius: 1.5px"
               class="font-m-medium q-my-none float-left"
             >
               {{ date | getDate }}

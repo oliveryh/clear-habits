@@ -80,22 +80,22 @@
 
       <div class="col-6 col-md-3" style="padding: 10px 10px 5px 10px">
         <q-form ref="form" @submit.prevent>
-          <ch-project-picker
+          <ch-picker
             v-model="categorySelected"
-            :projects="categories"
+            :options="categories"
             label="Category"
             :showAvatar="true"
-          ></ch-project-picker>
+          ></ch-picker>
         </q-form>
       </div>
       <div class="col-6 col-md-3" style="padding: 10px 10px 5px 10px">
         <q-form ref="form" @submit.prevent>
-          <ch-project-picker
+          <ch-picker
             v-model="settings.projectSelected"
-            :projects="filteredProjects"
+            :options="filteredProjects"
             label="Project"
             :showAvatar="false"
-          ></ch-project-picker>
+          ></ch-picker>
         </q-form>
       </div>
     </div>
@@ -176,7 +176,7 @@
 import ChChartTimeCategorical from '@/components/ChartTimeCategorical.vue'
 import ChChartPieCategorical from '@/components/ChartPieCategorical.vue'
 import ChDateSelector from '@/components/DateSelector.vue'
-import ChProjectPicker from '@/components/ProjectPicker'
+import ChPicker from '@/components/Picker'
 
 import {
   Q_CATEGORY,
@@ -327,7 +327,7 @@ export default {
     ChChartTimeCategorical,
     ChChartPieCategorical,
     ChDateSelector,
-    ChProjectPicker,
+    ChPicker,
   },
   data() {
     return {

@@ -21,22 +21,22 @@
 
       <div class="col-6 col-md-3" style="padding: 10px 10px 5px 10px">
         <q-form ref="form" @submit.prevent>
-          <ch-project-picker
+          <ch-picker
             v-model="categorySelected"
-            :projects="categories"
+            :options="categories"
             label="Category"
             :showAvatar="true"
-          ></ch-project-picker>
+          ></ch-picker>
         </q-form>
       </div>
       <div class="col-6 col-md-3" style="padding: 10px 10px 5px 10px">
         <q-form ref="form" @submit.prevent>
-          <ch-project-picker
+          <ch-picker
             v-model="settings.projectSelected"
-            :projects="filteredProjects"
+            :options="filteredProjects"
             label="Project"
             :showAvatar="false"
-          ></ch-project-picker>
+          ></ch-picker>
         </q-form>
       </div>
     </div>
@@ -59,7 +59,11 @@
           :key="date"
           class="custom8cols"
         >
-          <ch-entry-list :date="date" :entries="getEntryList(date)" :isFirst="index == 0" />
+          <ch-entry-list
+            :date="date"
+            :entries="getEntryList(date)"
+            :isFirst="index == 0"
+          />
         </div>
       </template>
     </div>
@@ -69,7 +73,7 @@
 <script>
 import ChEntryList from '@/components/EntryList.vue'
 import ChDateSelector from '@/components/DateSelector.vue'
-import ChProjectPicker from '@/components/ProjectPicker'
+import ChPicker from '@/components/Picker'
 
 import { Q_ENTRY, Q_PROJECT, Q_CATEGORY, Q_SETTINGS } from '@/graphql/queries'
 
@@ -78,7 +82,7 @@ export default {
   components: {
     ChEntryList,
     ChDateSelector,
-    ChProjectPicker,
+    ChPicker,
   },
   data: () => ({
     showCompleted: false,

@@ -10,7 +10,7 @@
       :label="label"
       option-label="description"
       option-value="_id"
-      :options="options"
+      :options="filteredOptions"
       @filter="filterFn"
       class="font-m-medium underlined"
       @popup-hide="blurSelector"
@@ -44,12 +44,12 @@
 </template>
 <script>
 export default {
-  name: 'ProjectPicker',
+  name: 'Picker',
   props: {
     value: {
       type: Object,
     },
-    projects: {
+    options: {
       type: Array,
     },
     label: {
@@ -68,9 +68,9 @@ export default {
         this.$emit('input', value)
       },
     },
-    sortedProjects() {
-      let sortedProjects = this.projects
-      return sortedProjects.sort((a, b) => {
+    sortedOptions() {
+      let sortedOptions = this.options
+      return sortedOptions.sort((a, b) => {
         if (a.description < b.description) return -1
         if (a.description > b.description) return 1
         return 0
@@ -78,13 +78,13 @@ export default {
     },
   },
   data: () => ({
-    options: null,
+    filteredOptions: null,
   }),
   methods: {
     filterFn(val, update) {
       update(() => {
         const needle = val.toLowerCase()
-        this.options = this.sortedProjects.filter(
+        this.filteredOptions = this.sortedOptions.filter(
           (v) => v.description.toLowerCase().indexOf(needle) > -1,
         )
       })

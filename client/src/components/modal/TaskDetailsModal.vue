@@ -67,6 +67,12 @@
                 :data="taskDetails.entries"
                 :columns="entryColumns"
                 row-key="id"
+                @row-click="
+                  (evt, row, index) => {
+                    Object.assign(editedEntry, row)
+                    modal.entryUpdate = true
+                  }
+                "
               >
                 <template v-slot:body-cell-date="props">
                   <q-td :props="props">
@@ -113,6 +119,12 @@
       :show="modal.entryCreate"
       @hide="modal.entryCreate = false"
     />
+    <ch-entry-update-modal
+      :entry="editedEntry"
+      :edit-task="false"
+      :show="modal.entryUpdate"
+      @hide="modal.entryUpdate = false"
+    />
   </q-dialog>
 </template>
 
@@ -121,6 +133,7 @@ import utils from '@/common/utils'
 import ButtonAdd from '@/components/ButtonAdd.vue'
 import ChChartTimeCategorical from '@/components/ChartTimeCategorical.vue'
 import ChEntryCreateModal from '@/components/modal/EntryCreateModal.vue'
+import ChEntryUpdateModal from '@/components/modal/EntryUpdateModal.vue'
 import { Q_STATS_TIME_ENTRY, Q_TASK_DETAILS } from '@/graphql/queries'
 
 export default {
@@ -129,6 +142,7 @@ export default {
     ButtonAdd,
     ChChartTimeCategorical,
     ChEntryCreateModal,
+    ChEntryUpdateModal,
   },
   props: {
     show: {
@@ -145,15 +159,17 @@ export default {
     dateRange: [],
     modal: {
       entryCreate: false,
+      entryUpdate: false,
     },
     newEntry: {
       description: null,
       date: 'backlog',
       timerEstimatedTime: null,
     },
+    editedEntry: {},
     pagination: {
       sortBy: 'date',
-      descending: true,
+      descending: false,
       page: 1,
       rowsPerPage: 10,
     },
@@ -172,7 +188,6 @@ export default {
         label: 'Description',
         align: 'left',
         field: 'description',
-        sortable: true,
       },
       {
         name: 'timerTrackedTime',
@@ -180,7 +195,6 @@ export default {
         label: 'Time',
         align: 'left',
         field: 'timerTrackedTime',
-        sortable: true,
         format: (val, row) => {
           return `${utils.secondsToTimestamp(row.timerTrackedTime, {
             zeroPad: true,

@@ -2,10 +2,9 @@
   <q-dialog v-model="showModal">
     <q-card>
       <q-card-section>
-        <div class="text-h6">Add Entry</div>
+        <div class="text-h6 q-pb-sm">Add Entry</div>
         <q-form ref="entryForm" class="q-gutter-md" @submit.prevent>
           <q-input
-            class="q-pa-sm"
             outlined
             v-model="newEntry.description"
             label="New Entry"
@@ -15,7 +14,7 @@
         </q-form>
       </q-card-section>
       <q-card-actions align="right" class="text-primary">
-        <q-btn flat label="Cancel" @click="showModal = false" />
+        <q-btn flat label="Cancel" color="warning" @click="showModal = false" />
         <q-btn flat label="Add" @click="createEntryLocal" />
       </q-card-actions>
     </q-card>

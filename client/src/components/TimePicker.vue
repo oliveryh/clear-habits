@@ -21,10 +21,11 @@
         </q-icon>
       </template>
     </q-input>
-    <div class="q-gutter-sm q-ma-sm">
+    <div class="q-gutter-sm q-ma-none">
       <q-btn
         no-caps
         padding="sm"
+        class="q-ma-none"
         rounded
         shadow-1
         icon="mdi-refresh"
@@ -32,7 +33,7 @@
         exact
       >
       </q-btn>
-      <q-btn-group rounded>
+      <q-btn-group class="q-ma-none q-ml-sm" rounded>
         <q-btn
           v-for="addition in timerAdditionOptions"
           :key="addition"

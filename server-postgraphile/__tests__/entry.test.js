@@ -57,7 +57,7 @@ describe('entries', () => {
         personId: initVals.user1Id,
       }
       expect(result.data.errors[0].message).toEqual(
-        'null value in column "task_id" violates not-null constraint',
+        'null value in column "task_id" of relation \"entries\" violates not-null constraint',
       )
     })
     it('failure if taskId not owned by user', async () => {

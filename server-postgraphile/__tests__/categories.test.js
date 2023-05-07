@@ -25,6 +25,16 @@ const M_CATEGORY_UPDATE = `
   }
 `
 
+const M_CATEGORY_DELETE = `
+  mutation ($id: Int!) {
+    Category: deleteCategory(input: { id: $id }) {
+      category {
+        id
+      }
+    }
+  }
+`
+
 let initVals
 beforeAll(async () => {
   initVals = await initData.initialiseTests()
@@ -127,6 +137,30 @@ describe('categories', () => {
       )
       expect(result.data.errors[0].message).toEqual(
         'Field "personId" is not defined by type "CategoryPatch".',
+      )
+    })
+  })
+  describe('deleteCategory', () => {
+    it('success if the user tries to delete a category they own', async () => {
+      const result = await graphqlCall(
+        {
+          id: initVals.user1Category1Id,
+        },
+        initVals.user1Token,
+        M_CATEGORY_DELETE,
+      )
+      expect(result.data.errors).toBeUndefined()
+    })
+    it('failure if the user tries to delete a category they do not own', async () => {
+      const result = await graphqlCall(
+        {
+          id: initVals.user2Category1Id,
+        },
+        initVals.user1Token,
+        M_CATEGORY_DELETE,
+      )
+      expect(result.data.errors[0].message).toEqual(
+        "No values were deleted in collection 'categories' because no values you can delete were found matching these criteria.",
       )
     })
   })

@@ -30,7 +30,7 @@
         </q-card-actions>
       </q-card-section>
       <q-card-section>
-        <div class="text-h6">Edit Entry</div>
+        <div class="text-h6 q-pb-sm">Edit Entry</div>
         <q-form ref="entryForm" class="q-gutter-md" @submit.prevent>
           <q-input
             v-model="editedEntry.description"

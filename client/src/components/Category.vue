@@ -23,7 +23,12 @@
           }}</q-avatar>
         </q-item-section>
         <q-item-section avatar class="q-pl-md"
-          ><q-btn round flat color="grey" icon="mdi-pencil" @click="editorOpen"
+          ><q-btn
+            round
+            flat
+            color="grey"
+            icon="mdi-pencil"
+            @click="modal.categoryUpdate = true"
         /></q-item-section>
       </template>
       <q-list bordered separator>
@@ -34,94 +39,32 @@
         />
         <q-item>
           <q-item-section avatar>
-            <button-add objectName="Project" @click="addProjectDialog = true" />
+            <button-add
+              objectName="Project"
+              @click="modal.projectCreate = true"
+            />
           </q-item-section>
         </q-item>
-        <q-dialog v-model="addProjectDialog">
-          <q-card>
-            <q-card-section>
-              <div class="text-h6">Add Project</div>
-              <q-form ref="taskForm" class="q-gutter-md" @submit.prevent>
-                <q-input
-                  class="q-pa-sm"
-                  outlined
-                  v-model="newProjectDescription"
-                  label="New Project"
-                  @keydown.enter="createProjectLocal"
-                ></q-input>
-              </q-form>
-            </q-card-section>
-            <q-card-actions align="right" class="text-primary">
-              <q-btn flat label="Cancel" @click="addProjectDialog = false" />
-              <q-btn flat label="Add" @click="createProjectLocal" />
-            </q-card-actions>
-          </q-card>
-        </q-dialog>
       </q-list>
     </q-expansion-item>
-    <q-dialog v-if="editedCategory != null" v-model="editorDialog">
-      <q-card>
-        <q-card-section>
-          <div class="text-h6">Edit Category</div>
-          <q-form ref="form" @submit.prevent>
-            <q-input v-model="editedCategory.description" r></q-input>
-            <q-input v-model="editedCategory.color" :rules="['anyColor']">
-              <template v-slot:append>
-                <q-icon name="mdi-eyedropper" class="cursor-pointer">
-                  <q-popup-proxy
-                    transition-show="scale"
-                    transition-hide="scale"
-                  >
-                    <q-color v-model="editedCategory.color" />
-                  </q-popup-proxy>
-                </q-icon>
-              </template>
-            </q-input>
-            <q-btn
-              outline
-              icon="mdi-delete"
-              label="Delete"
-              @click="deleteDialog = true"
-            />
-          </q-form>
-        </q-card-section>
-        <q-card-actions align="right" class="text-primary">
-          <q-btn
-            flat
-            label="Cancel"
-            @click="
-              editorDialog = false
-              timerSet()
-            "
-          />
-          <q-btn flat label="Save" @click="editorSave()" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-    <q-dialog v-model="deleteDialog" persistent>
-      <q-card>
-        <q-card-section class="row items-center">
-          <span class="q-ml-sm">Are you sure you'd like to delete this?</span>
-        </q-card-section>
-
-        <q-card-actions align="right">
-          <q-btn flat label="Cancel" color="primary" v-close-popup />
-          <q-btn
-            flat
-            label="Delete"
-            color="warning"
-            @click="categoryDelete(category)"
-            v-close-popup
-          />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
+    <ch-category-update-modal
+      :category="category"
+      :show="modal.categoryUpdate"
+      @hide="modal.categoryUpdate = false"
+    />
+    <ch-project-create-modal
+      :category="category"
+      :show="modal.projectCreate"
+      @hide="modal.projectCreate = false"
+    />
   </div>
 </template>
 
 <script>
+import ButtonAdd from '@/components/ButtonAdd.vue'
 import Project from '@/components/Project.vue'
-import ButtonAdd from './ButtonAdd.vue'
+import ChCategoryUpdateModal from '@/components/modal/CategoryUpdateModal.vue'
+import ChProjectCreateModal from '@/components/modal/ProjectCreateModal'
 
 export default {
   name: 'Category',
@@ -136,39 +79,15 @@ export default {
   components: {
     Project,
     ButtonAdd,
+    ChProjectCreateModal,
+    ChCategoryUpdateModal,
   },
   data: () => ({
-    categoryRules: [(v) => !!v || 'Description required'],
-    editorDialog: false,
-    editedCategory: null,
-    deleteDialog: false,
-    addProjectDialog: false,
-    newProjectDescription: null,
+    modal: {
+      categoryUpdate: false,
+      projectCreate: false,
+    },
   }),
-  methods: {
-    createProjectLocal() {
-      this.addProjectDialog = false
-      const newProject = {
-        categoryId: this.category.id,
-        description: this.newProjectDescription,
-      }
-      this.createProject(newProject)
-      this.newProjectDescription = null
-    },
-    // editor
-    editorOpen() {
-      this.editedCategory = Object.assign({}, this.category)
-      this.editorDialog = true
-    },
-    editorSave() {
-      this.$refs.form.validate().then((success) => {
-        if (success) {
-          this.editorDialog = false
-          this.categoryUpdate(this.editedCategory)
-        }
-      })
-    },
-  },
 }
 </script>
 <style>

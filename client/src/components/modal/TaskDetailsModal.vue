@@ -96,12 +96,12 @@
 </template>
 
 <script>
-import { Q_STATS_TIME_ENTRY, Q_TASK_DETAILS } from '@/graphql/queries'
 import utils from '@/common/utils'
 import ChChartTimeCategorical from '@/components/ChartTimeCategorical.vue'
+import { Q_STATS_TIME_ENTRY, Q_TASK_DETAILS } from '@/graphql/queries'
 
 export default {
-  name: 'SimilarTaskDialog',
+  name: 'TaskSimilarTasksModal',
   components: {
     ChChartTimeCategorical,
   },

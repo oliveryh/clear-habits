@@ -152,56 +152,15 @@
         ></q-btn>
       </div>
     </div>
-    <q-dialog v-model="editorDialog">
-      <q-card>
-        <q-card-section>
-          <div class="text-h6">Add Task</div>
-          <q-form ref="taskForm" class="q-gutter-md" @submit.prevent>
-            <q-input
-              class="q-pa-sm"
-              outlined
-              v-model="newEntry.description"
-              label="New Entry"
-              @keydown.enter="createEntryWithTaskLocal"
-            ></q-input>
-            <q-input
-              class="q-pa-sm"
-              outlined
-              v-model="newEntryEstimatedTime"
-              mask="time"
-              :rules="['time']"
-              fill-mask
-              debounce="300"
-              @keydown.enter="createEntryWithTaskLocal"
-            >
-              <template v-slot:append>
-                <q-icon name="access_time" class="cursor-pointer">
-                  <q-popup-proxy
-                    transition-show="scale"
-                    transition-hide="scale"
-                  >
-                    <q-time v-model="newEntryEstimatedTime" format24h>
-                      <div class="row items-center justify-end">
-                        <q-btn
-                          v-close-popup
-                          label="Close"
-                          color="primary"
-                          flat
-                        />
-                      </div>
-                    </q-time>
-                  </q-popup-proxy>
-                </q-icon>
-              </template>
-            </q-input>
-          </q-form>
-        </q-card-section>
-        <q-card-actions align="right" class="text-primary">
-          <q-btn flat label="Cancel" @click="editorDialog = false" />
-          <q-btn flat label="Add" @click="createEntryWithTaskLocal" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
+    <ch-task-create-with-entry-modal
+      :show="addTaskWithEntryDialog"
+      :date="date"
+      @hide="
+        () => {
+          addTaskWithEntryDialog = false
+        }
+      "
+    />
     <draggable
       :emptyInsertThreshold="75"
       v-model="filteredEntries"
@@ -215,22 +174,19 @@
   </div>
 </template>
 <script>
+import utils from '@/common/utils.js'
+import ButtonAdd from '@/components/ButtonAdd.vue'
 import Entry from '@/components/Entry.vue'
-import draggable from 'vuedraggable'
+import ChTaskCreateWithEntryModal from '@/components/modal/TaskCreateWithEntryModal.vue'
 import { M_ENTRY_REORDER } from '@/graphql/mutations'
 import { Q_ENTRY, Q_SETTINGS } from '@/graphql/queries'
-import ButtonAdd from '@/components/ButtonAdd.vue'
-import utils from '@/common/utils.js'
+import draggable from 'vuedraggable'
 
 export default {
   name: 'EntryList',
   data: () => ({
-    newEntry: {
-      description: null,
-      timerEstimatedTime: null,
-    },
     settings: null,
-    editorDialog: false,
+    addTaskWithEntryDialog: false,
   }),
   props: {
     date: {
@@ -252,6 +208,7 @@ export default {
     Entry,
     draggable,
     ButtonAdd,
+    ChTaskCreateWithEntryModal,
   },
   computed: {
     filteredEntries: {
@@ -300,16 +257,6 @@ export default {
         }
       },
     },
-    newEntryEstimatedTime: {
-      get() {
-        return this.secondsToTimestamp(this.newEntry.timerEstimatedTime, {
-          zeroPad: true,
-        })
-      },
-      set(timestamp) {
-        this.newEntry.timerEstimatedTime = this.timestampToSeconds(timestamp)
-      },
-    },
     totalEstimatedTime() {
       var sum = 0
       this.filteredEntries.filter((entry) => (sum += entry.timerEstimatedTime))
@@ -337,25 +284,6 @@ export default {
     },
   },
   methods: {
-    // TODO: Validate form before createEntry runs
-    createEntryWithTaskLocal() {
-      this.editorDialog = false
-      var entry = {
-        description: this.newEntry.description,
-        date: this.date,
-      }
-      if (this.settings.projectSelected) {
-        entry.projectId = this.settings.projectSelected.id
-      }
-      if (this.newEntry.timerEstimatedTime) {
-        entry.timerEstimatedTime = this.newEntry.timerEstimatedTime
-      }
-      this.createEntryWithTask(entry)
-      this.newEntry = {
-        description: null,
-        timerEstimatedTime: null,
-      }
-    },
     zoomOut() {
       this.settings.dateZoomed = null
     },
@@ -381,7 +309,7 @@ export default {
       )
     },
     addTask() {
-      this.editorDialog = true
+      this.addTaskWithEntryDialog = true
     },
     displayMonth(date) {
       return this.isFirst || date.substring(8, 10) == '01'

@@ -22,7 +22,10 @@
           </div>
         </div>
         <div v-else class="text-headline text-left">NONE</div>
-        <div class="text-subtitle-2 text-weight-medium text-left font-m-medium">
+        <div
+          class="text-subtitle-2 text-weight-medium text-left font-m-medium"
+          style="word-break: break-all"
+        >
           {{ entry.task.description }}
           <q-btn
             class="q-px-none"
@@ -48,6 +51,7 @@
         <div
           v-if="entry.description"
           class="text-subtitle-2 text-weight-medium text-left font-m-light"
+          style="word-break: break-all"
         >
           {{ entry.description }}
         </div>

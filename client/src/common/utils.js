@@ -191,6 +191,34 @@ const dateSpread = (startDate, endDate) => {
   )
 }
 
+
+const secondsToTimestamp = (val, { zeroPad = false, includeSeconds = false } = {}) => {
+
+  const _zeroPad = (value, num) => {
+    num = typeof num !== 'undefined' ? num : 2
+    return value.toString().padStart(num, '0')
+  }
+
+  var tt = val
+  var hours = zeroPad
+    ? _zeroPad(parseInt(tt / 3600))
+    : parseInt(tt / 3600)
+  var minutes = _zeroPad(parseInt((tt % 3600) / 60))
+  if (includeSeconds) {
+    var seconds = _zeroPad(parseInt(tt % 60))
+    return `${hours}:${minutes}:${seconds}`
+  } else {
+    return `${hours}:${minutes}`
+  }
+}
+
+const shortYearName = (val) => {
+  let date = new Date(val)
+  const day = date.toLocaleString('default', { day: '2-digit' })
+  const month = date.toLocaleString('default', { month: 'short' })
+  return day + '-' + month
+}
+
 module.exports = {
   dateSpread,
   dayRange,
@@ -200,6 +228,8 @@ module.exports = {
   monthRange,
   monthRangeSpread,
   monthSpreadSequential,
+  secondsToTimestamp,
+  shortYearName,
   weekRange,
   weekRangeSpread,
   weekSpreadSequential,

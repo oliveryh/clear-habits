@@ -31,7 +31,8 @@
               <div class="text-h2 text-weight-light">
                 {{
                   hoursToReadable(
-                    taskDetails.aggregates.sum.timerEstimatedTime / 3600,
+                    taskDetails.entriesConnection.aggregates.sum
+                      .timerEstimatedTime / 3600,
                   )
                 }}
               </div>
@@ -44,7 +45,8 @@
               <div class="text-h2 text-weight-light">
                 {{
                   hoursToReadable(
-                    taskDetails.aggregates.sum.timerTrackedTime / 3600,
+                    taskDetails.entriesConnection.aggregates.sum
+                      .timerTrackedTime / 3600,
                   )
                 }}
               </div>
@@ -56,27 +58,41 @@
           </div>
           <div class="row">
             <div class="col col-12 col-md-6">
-              <div
-                class="row"
-                v-for="entry in taskDetails.nodes"
-                :key="entry.id"
+              <q-table
+                title="Entries"
+                flat
+                dense
+                :pagination="pagination"
+                class="q-ma-lg q-mr-xl"
+                :data="taskDetails.entries"
+                :columns="entryColumns"
+                row-key="id"
               >
-                <q-icon
-                  v-if="entry.complete"
-                  name="mdi-check"
-                  class="q-mr-sm"
-                />
-                <q-icon v-else name="mdi-blank" class="q-mr-sm" />
-                {{ entry.date }}
-                -
-                {{
-                  secondsToTimestamp(entry.timerTrackedTime, {
-                    zeroPad: true,
-                  })
-                }}
-                -
-                {{ entry.description }}
-              </div>
+                <template v-slot:body-cell-date="props">
+                  <q-td :props="props">
+                    <div>
+                      <q-icon
+                        v-if="props.row.date === 'backlog'"
+                        size="1.5rem"
+                        name="mdi-archive-outline"
+                      />
+                      <div v-else>
+                        {{ shortYearName(props.row.date) }}
+                      </div>
+                    </div>
+                  </q-td>
+                </template>
+              </q-table>
+              <button-add
+                objectName="Entry"
+                @click="
+                  () => {
+                    Object.assign(newEntry, { taskId: entry.task.id })
+                    modal.entryCreate = true
+                  }
+                "
+                class="q-ml-sm"
+              />
             </div>
             <div class="col col-12 col-md-6">
               <ch-chart-time-categorical
@@ -92,18 +108,27 @@
         </div>
       </q-card-section>
     </q-card>
+    <ch-entry-create-modal
+      :entry="newEntry"
+      :show="modal.entryCreate"
+      @hide="modal.entryCreate = false"
+    />
   </q-dialog>
 </template>
 
 <script>
 import utils from '@/common/utils'
+import ButtonAdd from '@/components/ButtonAdd.vue'
 import ChChartTimeCategorical from '@/components/ChartTimeCategorical.vue'
+import ChEntryCreateModal from '@/components/modal/EntryCreateModal.vue'
 import { Q_STATS_TIME_ENTRY, Q_TASK_DETAILS } from '@/graphql/queries'
 
 export default {
   name: 'TaskSimilarTasksModal',
   components: {
+    ButtonAdd,
     ChChartTimeCategorical,
+    ChEntryCreateModal,
   },
   props: {
     show: {
@@ -118,6 +143,53 @@ export default {
   data: () => ({
     data: [],
     dateRange: [],
+    modal: {
+      entryCreate: false,
+    },
+    newEntry: {
+      description: null,
+      date: 'backlog',
+      timerEstimatedTime: null,
+    },
+    pagination: {
+      sortBy: 'date',
+      descending: true,
+      page: 1,
+      rowsPerPage: 10,
+    },
+    entryColumns: [
+      {
+        name: 'date',
+        required: true,
+        label: 'Date',
+        align: 'left',
+        field: 'date',
+        sortable: true,
+      },
+      {
+        name: 'description',
+        required: true,
+        label: 'Description',
+        align: 'left',
+        field: 'description',
+        sortable: true,
+      },
+      {
+        name: 'timerTrackedTime',
+        required: true,
+        label: 'Time',
+        align: 'left',
+        field: 'timerTrackedTime',
+        sortable: true,
+        format: (val, row) => {
+          return `${utils.secondsToTimestamp(row.timerTrackedTime, {
+            zeroPad: true,
+          })} / ${utils.secondsToTimestamp(row.timerEstimatedTime, {
+            zeroPad: true,
+          })}`
+        },
+      },
+    ],
   }),
   computed: {
     showModal: {
@@ -131,6 +203,7 @@ export default {
   },
   methods: {
     hoursToReadable: utils.hoursToReadable,
+    shortYearName: utils.shortYearName,
   },
   apollo: {
     taskDetails: {

@@ -82,19 +82,7 @@ const objectParts = {
 export const mixins = {
   methods: {
     dateSpread: utils.dateSpread,
-    secondsToTimestamp(val, { zeroPad = false, includeSeconds = false } = {}) {
-      var tt = val
-      var hours = zeroPad
-        ? this.$options.filters.zeroPad(parseInt(tt / 3600))
-        : parseInt(tt / 3600)
-      var minutes = this.$options.filters.zeroPad(parseInt((tt % 3600) / 60))
-      if (includeSeconds) {
-        var seconds = this.$options.filters.zeroPad(parseInt(tt % 60))
-        return `${hours}:${minutes}:${seconds}`
-      } else {
-        return `${hours}:${minutes}`
-      }
-    },
+    secondsToTimestamp: utils.secondsToTimestamp,
     timestampToSeconds(timestamp) {
       var parts = timestamp.split(':')
       var hours = parseInt(parts[0])

@@ -63,102 +63,8 @@
               </q-icon>
             </template>
           </q-input>
-          <q-input
-            v-model="editedEstimatedTime"
-            mask="time"
-            :rules="['time']"
-            fill-mask
-            debounce="300"
-            label="Estimated Time"
-            outlined
-            class="q-pb-none"
-          >
-            <template v-slot:append>
-              <q-icon name="access_time" class="cursor-pointer">
-                <q-popup-proxy transition-show="scale" transition-hide="scale">
-                  <q-time v-model="editedEstimatedTime" format24h>
-                    <div class="row items-center justify-end">
-                      <q-btn v-close-popup label="Close" color="primary" flat />
-                    </div>
-                  </q-time>
-                </q-popup-proxy>
-              </q-icon>
-            </template>
-          </q-input>
-          <div class="q-gutter-sm q-ma-sm">
-            <q-btn
-              no-caps
-              padding="sm"
-              rounded
-              shadow-1
-              icon="mdi-refresh"
-              @click="editedEntry.timerEstimatedTime = 0"
-              exact
-            >
-            </q-btn>
-            <q-btn-group rounded>
-              <q-btn
-                v-for="addition in timerAdditionOptions"
-                :key="addition"
-                no-caps
-                padding="sm"
-                shadow-1
-                @click="editedEntry.timerEstimatedTime += 60 * addition"
-                exact
-              >
-                <q-tooltip>Add {{ addition }} minutes to timer</q-tooltip>
-                +{{ addition }}m
-              </q-btn>
-            </q-btn-group>
-          </div>
-          <q-input
-            v-model="editedEntryTime"
-            mask="time"
-            :rules="['time']"
-            fill-mask
-            debounce="300"
-            label="Tracked Time"
-            outlined
-            class="q-pb-none"
-          >
-            <template v-slot:append>
-              <q-icon name="access_time" class="cursor-pointer">
-                <q-popup-proxy transition-show="scale" transition-hide="scale">
-                  <q-time v-model="editedEntryTime" format24h>
-                    <div class="row items-center justify-end">
-                      <q-btn v-close-popup label="Close" color="primary" flat />
-                    </div>
-                  </q-time>
-                </q-popup-proxy>
-              </q-icon>
-            </template>
-          </q-input>
-          <div class="q-gutter-sm q-ma-sm">
-            <q-btn
-              no-caps
-              padding="sm"
-              rounded
-              shadow-1
-              icon="mdi-refresh"
-              @click="editedEntry.timerTrackedTime = 0"
-              exact
-            >
-            </q-btn>
-            <q-btn-group rounded>
-              <q-btn
-                v-for="addition in timerAdditionOptions"
-                :key="addition"
-                no-caps
-                padding="sm"
-                shadow-1
-                @click="editedEntry.timerTrackedTime += 60 * addition"
-                exact
-              >
-                <q-tooltip>Add {{ addition }} minutes to timer</q-tooltip>
-                +{{ addition }}m
-              </q-btn>
-            </q-btn-group>
-          </div>
+          <ch-time-picker v-model="editedEntry.timerEstimatedTime" />
+          <ch-time-picker v-model="editedEntry.timerTrackedTime" />
           <q-btn
             outlined
             icon="mdi-plus-circle-multiple-outline"
@@ -196,6 +102,7 @@
 <script>
 import ChEntryDeleteModal from '@/components/modal/EntryDeleteModal.vue'
 import ChPicker from '@/components/Picker'
+import ChTimePicker from '@/components/TimePicker'
 
 import { Q_PROJECT } from '@/graphql/queries'
 
@@ -204,6 +111,7 @@ export default {
   components: {
     ChEntryDeleteModal,
     ChPicker,
+    ChTimePicker,
   },
   props: {
     show: {
@@ -233,7 +141,7 @@ export default {
   },
   data: () => ({
     editedEntry: null,
-    timerAdditionOptions: [5, 10, 15, 20, 30],
+
     modal: {
       entryDelete: false,
     },
@@ -245,26 +153,6 @@ export default {
       },
       set(value) {
         this.$emit('hide', value)
-      },
-    },
-    editedEntryTime: {
-      get() {
-        return this.secondsToTimestamp(this.editedEntry.timerTrackedTime, {
-          zeroPad: true,
-        })
-      },
-      set(timestamp) {
-        this.editedEntry.timerTrackedTime = this.timestampToSeconds(timestamp)
-      },
-    },
-    editedEstimatedTime: {
-      get() {
-        return this.secondsToTimestamp(this.editedEntry.timerEstimatedTime, {
-          zeroPad: true,
-        })
-      },
-      set(timestamp) {
-        this.editedEntry.timerEstimatedTime = this.timestampToSeconds(timestamp)
       },
     },
   },

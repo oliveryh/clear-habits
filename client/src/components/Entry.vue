@@ -31,7 +31,7 @@
             color="grey"
             round
             dense
-            @click="this.modal.taskDetails = true"
+            @click="modal.taskDetails = true"
             icon="mdi-chart-bar"
           ></q-btn>
           <q-btn
@@ -41,7 +41,7 @@
             color="grey"
             round
             dense
-            @click="this.modal.taskSimilar = true"
+            @click="modal.taskSimilar = true"
             icon="mdi-calendar-multiple-check"
           ></q-btn>
         </div>

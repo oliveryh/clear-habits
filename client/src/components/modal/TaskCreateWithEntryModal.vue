@@ -11,28 +11,7 @@
             label="New Entry"
             @keydown.enter="createEntryWithTaskLocal"
           ></q-input>
-          <q-input
-            class="q-pa-sm"
-            outlined
-            v-model="newEntryEstimatedTime"
-            mask="time"
-            :rules="['time']"
-            fill-mask
-            debounce="300"
-            @keydown.enter="createEntryWithTaskLocal"
-          >
-            <template v-slot:append>
-              <q-icon name="access_time" class="cursor-pointer">
-                <q-popup-proxy transition-show="scale" transition-hide="scale">
-                  <q-time v-model="newEntryEstimatedTime" format24h>
-                    <div class="row items-center justify-end">
-                      <q-btn v-close-popup label="Close" color="primary" flat />
-                    </div>
-                  </q-time>
-                </q-popup-proxy>
-              </q-icon>
-            </template>
-          </q-input>
+          <ch-time-picker v-model="newEntry.timerEstimatedTime" />
         </q-form>
       </q-card-section>
       <q-card-actions align="right" class="text-primary">
@@ -43,10 +22,14 @@
   </q-dialog>
 </template>
 <script>
+import ChTimePicker from '@/components/TimePicker.vue'
 import { Q_SETTINGS } from '@/graphql/queries'
 
 export default {
   name: 'TaskCreateWithEntryModal',
+  components: {
+    ChTimePicker,
+  },
   props: {
     show: {
       type: Boolean,
@@ -75,16 +58,6 @@ export default {
       },
       set(value) {
         this.$emit('hide', value)
-      },
-    },
-    newEntryEstimatedTime: {
-      get() {
-        return this.secondsToTimestamp(this.newEntry.timerEstimatedTime, {
-          zeroPad: true,
-        })
-      },
-      set(timestamp) {
-        this.newEntry.timerEstimatedTime = this.timestampToSeconds(timestamp)
       },
     },
   },

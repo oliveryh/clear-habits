@@ -24,6 +24,16 @@
           label="Target Days"
           clearable
         />
+        <ch-time-picker
+          nullable
+          v-model="project.targetMinTimePerWeek"
+          label="Target Min Time Per Week"
+        />
+        <ch-time-picker
+          nullable
+          v-model="project.targetMaxTimePerWeek"
+          label="Target Max Time Per Week"
+        />
       </q-card-section>
 
       <q-card-actions align="right" class="text-primary">
@@ -47,12 +57,14 @@
 </template>
 
 <script>
+import ChTimePicker from '@/components/TimePicker'
 import ChProjectDeleteModal from '@/components/modal/ProjectDeleteModal.vue'
 
 export default {
   name: 'ProjectUpdateModal',
   components: {
     ChProjectDeleteModal,
+    ChTimePicker,
   },
   props: {
     show: {

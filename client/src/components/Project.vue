@@ -3,9 +3,17 @@
     <q-item>
       <q-item-section>{{ project.description }}</q-item-section>
       <q-item-section avatar>
-        <q-chip v-if="project.targetDays" icon="mdi-bullseye-arrow"
-          >{{ project.targetDays }} Days</q-chip
-        >
+        <div>
+          <q-chip v-if="project.targetMinTimePerWeek" icon="mdi-timer">{{
+            secondsToTimestamp(project.targetMinTimePerWeek)
+          }}</q-chip>
+          <q-chip v-if="project.targetMaxTimePerWeek" icon="mdi-timer-off">{{
+            secondsToTimestamp(project.targetMaxTimePerWeek)
+          }}</q-chip>
+          <q-chip v-if="project.targetDays" icon="mdi-bullseye-arrow"
+            >{{ project.targetDays }} Days</q-chip
+          >
+        </div>
       </q-item-section>
       <q-item-section side>
         <q-btn
@@ -26,6 +34,7 @@
 </template>
 
 <script>
+import utils from '@/common/utils'
 import ChProjectUpdateModal from '@/components/modal/ProjectUpdateModal.vue'
 
 export default {
@@ -43,5 +52,8 @@ export default {
       projectUpdate: false,
     },
   }),
+  methods: {
+    secondsToTimestamp: utils.secondsToTimestamp,
+  },
 }
 </script>

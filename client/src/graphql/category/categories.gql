@@ -8,6 +8,8 @@ query {
       id
       description
       targetDays
+      targetMinTimePerWeek
+      targetMaxTimePerWeek
       category {
         id
       }

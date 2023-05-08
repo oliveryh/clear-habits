@@ -5,8 +5,96 @@
         <div class="text-h2 text-weight-light">Targets</div>
       </div>
     </div>
-    <template v-for="(category, categoryId) in returnData">
+    <template v-for="(category, categoryId) in returnedTimeData">
       <div :key="categoryId" class="row q-my-md">
+        <div class="col">
+          <div class="text-headline text-left">
+            <div
+              :style="
+                'background-color: ' +
+                colorMap[categoryId].color +
+                '; color: ' +
+                (colorMap[categoryId].colorContrast ? 'black' : 'white')
+              "
+              style="
+                border-radius: 5px;
+                padding: 2px 5px 2px;
+                margin-bottom: 4px;
+                display: inline-block;
+              "
+              class="font-m-bold"
+            >
+              {{ category.description | allCapitals }}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div :key="categoryId + 'projects'" class="row">
+        <div
+          class="col-sm-4 col-lg-2 col-12"
+          v-for="project in category.projects"
+          :key="'project' + project.id"
+        >
+          <q-card class="q-ma-sm" style="border-radius: 15px">
+            <q-card-section>
+              <div class="text-h5 font-m-medium">
+                {{ project.description | allCapitals }}
+              </div>
+              <div
+                v-if="project.meetsMin && project.meetsMax"
+                :class="['text-green-8', 'text-h6', 'font-m-bold']"
+              >
+                On Track
+              </div>
+              <div
+                v-else-if="!project.meetsMin && !!project.targetMinTimePerWeek"
+                :class="['text-orange-5', 'text-headline', 'font-m-bold']"
+              >
+                {{ secondsToTimestamp(project.committedTime) }} (x{{
+                  Math.floor(
+                    (project.committedTime / project.targetMinTimePerWeek) *
+                      100,
+                  ) / 100
+                }})
+              </div>
+              <div
+                v-else-if="!project.meetsMax && !!project.targetMaxTimePerWeek"
+                :class="['text-red-6', 'text-headline', 'font-m-bold']"
+              >
+                {{ secondsToTimestamp(project.committedTime) }} (x{{
+                  Math.floor(
+                    (project.committedTime / project.targetMaxTimePerWeek) *
+                      100,
+                  ) / 100
+                }})
+              </div>
+              <q-chip
+                v-if="project.targetMinTimePerWeek"
+                icon="mdi-timer"
+                :class="[
+                  'q-mx-none',
+                  'q-mr-sm',
+                  project.meetsMin ? 'bg-green-3' : 'bg-orange-5',
+                ]"
+                >{{ secondsToTimestamp(project.targetMinTimePerWeek) }}</q-chip
+              >
+              <q-chip
+                v-if="project.targetMaxTimePerWeek"
+                icon="mdi-timer-off"
+                :class="[
+                  'q-mx-none',
+                  'q-mr-sm',
+                  project.meetsMax ? 'bg-green-3' : 'bg-red-5',
+                ]"
+                >{{ secondsToTimestamp(project.targetMaxTimePerWeek) }}</q-chip
+              >
+            </q-card-section>
+          </q-card>
+        </div>
+      </div>
+    </template>
+    <template v-for="(category, categoryId) in returnData">
+      <div :key="categoryId + 'categorydays'" class="row q-my-md">
         <div class="col">
           <div class="text-headline text-left">
             <div
@@ -93,10 +181,11 @@
 </template>
 <script>
 import {
-  Q_TARGETS_LAST_ENTRY,
-  Q_TARGETS_NEXT_SCHEDULED,
   Q_CATEGORY,
   Q_PROJECT,
+  Q_TARGETS_LAST_ENTRY,
+  Q_TARGETS_NEXT_SCHEDULED,
+  Q_TARGETS_TIME,
 } from '@/graphql/queries'
 
 const daysSinceTarget = (targetDays, lastEntry) => {
@@ -124,6 +213,7 @@ export default {
       colorMap: {},
       projectTargetDays: {},
       projectNextScheduled: {},
+      returnedTimeData: [],
     }
   },
   methods: {
@@ -250,8 +340,54 @@ export default {
         }
       },
     },
+    targetsTime: {
+      query: Q_TARGETS_TIME,
+      variables() {
+        let today = new Date()
+        let mondayOfToday = this.mondayOfWeek(today)
+        return {
+          datesIn: this.dateSpread(mondayOfToday),
+        }
+      },
+      result({ data, loading }) {
+        if (!loading) {
+          const listSums = data.targetsTime.groupedAggregates
+          const categoryBreakdown = listSums.reduce((acc, curr) => {
+            if (!acc[curr.keys[0]])
+              acc[curr.keys[0]] = {
+                id: curr.keys[0],
+                description: curr.keys[1],
+                projects: [],
+              }
+            const projectId = curr.keys[2]
+            const projectData = this.projects.find(
+              (project) => project.id == projectId,
+            )
+            const sumTrackedTime = Number(curr.sum.entryTimerTrackedTime)
+            const sumEstimatedTime = Number(curr.sum.entryTimerEstimatedTime)
+            const committedTime =
+              Math.abs(sumTrackedTime - sumEstimatedTime) +
+              Math.min(sumTrackedTime, sumEstimatedTime)
+            const meetsMin = committedTime >= projectData.targetMinTimePerWeek
+            const meetsMax = committedTime <= projectData.targetMaxTimePerWeek
+            acc[curr.keys[0]].projects.push({
+              id: curr.keys[2],
+              description: curr.keys[3],
+              targetMinTimePerWeek: projectData.targetMinTimePerWeek,
+              targetMaxTimePerWeek: projectData.targetMaxTimePerWeek,
+              sumTrackedTime,
+              sumEstimatedTime,
+              committedTime,
+              meetsMin,
+              meetsMax,
+            })
+            return acc
+          }, {})
+          this.returnedTimeData = categoryBreakdown
+        }
+      },
+    },
   },
 }
 </script>
-<style scoped>
-</style>
+<style scoped></style>

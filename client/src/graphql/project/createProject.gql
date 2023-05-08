@@ -1,4 +1,4 @@
-mutation($categoryId: Int!, $description: String!) {
+mutation ($categoryId: Int!, $description: String!) {
   Project: createProject(
     input: { categoryId: $categoryId, description: $description }
   ) {
@@ -6,6 +6,8 @@ mutation($categoryId: Int!, $description: String!) {
       id
       description
       targetDays
+      targetMinTimePerWeek
+      targetMaxTimePerWeek
       category {
         id
         description

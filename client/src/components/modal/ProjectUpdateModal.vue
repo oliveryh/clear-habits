@@ -13,7 +13,7 @@
           outline
           icon="mdi-delete"
           label="Delete"
-          @click="model.projectDelete = true"
+          @click="modal.projectDelete = true"
         />
         <q-input
           v-model.number="project.targetDays"
@@ -40,8 +40,8 @@
     </q-card>
     <ch-project-delete-modal
       :project="project"
-      :show="model.projectDelete"
-      @hide="model.projectDelete = false"
+      :show="modal.projectDelete"
+      @hide="modal.projectDelete = false"
     />
   </q-dialog>
 </template>

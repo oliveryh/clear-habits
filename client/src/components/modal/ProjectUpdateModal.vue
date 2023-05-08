@@ -13,7 +13,7 @@
           outline
           icon="mdi-delete"
           label="Delete"
-          @click="model.projectDelete = true"
+          @click="modal.projectDelete = true"
         />
         <q-input
           v-model.number="project.targetDays"
@@ -23,6 +23,16 @@
           :rules="rules.projectTargetDays"
           label="Target Days"
           clearable
+        />
+        <ch-time-picker
+          nullable
+          v-model="project.targetMinTimePerWeek"
+          label="Target Min Time Per Week"
+        />
+        <ch-time-picker
+          nullable
+          v-model="project.targetMaxTimePerWeek"
+          label="Target Max Time Per Week"
         />
       </q-card-section>
 
@@ -40,19 +50,21 @@
     </q-card>
     <ch-project-delete-modal
       :project="project"
-      :show="model.projectDelete"
-      @hide="model.projectDelete = false"
+      :show="modal.projectDelete"
+      @hide="modal.projectDelete = false"
     />
   </q-dialog>
 </template>
 
 <script>
+import ChTimePicker from '@/components/TimePicker'
 import ChProjectDeleteModal from '@/components/modal/ProjectDeleteModal.vue'
 
 export default {
   name: 'ProjectUpdateModal',
   components: {
     ChProjectDeleteModal,
+    ChTimePicker,
   },
   props: {
     show: {

@@ -1,7 +1,18 @@
-mutation($id: Int!, $description: String!, $targetDays: Int) {
+mutation (
+  $id: Int!
+  $description: String!
+  $targetDays: Int
+  $targetMinTimePerWeek: Int
+  $targetMaxTimePerWeek: Int
+) {
   Project: updateProject(
     input: {
-      patch: { description: $description, targetDays: $targetDays }
+      patch: {
+        description: $description
+        targetDays: $targetDays
+        targetMinTimePerWeek: $targetMinTimePerWeek
+        targetMaxTimePerWeek: $targetMaxTimePerWeek
+      }
       id: $id
     }
   ) {
@@ -9,6 +20,8 @@ mutation($id: Int!, $description: String!, $targetDays: Int) {
       id
       description
       targetDays
+      targetMinTimePerWeek
+      targetMaxTimePerWeek
     }
   }
 }

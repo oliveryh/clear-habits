@@ -11,7 +11,10 @@
             label="New Entry"
             @keydown.enter="createEntryWithTaskLocal"
           ></q-input>
-          <ch-time-picker v-model="newEntry.timerEstimatedTime" />
+          <ch-time-picker
+            v-model="newEntry.timerEstimatedTime"
+            label="Estimated Time"
+          />
         </q-form>
       </q-card-section>
       <q-card-actions align="right" class="text-primary">

@@ -2,12 +2,13 @@
   <div class="q-pa-none">
     <q-input
       outlined
+      :clearable="nullable"
       v-model="timeFieldAsString"
       mask="time"
       :rules="['time']"
       fill-mask
       debounce="300"
-      label="Estimated Time"
+      :label="label"
     >
       <template v-slot:append>
         <q-icon name="access_time" class="cursor-pointer">
@@ -59,6 +60,14 @@ export default {
       type: Number,
       required: true,
     },
+    nullable: {
+      type: Boolean,
+      default: false,
+    },
+    label: {
+      type: String,
+      default: 'Time',
+    },
   },
   data: () => ({
     timerAdditionOptions: [5, 10, 15, 20, 30],
@@ -71,7 +80,11 @@ export default {
         })
       },
       set(val) {
-        this.$emit('input', this.timestampToSeconds(val))
+        if (val) {
+          this.$emit('input', this.timestampToSeconds(val))
+        } else if (this.nullable) {
+          this.$emit('input', null)
+        }
       },
     },
     timeField: {

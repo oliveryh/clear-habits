@@ -63,8 +63,14 @@
               </q-icon>
             </template>
           </q-input>
-          <ch-time-picker v-model="editedEntry.timerEstimatedTime" />
-          <ch-time-picker v-model="editedEntry.timerTrackedTime" />
+          <ch-time-picker
+            v-model="editedEntry.timerEstimatedTime"
+            label="Estimated Time"
+          />
+          <ch-time-picker
+            v-model="editedEntry.timerTrackedTime"
+            label="Tracked Time"
+          />
           <q-btn
             outlined
             icon="mdi-plus-circle-multiple-outline"

@@ -44,7 +44,7 @@
                 v-if="project.meetsMin && project.meetsMax"
                 :class="['text-green-8', 'text-h6', 'font-m-bold']"
               >
-                On Track
+                {{ secondsToTimestamp(project.committedTime) }}
               </div>
               <div
                 v-else-if="!project.meetsMin && !!project.targetMinTimePerWeek"
@@ -368,8 +368,12 @@ export default {
             const committedTime =
               Math.abs(sumTrackedTime - sumEstimatedTime) +
               Math.min(sumTrackedTime, sumEstimatedTime)
-            const meetsMin = committedTime >= projectData.targetMinTimePerWeek
-            const meetsMax = committedTime <= projectData.targetMaxTimePerWeek
+            const meetsMin =
+              !projectData.targetMinTimePerWeek ||
+              committedTime >= projectData.targetMinTimePerWeek
+            const meetsMax =
+              !projectData.targetMaxTimePerWeek ||
+              committedTime <= projectData.targetMaxTimePerWeek
             acc[curr.keys[0]].projects.push({
               id: curr.keys[2],
               description: curr.keys[3],

@@ -413,12 +413,9 @@ export const mixins = {
       )
     },
     mondayOfWeek(date) {
-      var newDate = date
-      const dayOffset = newDate.getDay()
-      newDate.setDate(newDate.getDate() - ((dayOffset + 6) % 7))
-      const tzOffset = newDate.getTimezoneOffset()
-      newDate = new Date(newDate.getTime() - tzOffset * 60 * 1000)
-      return newDate
+      const day = date.getDay()
+      const diff = date.getDate() - day + (day === 0 ? -6 : 1)
+      return new Date(date.setDate(diff))
     },
   },
   filters: {

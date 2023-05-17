@@ -91,7 +91,8 @@ export default {
         return this.value
       },
       set(value) {
-        this.mondayOfWeek(new Date(value))
+        const monday = this.mondayOfWeek(new Date(value))
+        this.setValue(monday)
       },
     },
   },

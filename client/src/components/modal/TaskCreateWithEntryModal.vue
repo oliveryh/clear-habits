@@ -2,10 +2,9 @@
   <q-dialog v-model="showModal" v-close-popup>
     <q-card>
       <q-card-section>
-        <div class="text-h6">Add Task</div>
         <q-form ref="taskForm" class="q-gutter-md" @submit.prevent>
+          <div class="text-h6">Add Task</div>
           <q-input
-            class="q-pa-sm"
             outlined
             v-model="newEntry.description"
             label="New Entry"
@@ -15,12 +14,12 @@
             v-model="newEntry.timerEstimatedTime"
             label="Estimated Time"
           />
+          <q-card-actions align="right" class="text-primary">
+            <q-btn flat label="Cancel" @click="showModal = false" />
+            <q-btn flat label="Add" @click="createEntryWithTaskLocal" />
+          </q-card-actions>
         </q-form>
       </q-card-section>
-      <q-card-actions align="right" class="text-primary">
-        <q-btn flat label="Cancel" @click="showModal = false" />
-        <q-btn flat label="Add" @click="createEntryWithTaskLocal" />
-      </q-card-actions>
     </q-card>
   </q-dialog>
 </template>

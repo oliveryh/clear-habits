@@ -88,6 +88,16 @@
                     </div>
                   </q-td>
                 </template>
+                <template v-slot:header-cell-complete="props">
+                  <q-th :props="props">
+                    <q-icon name="mdi-check" />
+                  </q-th>
+                </template>
+                <template v-slot:body-cell-complete="props">
+                  <q-td :props="props">
+                    <q-icon v-if="props.row.complete" name="mdi-check" />
+                  </q-td>
+                </template>
               </q-table>
               <button-add
                 objectName="Entry"
@@ -202,6 +212,13 @@ export default {
             zeroPad: true,
           })}`
         },
+      },
+      {
+        name: 'complete',
+        required: true,
+        label: 'Completed',
+        align: 'left',
+        field: 'complete',
       },
     ],
   }),

@@ -191,6 +191,13 @@ const dateSpread = (startDate, endDate) => {
   )
 }
 
+const daysBetween = (startDate, endDate) => {
+  let startDateObj = new Date(startDate)
+  let endDateObj = new Date(endDate)
+  var timeDifference = endDateObj.getTime() - startDateObj.getTime()
+  // To calculate the no. of days between two dates
+  return timeDifference / (1000 * 3600 * 24) + 1
+}
 
 const secondsToTimestamp = (val, { zeroPad = false, includeSeconds = false } = {}) => {
 
@@ -222,6 +229,7 @@ const shortYearName = (val) => {
 module.exports = {
   dateSpread,
   dayRange,
+  daysBetween,
   getSunday,
   hoursToReadable,
   monthName,

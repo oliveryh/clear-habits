@@ -56,6 +56,12 @@
           </div>
         </div>
       </q-card-section>
+      <q-card-section>
+        <div class="text-caption text-weight-medium" style="color: grey">
+          <q-icon name="mdi-clock-outline" />
+          Recurs approximately every {{ recursEvery }} days
+        </div>
+      </q-card-section>
     </q-card>
   </q-dialog>
 </template>
@@ -93,6 +99,7 @@ export default {
   data: () => ({
     data: [],
     dateRange: [],
+    reccursEvery: 0,
     period: 'monthly',
   }),
   methods: {
@@ -179,6 +186,13 @@ export default {
           }, [])
           this.dateRange = dateRange
           this.data = chartData
+
+          const minDate = data.statsCountTasks.aggregates.minDate.entryDate
+          const maxDate = data.statsCountTasks.aggregates.maxDate.entryDate
+          const days = utils.daysBetween(minDate, maxDate)
+          const distinctCount =
+            data.statsCountTasks.aggregates.distinctCount.taskId
+          this.recursEvery = Math.round(days / distinctCount)
         } else {
           this.dateRange = []
           this.data = []

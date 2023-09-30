@@ -147,7 +147,7 @@ import ChEntryUpdateModal from '@/components/modal/EntryUpdateModal.vue'
 import { Q_STATS_TIME_ENTRY, Q_TASK_DETAILS } from '@/graphql/queries'
 
 export default {
-  name: 'TaskSimilarTasksModal',
+  name: 'TasksDetailsModal',
   components: {
     ButtonAdd,
     ChChartTimeCategorical,

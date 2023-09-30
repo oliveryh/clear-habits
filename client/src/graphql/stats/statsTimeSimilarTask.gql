@@ -8,4 +8,17 @@ query($statFilter: StatFilter, $groupBy: [StatsGroupBy!]!) {
       keys
     }
   }
+  statsCountTasks:statsConnection(filter:$statFilter) {
+    aggregates {
+      minDate {
+        entryDate
+      }
+      maxDate {
+        entryDate
+      }
+      distinctCount {
+        taskId
+      }
+    }
+  }
 }

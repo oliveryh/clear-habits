@@ -116,7 +116,7 @@
                 :dateRange="dateRange"
                 :colors="{
                   Tracked: '#4bdd8d',
-                  Estimated: '#bbb',
+                  Estimated: '#bbbbbb',
                 }"
               />
             </div>

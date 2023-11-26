@@ -51,7 +51,7 @@
                 :xaxisType="period === 'weekly' ? 'week' : 'month'"
                 :colors="{
                   Tracked: '#4bdd8d',
-                  Estimated: '#bbb',
+                  Estimated: '#bbbbbb',
                 }"
               />
             </div>

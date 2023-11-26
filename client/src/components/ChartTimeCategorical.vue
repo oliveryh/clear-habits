@@ -5,7 +5,7 @@
 <script>
 import { use } from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
-import { BarChart } from 'echarts/charts';
+import { BarChart, LineChart } from 'echarts/charts';
 import {
   GridComponent,
   TitleComponent,
@@ -16,11 +16,12 @@ import {
 import VChart, { THEME_KEY } from 'vue-echarts';
 import { watch, computed, ref, defineComponent, onMounted } from '@vue/composition-api';
 
-import { hoursToReadable } from '@/common/utils';
+import { calculateMovingAverage, newShade, hoursToReadable } from '@/common/utils';
 
 use([
   CanvasRenderer,
   BarChart,
+  LineChart,
   GridComponent,
   TitleComponent,
   TooltipComponent,
@@ -43,6 +44,10 @@ export default defineComponent({
     },
     xaxisType: {
       type: String,
+    },
+    showMovingAverage: {
+      type: Boolean,
+      default: false,
     },
     data: {
       type: Array,
@@ -106,7 +111,29 @@ export default defineComponent({
               },
             },
           }
-        })
+        }).concat(
+          newData.map((datum) => {
+            if (!props.showMovingAverage) {
+              return
+            }
+            const WINDOW_SIZE = 4
+            return {
+              type: 'line',
+              showSymbol: false,
+              smooth: true,
+              data: calculateMovingAverage(datum.data, WINDOW_SIZE),
+              color: props.colors ? [newShade(props.colors[datum.name], -10)] : undefined,
+              name: `${datum.name} (${WINDOW_SIZE} ${props.xaxisType} avg)`,
+              itemStyle: {
+                normal: {
+                  borderRadius: 5,
+                  borderColor: '#fff',
+                  borderWidth: 1
+                },
+              },
+            }
+          })
+        ),
       }
     }
     onMounted(() => {

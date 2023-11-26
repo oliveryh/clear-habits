@@ -47,9 +47,11 @@
               <ch-chart-time-categorical
                 :data="data"
                 :dateRange="dateRange"
+                :showMovingAverage="true"
+                :xaxisType="period === 'weekly' ? 'week' : 'month'"
                 :colors="{
                   Tracked: '#4bdd8d',
-                  Estimated: '#bbb',
+                  Estimated: '#bbbbbb',
                 }"
               />
             </div>

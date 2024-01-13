@@ -1,0 +1,15 @@
+query {
+  targetsScheduled: statsConnection(
+    filter: {
+      entryDate: { notEqualTo: "backlog" }
+      entryComplete: { equalTo: false }
+    }
+  ) {
+    groupedAggregates(groupBy: [PROJECT_ID]) {
+      minDate {
+        entryDate
+      }
+      keys
+    }
+  }
+}

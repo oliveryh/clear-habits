@@ -1,0 +1,9 @@
+#import "../EntryFragment.gql"
+
+mutation($id: Int!) {
+  Entry: restartEntry(input: { id: $id }) {
+    entry {
+      ...Entry
+    }
+  }
+}

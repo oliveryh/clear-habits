@@ -1,0 +1,24 @@
+query($statFilter: StatFilter, $groupBy: [StatsGroupBy!]!) {
+  statsTimeSimilarTask: statsConnection(filter: $statFilter) {
+    groupedAggregates(groupBy: $groupBy) {
+      sum {
+        entryTimerEstimatedTime
+        entryTimerTrackedTime
+      }
+      keys
+    }
+  }
+  statsCountTasks:statsConnection(filter:$statFilter) {
+    aggregates {
+      minDate {
+        entryDate
+      }
+      maxDate {
+        entryDate
+      }
+      distinctCount {
+        taskId
+      }
+    }
+  }
+}

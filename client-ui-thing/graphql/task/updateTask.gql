@@ -1,0 +1,18 @@
+#import "../TaskFragment.gql"
+
+mutation($id: Int!, $projectId: Int, $description: String, $complete: Boolean) {
+  Task: updateTask(
+    input: {
+      patch: {
+        projectId: $projectId
+        description: $description
+        complete: $complete
+      }
+      id: $id
+    }
+  ) {
+    task {
+      ...Task
+    }
+  }
+}

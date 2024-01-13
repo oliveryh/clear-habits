@@ -1,0 +1,22 @@
+#import "../EntryFragment.gql"
+
+query {
+  categories {
+    id
+    description
+    color
+    colorContrast
+    projects {
+      id
+      description
+      tasks {
+        id
+        description
+        complete
+        entries {
+          ...Entry
+        }
+      }
+    }
+  }
+}

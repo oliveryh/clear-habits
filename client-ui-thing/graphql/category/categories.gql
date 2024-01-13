@@ -1,0 +1,18 @@
+query {
+  categories {
+    id
+    description
+    color
+    colorContrast
+    projects {
+      id
+      description
+      targetDays
+      targetMinTimePerWeek
+      targetMaxTimePerWeek
+      category {
+        id
+      }
+    }
+  }
+}

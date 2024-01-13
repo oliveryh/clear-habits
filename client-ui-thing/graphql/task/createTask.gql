@@ -1,0 +1,17 @@
+#import "../TaskFragment.gql"
+
+mutation($projectId: Int!, $description: String!) {
+  Task: createTask(
+    input: { projectId: $projectId, description: $description }
+  ) {
+    task {
+      ...Task
+      project {
+        id
+      }
+      entries {
+        id
+      }
+    }
+  }
+}

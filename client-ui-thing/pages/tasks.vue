@@ -1,6 +1,6 @@
 <template>
   <div class="flex grid items-center justify-center gap-6 pt-4">
-    <template v-for="entry in result.entries">
+    <template v-for="entry in result?.entries">
       <UiCard
         class="w-[360px] max-w-sm"
         :title="entry.task.description"

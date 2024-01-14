@@ -1,10 +1,10 @@
 <template>
-  <div class="flex h-screen items-center justify-center">
+  <div class="flex grid items-center justify-center gap-6 pt-4">
     <template v-for="entry in result.entries">
       <UiCard
         class="w-[360px] max-w-sm"
         :title="entry.task.description"
-        description="This is a description"
+        :description="entry.description"
       >
       </UiCard>
     </template>

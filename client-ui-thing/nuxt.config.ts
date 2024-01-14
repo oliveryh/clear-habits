@@ -55,6 +55,7 @@ export default defineNuxtConfig({
     clients: {
       default: {
         httpEndpoint: "http://localhost:3000/graphql",
+        tokenStorage: "localStorage",
       },
     },
   },

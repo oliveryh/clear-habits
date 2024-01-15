@@ -45,6 +45,6 @@
   const showCompleted = ref(false)
   const filteredEntries = computed(() => {
     if (showCompleted.value) return allEntries.value
-    return allEntries.value.filter((entry) => entry.complete)
+    return allEntries.value.filter((entry) => !entry.complete)
   })
 </script>

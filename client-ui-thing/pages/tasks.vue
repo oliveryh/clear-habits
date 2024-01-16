@@ -13,6 +13,7 @@
             <span
               class="rounded-md px-2 py-1 text-sm"
               :style="{ backgroundColor: entry.task.project.category.color }"
+              :class="{ 'text-black': entry.task.project.category.colorContrast }"
             >
               {{ entry.task.project.description.toUpperCase() }}
             </span>

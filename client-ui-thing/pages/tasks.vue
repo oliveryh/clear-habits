@@ -1,6 +1,6 @@
 <template>
   <div class="flex grid items-center justify-center gap-6 pt-4">
-    <div class="justify-right flex w-full">
+    <div class="justify-right flex w-[360px]">
       <div class="flex items-center space-x-2">
         <UiSwitch id="show-completed" v-model:checked="showCompleted" />
         <UiLabel for="show-completed">Show Completed</UiLabel>

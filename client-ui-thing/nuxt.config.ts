@@ -60,6 +60,12 @@ export default defineNuxtConfig({
       default: {
         httpEndpoint: "http://localhost:3000/graphql",
         tokenStorage: "cookie",
+        httpLinkOptions: {
+          credentials: "include",
+        },
+        cookieAttributes: {
+          secure: false,
+        },
       },
     },
   },

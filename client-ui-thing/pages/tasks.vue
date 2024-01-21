@@ -17,7 +17,6 @@
   import { graphql } from "@/gql/gql"
 
   const today = new Date()
-  const allEntries = ref([])
   const entries = graphql(`
     query filteredEntries($datesIn: [String!]!) {
       entries(filter: { date: { in: $datesIn } }) {
@@ -42,15 +41,11 @@
       }
     }
   `)
-  const { onResult } = useQuery(entries, {
-    datesIn: [today.toISOString().slice(1, 10)],
-  })
-  onResult((queryResult) => {
-    if (queryResult.loading) return
-    allEntries.value = queryResult.data.entries
-  })
-
   const showCompleted = ref(false)
+  const { result } = useQuery(entries, {
+    datesIn: [today.toISOString().split("T")[0]],
+  })
+  const allEntries = computed(() => result.value?.entries ?? [])
   const filteredEntries = computed(() => {
     if (showCompleted.value) return allEntries.value
     return allEntries.value.filter((entry) => !entry.complete)

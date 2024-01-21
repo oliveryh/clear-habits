@@ -1,7 +1,0 @@
-mutation ($id: Int!) {
-  Category: deleteCategory(input: { id: $id }) {
-    category {
-      id
-    }
-  }
-}

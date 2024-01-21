@@ -1,7 +1,0 @@
-mutation($id: Int!) {
-  Entry: deleteEntry(input: { id: $id }) {
-    entry {
-      id
-    }
-  }
-}

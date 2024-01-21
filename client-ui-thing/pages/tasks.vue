@@ -6,37 +6,44 @@
         <UiLabel for="show-completed">Show Completed</UiLabel>
       </div>
     </div>
-    <template v-for="entry in filteredEntries">
-      <UiCard class="w-[360px] max-w-sm">
-        <template #title>
-          <div class="mb-2">
-            <span
-              class="rounded-md px-2 py-1 text-sm"
-              :style="{ backgroundColor: entry.task.project.category.color }"
-              :class="{ 'text-black': entry.task.project.category.colorContrast }"
-            >
-              {{ entry.task.project.description.toUpperCase() }}
-            </span>
-          </div>
-          <UiCardTitle>{{ entry.task.description }}</UiCardTitle>
-        </template>
-        <template #description>
-          <UiCardDescription v-if="entry.description">{{ entry.description }}</UiCardDescription>
-        </template>
-      </UiCard>
+    <template v-for="entry in filteredEntries" :key="entry.id">
+      <Entry :entry="entry" />
     </template>
   </div>
 </template>
 
 <script lang="ts" setup>
-  import { Q_ENTRY } from "@/graphql/queries"
+  import Entry from "@/components/Entry.vue"
+  import { graphql } from "@/gql/gql"
 
   const today = new Date()
-
   const allEntries = ref([])
-
-  const { onResult } = useQuery(Q_ENTRY, {
-    datesIn: [today.toISOString().slice(0, 10)],
+  const entries = graphql(`
+    query filteredEntries($datesIn: [String!]!) {
+      entries(filter: { date: { in: $datesIn } }) {
+        id
+        description
+        complete
+        date
+        task {
+          id
+          description
+          project {
+            id
+            description
+            category {
+              id
+              color
+              colorContrast
+              description
+            }
+          }
+        }
+      }
+    }
+  `)
+  const { onResult } = useQuery(entries, {
+    datesIn: [today.toISOString().slice(1, 10)],
   })
   onResult((queryResult) => {
     if (queryResult.loading) return

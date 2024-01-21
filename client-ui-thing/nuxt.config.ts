@@ -14,6 +14,7 @@ export default defineNuxtConfig({
     "@vee-validate/nuxt",
     "@morev/vue-transitions/nuxt",
     "@nuxtjs/apollo",
+    "@nuxt/test-utils/module",
   ],
 
   tailwindcss: {
@@ -67,6 +68,12 @@ export default defineNuxtConfig({
           secure: false,
         },
       },
+    },
+  },
+
+  vite: {
+    test: {
+      setupFiles: ["tests/setup.ts"],
     },
   },
 })

@@ -24,6 +24,10 @@
         description
         complete
         date
+        timerActive
+        timerTrackedTime
+        timerStartedAt
+        timerEstimatedTime
         task {
           id
           description

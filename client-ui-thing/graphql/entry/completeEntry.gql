@@ -1,9 +1,0 @@
-#import "../EntryFragment.gql"
-
-mutation($id: Int!) {
-  Entry: completeEntry(input: { id: $id }) {
-    entry {
-      ...Entry
-    }
-  }
-}

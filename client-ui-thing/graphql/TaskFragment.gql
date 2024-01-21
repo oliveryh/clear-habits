@@ -1,8 +1,0 @@
-fragment Task on Task {
-  id
-  complete
-  description
-  entries {
-    id
-  }
-}

@@ -19,6 +19,7 @@ const middleware = postgraphile(config.db.url, 'app_public', {
   ],
   simpleCollections: 'both',
   graphileBuildOptions: { pgOmitListSuffix: true },
+  exportGqlSchemaPath: './schema.graphql',
 })
 
 const app = express()

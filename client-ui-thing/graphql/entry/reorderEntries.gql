@@ -1,9 +1,0 @@
-#import "../EntryFragment.gql"
-
-mutation MyMutation($entryOrders: [EntryOrderInput]!) {
-  reorderEntries(input: { entryOrders: $entryOrders }) {
-    entries {
-      ...Entry
-    }
-  }
-}

@@ -1,7 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   app: {
-    baseURL: "/v2/",
+    baseURL: process.env.NODE_ENV === "production" ? "/v2/" : undefined,
   },
 
   devtools: { enabled: true },
@@ -14,6 +14,7 @@ export default defineNuxtConfig({
     "@vee-validate/nuxt",
     "@morev/vue-transitions/nuxt",
     "@nuxtjs/apollo",
+    "@nuxt/test-utils/module",
   ],
 
   tailwindcss: {
@@ -67,6 +68,12 @@ export default defineNuxtConfig({
           secure: false,
         },
       },
+    },
+  },
+
+  vite: {
+    test: {
+      setupFiles: ["tests/setup.ts"],
     },
   },
 })

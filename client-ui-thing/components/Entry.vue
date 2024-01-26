@@ -11,10 +11,14 @@
           {{ entry.task.project.description.toUpperCase() }}
         </span>
       </div>
-      <UiCardTitle v-if="entry.task?.description">{{ entry.task.description }}</UiCardTitle>
+      <UiCardTitle class="text-md" v-if="entry.task?.description">{{
+        entry.task.description
+      }}</UiCardTitle>
     </template>
     <template #description>
-      <UiCardDescription v-if="entry.description">{{ entry.description }}</UiCardDescription>
+      <UiCardDescription class="pb-2" v-if="entry.description">{{
+        entry.description
+      }}</UiCardDescription>
       <UiButton
         v-if="entry.timerActive"
         @click="stopEntry(props.entry)"

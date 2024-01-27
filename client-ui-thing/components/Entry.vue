@@ -4,9 +4,8 @@
       <div class="mb-2">
         <span
           v-if="entry.task?.project?.category"
-          class="rounded-md px-2 py-1 text-sm"
+          :class="projectCategoryStyles({ contrast: entry.task.project.category.colorContrast })"
           :style="{ backgroundColor: entry.task.project.category.color }"
-          :class="{ 'text-black': entry.task.project.category.colorContrast }"
         >
           {{ entry.task.project.description.toUpperCase() }}
         </span>
@@ -67,6 +66,16 @@
   const props = defineProps<{
     entry: Entry
   }>()
+
+  const projectCategoryStyles = tv({
+    base: "rounded-md px-2 py-1 text-sm",
+    variants: {
+      contrast: {
+        true: "text-black",
+        false: "border border-gray-500 text-white",
+      },
+    },
+  })
 
   const timerButtonStyles = tv({
     base: "w-full",

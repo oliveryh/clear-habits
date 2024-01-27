@@ -12,6 +12,7 @@ const mockEntry = {
   timerTrackedTime: 90,
   timerEstimatedTime: 120,
   timerStartedAt: null,
+  complete: false,
   task: {
     description: "Task Description",
     project: {
@@ -31,6 +32,8 @@ describe("Entry", () => {
       vi.mock("@/mutations.ts", () => ({
         startEntry: vi.fn(),
         stopEntry: vi.fn(),
+        completeEntry: vi.fn(),
+        restartEntry: vi.fn(),
       }))
     })
     afterEach(() => {
@@ -141,6 +144,58 @@ describe("Entry", () => {
       const button = buttonText.closest("button")
       button?.click()
       expect(mutations.stopEntry).toHaveBeenCalled()
+    })
+  })
+  describe("when the entry is incomplete", () => {
+    const mockEntryIncomplete = {
+      ...mockEntry,
+      complete: false,
+    }
+
+    it("displays a check icon", async () => {
+      await renderSuspended(Entry, {
+        props: {
+          entry: mockEntryIncomplete,
+        },
+      })
+      expect(screen.getByTestId("check-icon")).toBeInTheDocument()
+    })
+    it("completes the entry when the check button is clicked", async () => {
+      mount(Entry, {
+        props: {
+          entry: mockEntryIncomplete,
+        },
+      })
+      const buttonText = screen.getByTestId("check-icon")
+      const button = buttonText.closest("button")
+      button?.click()
+      expect(mutations.completeEntry).toHaveBeenCalled()
+    })
+  })
+  describe("when the entry is complete", () => {
+    const mockEntryComplete = {
+      ...mockEntry,
+      complete: true,
+    }
+
+    it("displays a undo icon", async () => {
+      await renderSuspended(Entry, {
+        props: {
+          entry: mockEntryComplete,
+        },
+      })
+      expect(screen.getByTestId("undo-2-icon")).toBeInTheDocument()
+    })
+    it("restarts the entry when the undo button is clicked", async () => {
+      mount(Entry, {
+        props: {
+          entry: mockEntryComplete,
+        },
+      })
+      const buttonText = screen.getByTestId("undo-2-icon")
+      const button = buttonText.closest("button")
+      button?.click()
+      expect(mutations.restartEntry).toHaveBeenCalled()
     })
   })
 })

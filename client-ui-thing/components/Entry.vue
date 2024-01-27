@@ -4,9 +4,8 @@
       <div class="mb-2">
         <span
           v-if="entry.task?.project?.category"
-          class="rounded-md px-2 py-1 text-sm"
+          :class="projectCategoryStyles({ contrast: entry.task.project.category.colorContrast })"
           :style="{ backgroundColor: entry.task.project.category.color }"
-          :class="{ 'text-black': entry.task.project.category.colorContrast }"
         >
           {{ entry.task.project.description.toUpperCase() }}
         </span>
@@ -19,36 +18,48 @@
       <UiCardDescription class="pb-2" v-if="entry.description">{{
         entry.description
       }}</UiCardDescription>
-      <UiButton
-        v-if="entry.timerActive"
-        @click="stopEntry(props.entry)"
-        :class="timerButtonStyles({ state: 'running' })"
-      >
-        <Icon name="lucide:pause" data-testid="pause-icon" />
-        {{ trackedTimeFormatted }}
-      </UiButton>
-      <UiButton
-        v-else-if="entry.timerTrackedTime > 0"
-        @click="startEntry(props.entry)"
-        :class="timerButtonStyles({ state: 'paused' })"
-      >
-        <Icon name="lucide:play" data-testid="play-icon" />
-        {{ trackedTimeFormatted }}
-      </UiButton>
-      <UiButton
-        v-else
-        @click="startEntry(props.entry)"
-        :class="timerButtonStyles({ state: 'unstarted' })"
-      >
-        <Icon name="lucide:play" data-testid="play-icon" />
-        {{ trackedTimeFormatted }}
-      </UiButton>
+      <div class="flex space-x-2">
+        <div class="grow">
+          <UiButton
+            v-if="entry.timerActive"
+            @click="stopEntry(props.entry)"
+            :class="
+              timerButtonStyles({ state: 'running', complete: entry.complete, class: 'w-full' })
+            "
+          >
+            <Icon name="lucide:pause" data-testid="pause-icon" />
+            {{ trackedTimeFormatted }}
+          </UiButton>
+          <UiButton
+            v-else-if="entry.timerTrackedTime > 0"
+            @click="startEntry(props.entry)"
+            :class="
+              timerButtonStyles({ state: 'paused', complete: entry.complete, class: 'w-full' })
+            "
+          >
+            <Icon name="lucide:play" data-testid="play-icon" />
+            {{ trackedTimeFormatted }}
+          </UiButton>
+          <UiButton v-else @click="startEntry(props.entry)">
+            <Icon name="lucide:play" data-testid="play-icon" />
+            {{ trackedTimeFormatted }}
+          </UiButton>
+        </div>
+        <div class="flex">
+          <UiButton v-if="entry.complete" size="icon" @click="restartEntry(props.entry)">
+            <Icon name="lucide:undo-2" data-testid="undo-2-icon" />
+          </UiButton>
+          <UiButton v-else size="icon" @click="completeEntry(props.entry)">
+            <Icon name="lucide:check" data-testid="check-icon" />
+          </UiButton>
+        </div>
+      </div>
     </template>
   </UiCard>
 </template>
 
 <script lang="ts" setup>
-  import { startEntry, stopEntry } from "@/mutations"
+  import { completeEntry, restartEntry, startEntry, stopEntry } from "@/mutations"
   import { secondsToTimestamp } from "@/utils/time"
   import type { Entry } from "@/gql/graphql"
 
@@ -56,14 +67,31 @@
     entry: Entry
   }>()
 
-  const timerButtonStyles = tv({
+  const projectCategoryStyles = tv({
+    base: "rounded-md px-2 py-1 text-sm",
     variants: {
-      state: {
-        unstarted: "bg-green-500 hover:bg-green-600",
-        running: "bg-rose-500 hover:bg-rose-600",
-        paused: "bg-orange-500 hover:bg-orange-600",
+      contrast: {
+        true: "text-black",
+        false: "border border-gray-500 text-white",
       },
     },
+  })
+
+  const timerButtonStyles = tv({
+    base: "w-full",
+    variants: {
+      state: {
+        running: "bg-orange-500 hover:bg-orange-600",
+        paused: "bg-yellow-500 hover:bg-yellow-600",
+      },
+    },
+    compoundVariants: [
+      {
+        state: "paused",
+        complete: true,
+        class: "bg-green-500 hover:bg-green-600",
+      },
+    ],
   })
 
   let timerInterval: ReturnType<typeof setInterval>

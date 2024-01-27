@@ -23,9 +23,7 @@
           <UiButton
             v-if="entry.timerActive"
             @click="stopEntry(props.entry)"
-            :class="
-              timerButtonStyles({ state: 'running', complete: entry.complete, class: 'w-full' })
-            "
+            :class="timerButtonStyles({ state: 'running', complete: entry.complete })"
           >
             <Icon name="lucide:pause" data-testid="pause-icon" />
             {{ trackedTimeFormatted }}
@@ -33,14 +31,12 @@
           <UiButton
             v-else-if="entry.timerTrackedTime > 0"
             @click="startEntry(props.entry)"
-            :class="
-              timerButtonStyles({ state: 'paused', complete: entry.complete, class: 'w-full' })
-            "
+            :class="timerButtonStyles({ state: 'paused', complete: entry.complete })"
           >
             <Icon name="lucide:play" data-testid="play-icon" />
             {{ trackedTimeFormatted }}
           </UiButton>
-          <UiButton v-else @click="startEntry(props.entry)">
+          <UiButton v-else @click="startEntry(props.entry)" :class="timerButtonStyles({})">
             <Icon name="lucide:play" data-testid="play-icon" />
             {{ trackedTimeFormatted }}
           </UiButton>

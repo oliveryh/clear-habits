@@ -53,4 +53,54 @@ const stopEntry = (entry: Entry) => {
   mutate()
 }
 
-export { startEntry, stopEntry }
+const completeEntry = (entry: Entry) => {
+  const completeEntryMutation = graphql(`
+    mutation completeEntry($id: Int!) {
+      Entry: completeEntry(input: { id: $id }) {
+        entry {
+          id
+          description
+          complete
+          date
+          timerActive
+          timerTrackedTime
+          timerStartedAt
+          timerEstimatedTime
+        }
+      }
+    }
+  `)
+  const { mutate } = useMutation(completeEntryMutation, {
+    variables: {
+      id: entry.id,
+    },
+  })
+  mutate()
+}
+
+const restartEntry = (entry: Entry) => {
+  const restartEntryMutation = graphql(`
+    mutation restartEntry($id: Int!) {
+      Entry: restartEntry(input: { id: $id }) {
+        entry {
+          id
+          description
+          complete
+          date
+          timerActive
+          timerTrackedTime
+          timerStartedAt
+          timerEstimatedTime
+        }
+      }
+    }
+  `)
+  const { mutate } = useMutation(restartEntryMutation, {
+    variables: {
+      id: entry.id,
+    },
+  })
+  mutate()
+}
+
+export { startEntry, stopEntry, completeEntry, restartEntry }

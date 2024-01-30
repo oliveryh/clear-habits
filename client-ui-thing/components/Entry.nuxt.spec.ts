@@ -13,6 +13,7 @@ const mockEntry = {
   timerEstimatedTime: 120,
   timerStartedAt: null,
   complete: false,
+  listOrder: 1,
   task: {
     description: "Task Description",
     project: {

@@ -28,6 +28,7 @@
         timerTrackedTime
         timerStartedAt
         timerEstimatedTime
+        listOrder
         task {
           id
           description
@@ -50,8 +51,11 @@
     datesIn: [today.toISOString().split("T")[0]],
   })
   const allEntries = computed(() => result.value?.entries ?? [])
+  const sortedEntries = computed(() =>
+    allEntries.value.slice().sort((a, b) => a.listOrder - b.listOrder)
+  )
   const filteredEntries = computed(() => {
-    if (showCompleted.value) return allEntries.value
-    return allEntries.value.filter((entry) => !entry.complete)
+    if (showCompleted.value) return sortedEntries.value
+    return sortedEntries.value.filter((entry) => !entry.complete)
   })
 </script>

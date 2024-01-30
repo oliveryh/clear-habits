@@ -14,6 +14,7 @@ const startEntry = (entry: Entry) => {
           timerTrackedTime
           timerStartedAt
           timerEstimatedTime
+          listOrder
         }
       }
     }
@@ -40,6 +41,7 @@ const stopEntry = (entry: Entry) => {
           timerTrackedTime
           timerStartedAt
           timerEstimatedTime
+          listOrder
         }
       }
     }
@@ -66,6 +68,7 @@ const completeEntry = (entry: Entry) => {
           timerTrackedTime
           timerStartedAt
           timerEstimatedTime
+          listOrder
         }
       }
     }
@@ -91,6 +94,7 @@ const restartEntry = (entry: Entry) => {
           timerTrackedTime
           timerStartedAt
           timerEstimatedTime
+          listOrder
         }
       }
     }

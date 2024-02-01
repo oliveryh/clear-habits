@@ -1,0 +1,51 @@
+name: Deploy Nuxt Frontend
+
+on: [push]
+
+defaults:
+  run:
+    working-directory: ./client-ui-thing
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Build
+        run: GRAPHQL_URL="http://${{ secrets.SSH_HOST }}/graphql" npm run build
+
+      - name: Copy build to server
+        uses: easingthemes/ssh-deploy@main
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          ARGS: '-rlgoDzvc -i --delete'
+          SOURCE: 'client-ui-thing/.output/'
+          REMOTE_HOST: ${{ secrets.SSH_HOST }}
+          REMOTE_USER: ${{ secrets.SSH_USERNAME }}
+          TARGET: ${{ secrets.REMOTE_TARGET_V2 }}
+          EXCLUDE: '/node_modules/'
+
+      - name: Restart process manager
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script_stop: true
+          script: |
+            export NVM_DIR=~/.nvm
+            source ~/.nvm/nvm.sh
+            nvm use 18
+            export PORT=8080
+            pm2 restart clearhabits-client --update-env

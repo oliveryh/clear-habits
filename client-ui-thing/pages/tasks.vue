@@ -6,6 +6,7 @@
         <UiLabel for="show-completed">Show Completed</UiLabel>
       </div>
     </div>
+    <CategoryFilter class="flex-grow" v-model="selectedCategory" />
     <template v-for="entry in filteredEntries" :key="entry.id">
       <Entry :entry="entry" />
     </template>
@@ -13,8 +14,11 @@
 </template>
 
 <script lang="ts" setup>
+  import CategoryFilter from "@/components/CategoryFilter.vue"
   import Entry from "@/components/Entry.vue"
   import { graphql } from "@/gql/gql"
+
+  const selectedCategory = ref(null)
 
   const today = new Date()
   const entries = graphql(`
@@ -55,7 +59,12 @@
     allEntries.value.slice().sort((a, b) => a.listOrder - b.listOrder)
   )
   const filteredEntries = computed(() => {
-    if (showCompleted.value) return sortedEntries.value
-    return sortedEntries.value.filter((entry) => !entry.complete)
+    let entries = sortedEntries.value
+    if (!showCompleted.value) entries = entries.filter((entry) => !entry.complete)
+    if (selectedCategory.value)
+      entries = entries.filter(
+        (entry) => entry.task?.project?.category?.id === selectedCategory.value.id
+      )
+    return entries
   })
 </script>

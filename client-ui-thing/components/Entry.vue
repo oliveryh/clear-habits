@@ -7,7 +7,7 @@
           :class="projectCategoryStyles({ contrast: entry.task.project.category.colorContrast })"
           :style="{ backgroundColor: entry.task.project.category.color }"
         >
-          {{ entry.task.project.description.toUpperCase() }}
+          {{ entry.task.project.description }}
         </span>
       </div>
       <UiCardTitle class="text-md" v-if="entry.task?.description">{{

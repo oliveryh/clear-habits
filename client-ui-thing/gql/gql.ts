@@ -18,6 +18,7 @@ const documents = {
     "\n    mutation completeEntry($id: Int!) {\n      Entry: completeEntry(input: { id: $id }) {\n        entry {\n          id\n          description\n          complete\n          date\n          timerActive\n          timerTrackedTime\n          timerStartedAt\n          timerEstimatedTime\n          listOrder\n        }\n      }\n    }\n  ": types.CompleteEntryDocument,
     "\n    mutation restartEntry($id: Int!) {\n      Entry: restartEntry(input: { id: $id }) {\n        entry {\n          id\n          description\n          complete\n          date\n          timerActive\n          timerTrackedTime\n          timerStartedAt\n          timerEstimatedTime\n          listOrder\n        }\n      }\n    }\n  ": types.RestartEntryDocument,
     "\n    query filteredEntries($datesIn: [String!]!) {\n      entries(filter: { date: { in: $datesIn } }) {\n        id\n        description\n        complete\n        date\n        timerActive\n        timerTrackedTime\n        timerStartedAt\n        timerEstimatedTime\n        listOrder\n        task {\n          id\n          description\n          project {\n            id\n            description\n            category {\n              id\n              color\n              colorContrast\n              description\n            }\n          }\n        }\n      }\n    }\n  ": types.FilteredEntriesDocument,
+    "\n      query categories {\n        categories {\n          id\n          description\n          color\n          colorContrast\n        }\n      }\n    ": types.CategoriesDocument,
 };
 
 /**
@@ -54,6 +55,10 @@ export function graphql(source: "\n    mutation restartEntry($id: Int!) {\n     
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n    query filteredEntries($datesIn: [String!]!) {\n      entries(filter: { date: { in: $datesIn } }) {\n        id\n        description\n        complete\n        date\n        timerActive\n        timerTrackedTime\n        timerStartedAt\n        timerEstimatedTime\n        listOrder\n        task {\n          id\n          description\n          project {\n            id\n            description\n            category {\n              id\n              color\n              colorContrast\n              description\n            }\n          }\n        }\n      }\n    }\n  "): (typeof documents)["\n    query filteredEntries($datesIn: [String!]!) {\n      entries(filter: { date: { in: $datesIn } }) {\n        id\n        description\n        complete\n        date\n        timerActive\n        timerTrackedTime\n        timerStartedAt\n        timerEstimatedTime\n        listOrder\n        task {\n          id\n          description\n          project {\n            id\n            description\n            category {\n              id\n              color\n              colorContrast\n              description\n            }\n          }\n        }\n      }\n    }\n  "];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n      query categories {\n        categories {\n          id\n          description\n          color\n          colorContrast\n        }\n      }\n    "): (typeof documents)["\n      query categories {\n        categories {\n          id\n          description\n          color\n          colorContrast\n        }\n      }\n    "];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};

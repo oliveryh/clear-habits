@@ -63,7 +63,7 @@ describe("Entry", () => {
           entry: mockEntry,
         },
       })
-      expect(screen.getByText("PROJECT DESCRIPTION")).toBeInTheDocument()
+      expect(screen.getByText("Project Description")).toBeInTheDocument()
     })
     it("displays the project description using the category color", async () => {
       await renderSuspended(Entry, {
@@ -71,7 +71,7 @@ describe("Entry", () => {
           entry: mockEntry,
         },
       })
-      const projectDescription = screen.getByText("PROJECT DESCRIPTION")
+      const projectDescription = screen.getByText("Project Description")
       expect(projectDescription).toHaveStyle({
         backgroundColor: "#ff0000",
       })

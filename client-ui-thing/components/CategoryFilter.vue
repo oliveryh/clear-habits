@@ -22,27 +22,29 @@
           <UiCommandList>
             <UiCommandEmpty>No framework found.</UiCommandEmpty>
             <UiCommandGroup>
-              <UiCommandItem
-                v-for="category in sortedCategories"
-                :key="category.id"
-                :value="category"
-                @select="open = false"
-              >
-                <div
-                  class="flex h-6 w-6 items-center justify-center rounded-full"
-                  :style="{ backgroundColor: category.color }"
+              <UiScrollArea class="h-72">
+                <UiCommandItem
+                  v-for="category in sortedCategories"
+                  :key="category.id"
+                  :value="category"
+                  @select="open = false"
                 >
-                  <Icon
-                    name="lucide:check"
-                    :class="[
-                      'h-4 w-4',
-                      model?.id === category.id ? 'opacity-100' : 'opacity-0',
-                      category.colorContrast === true ? 'text-black' : 'text-white',
-                    ]"
-                  />
-                </div>
-                {{ category.description }}
-              </UiCommandItem>
+                  <div
+                    class="flex h-6 w-6 items-center justify-center rounded-full"
+                    :style="{ backgroundColor: category.color }"
+                  >
+                    <Icon
+                      name="lucide:check"
+                      :class="[
+                        'h-4 w-4',
+                        model?.id === category.id ? 'opacity-100' : 'opacity-0',
+                        category.colorContrast === true ? 'text-black' : 'text-white',
+                      ]"
+                    />
+                  </div>
+                  {{ category.description }}
+                </UiCommandItem>
+              </UiScrollArea>
             </UiCommandGroup>
           </UiCommandList>
         </UiCommand>

@@ -27,12 +27,12 @@
     "vuex-map-fields": "^1.4.1"
   },
   "devDependencies": {
-    "@storybook/addon-essentials": "^6.4.19",
+    "@storybook/addon-essentials": "^6.5.16",
     "@storybook/addon-links": "^6.4.19",
-    "@storybook/vue": "^6.4.19",
+    "@storybook/vue": "^7.6.17",
     "@vue/cli-plugin-babel": "^4.5.17",
     "@vue/cli-plugin-eslint": "^4.5.17",
-    "@vue/cli-service": "^4.5.17",
+    "@vue/cli-service": "^5.0.8",
     "@vue/composition-api": "^1.7.1",
     "babel-eslint": "^10.1.0",
     "babel-plugin-transform-imports": "1.5.0",

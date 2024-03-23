@@ -26,7 +26,7 @@
             :class="timerButtonStyles({ state: 'running', complete: entry.complete })"
           >
             <Icon name="lucide:pause" data-testid="pause-icon" />
-            {{ trackedTimeFormatted }}
+            {{ trackedTimeFormattedLong }} · {{ estimatedTimeFormatted }}
           </UiButton>
           <UiButton
             v-else-if="entry.timerTrackedTime > 0"
@@ -34,11 +34,11 @@
             :class="timerButtonStyles({ state: 'paused', complete: entry.complete })"
           >
             <Icon name="lucide:play" data-testid="play-icon" />
-            {{ trackedTimeFormatted }}
+            {{ trackedTimeFormattedShort }} · {{ estimatedTimeFormatted }}
           </UiButton>
           <UiButton v-else @click="startEntry(props.entry)" :class="timerButtonStyles({})">
             <Icon name="lucide:play" data-testid="play-icon" />
-            {{ trackedTimeFormatted }}
+            {{ trackedTimeFormattedShort }} · {{ estimatedTimeFormatted }}
           </UiButton>
         </div>
         <div class="flex">
@@ -56,7 +56,7 @@
 
 <script lang="ts" setup>
   import { completeEntry, restartEntry, startEntry, stopEntry } from "@/mutations"
-  import { secondsToTimestamp } from "@/utils/time"
+  import { secondsToSummary } from "@/utils/time"
   import type { Entry } from "@/gql/graphql"
 
   const props = defineProps<{
@@ -93,11 +93,14 @@
   let timerInterval: ReturnType<typeof setInterval>
   let timerTrackedTime = ref(0)
 
-  const trackedTimeFormatted = computed(() => {
-    return secondsToTimestamp(timerTrackedTime.value, {
-      zeroPad: true,
-      includeSeconds: true,
-    })
+  const estimatedTimeFormatted = computed(() => {
+    return secondsToSummary(props.entry.timerEstimatedTime, false)
+  })
+  const trackedTimeFormattedLong = computed(() => {
+    return secondsToSummary(timerTrackedTime.value, true)
+  })
+  const trackedTimeFormattedShort = computed(() => {
+    return secondsToSummary(timerTrackedTime.value, false)
   })
 
   onMounted(() => {

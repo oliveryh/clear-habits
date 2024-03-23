@@ -15,10 +15,8 @@
       }}</UiCardTitle>
     </template>
     <template #description>
-      <UiCardDescription class="pb-2" v-if="entry.description">{{
-        entry.description
-      }}</UiCardDescription>
-      <div class="flex space-x-2">
+      <UiCardDescription v-if="entry.description">{{ entry.description }}</UiCardDescription>
+      <div class="flex space-x-2 pt-2">
         <div class="relative grow">
           <TransitionFade>
             <UiButton

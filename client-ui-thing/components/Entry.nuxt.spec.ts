@@ -92,13 +92,13 @@ describe("Entry", () => {
       })
       expect(screen.getByTestId("play-icon")).toBeInTheDocument()
     })
-    it("displays the entry duration in a stopwatch format", async () => {
+    it("displays the entry duration without seconds displayed", async () => {
       await renderSuspended(Entry, {
         props: {
           entry: mockEntryNotInProgress,
         },
       })
-      expect(screen.getByText("00:01:30")).toBeInTheDocument()
+      expect(screen.getByText("1m · 2m")).toBeInTheDocument()
     })
     it("starts the timer when the timer button is clicked", async () => {
       mount(Entry, {
@@ -106,7 +106,7 @@ describe("Entry", () => {
           entry: mockEntryNotInProgress,
         },
       })
-      const buttonText = screen.getByText("00:01:30")
+      const buttonText = screen.getByText("1m · 2m")
       const button = buttonText.closest("button")
       button?.click()
       expect(mutations.startEntry).toHaveBeenCalled()
@@ -127,13 +127,13 @@ describe("Entry", () => {
       })
       expect(screen.getByTestId("pause-icon")).toBeInTheDocument()
     })
-    it("displays the entry duration in a stopwatch format", async () => {
+    it("displays the entry duration with seconds and estimated time showing", async () => {
       await renderSuspended(Entry, {
         props: {
           entry: mockEntryInProgress,
         },
       })
-      expect(screen.getByText("00:31:30")).toBeInTheDocument()
+      expect(screen.getByText("31m 30s · 2m")).toBeInTheDocument()
     })
     it("starts stops timer when the timer button is clicked", async () => {
       mount(Entry, {
@@ -141,7 +141,7 @@ describe("Entry", () => {
           entry: mockEntryInProgress,
         },
       })
-      const buttonText = screen.getByText("00:31:30")
+      const buttonText = screen.getByText("31m 30s · 2m")
       const button = buttonText.closest("button")
       button?.click()
       expect(mutations.stopEntry).toHaveBeenCalled()

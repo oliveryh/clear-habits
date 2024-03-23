@@ -19,33 +19,50 @@
         entry.description
       }}</UiCardDescription>
       <div class="flex space-x-2">
-        <div class="grow">
-          <UiButton
-            v-if="entry.timerActive"
-            @click="stopEntry(props.entry)"
-            :class="timerButtonStyles({ state: 'running', complete: entry.complete })"
-          >
-            <Icon name="lucide:pause" data-testid="pause-icon" />
-            {{ trackedTimeFormatted }}
-          </UiButton>
-          <UiButton
-            v-else-if="entry.timerTrackedTime > 0"
-            @click="startEntry(props.entry)"
-            :class="timerButtonStyles({ state: 'paused', complete: entry.complete })"
-          >
-            <Icon name="lucide:play" data-testid="play-icon" />
-            {{ trackedTimeFormatted }}
-          </UiButton>
-          <UiButton v-else @click="startEntry(props.entry)" :class="timerButtonStyles({})">
-            <Icon name="lucide:play" data-testid="play-icon" />
-            {{ trackedTimeFormatted }}
-          </UiButton>
+        <div class="relative grow">
+          <TransitionFade>
+            <UiButton
+              v-if="entry.timerActive"
+              @click="stopEntry(props.entry)"
+              variant="secondary"
+              size="sm"
+              :class="timerButtonStyles({ state: 'running', complete: entry.complete })"
+            >
+              <Icon name="lucide:pause" data-testid="pause-icon" />
+              {{ trackedTimeFormattedLong }} · {{ estimatedTimeFormatted }}
+            </UiButton>
+            <UiButton
+              v-else-if="entry.timerTrackedTime > 0"
+              @click="startEntry(props.entry)"
+              variant="secondary"
+              size="sm"
+              :class="timerButtonStyles({ state: 'paused', complete: entry.complete })"
+            >
+              <Icon name="lucide:play" data-testid="play-icon" />
+              {{ trackedTimeFormattedShort }} · {{ estimatedTimeFormatted }}
+            </UiButton>
+            <UiButton
+              v-else
+              @click="startEntry(props.entry)"
+              variant="secondary"
+              size="sm"
+              :class="timerButtonStyles({})"
+            >
+              <Icon name="lucide:play" data-testid="play-icon" />
+              {{ trackedTimeFormattedShort }} · {{ estimatedTimeFormatted }}
+            </UiButton>
+          </TransitionFade>
         </div>
         <div class="flex">
-          <UiButton v-if="entry.complete" size="icon" @click="restartEntry(props.entry)">
+          <UiButton
+            v-if="entry.complete"
+            variant="secondary"
+            size="icon-sm"
+            @click="restartEntry(props.entry)"
+          >
             <Icon name="lucide:undo-2" data-testid="undo-2-icon" />
           </UiButton>
-          <UiButton v-else size="icon" @click="completeEntry(props.entry)">
+          <UiButton v-else variant="secondary" size="icon-sm" @click="completeEntry(props.entry)">
             <Icon name="lucide:check" data-testid="check-icon" />
           </UiButton>
         </div>
@@ -56,7 +73,7 @@
 
 <script lang="ts" setup>
   import { completeEntry, restartEntry, startEntry, stopEntry } from "@/mutations"
-  import { secondsToTimestamp } from "@/utils/time"
+  import { secondsToSummary } from "@/utils/time"
   import type { Entry } from "@/gql/graphql"
 
   const props = defineProps<{
@@ -74,18 +91,18 @@
   })
 
   const timerButtonStyles = tv({
-    base: "w-full",
+    base: "absolute w-full",
     variants: {
       state: {
-        running: "bg-orange-500 hover:bg-orange-600",
-        paused: "bg-yellow-500 hover:bg-yellow-600",
+        running: "text-orange-500",
+        paused: "text-yellow-500",
       },
     },
     compoundVariants: [
       {
         state: "paused",
         complete: true,
-        class: "bg-green-500 hover:bg-green-600",
+        class: "text-green-500",
       },
     ],
   })
@@ -93,11 +110,14 @@
   let timerInterval: ReturnType<typeof setInterval>
   let timerTrackedTime = ref(0)
 
-  const trackedTimeFormatted = computed(() => {
-    return secondsToTimestamp(timerTrackedTime.value, {
-      zeroPad: true,
-      includeSeconds: true,
-    })
+  const estimatedTimeFormatted = computed(() => {
+    return secondsToSummary(props.entry.timerEstimatedTime, false)
+  })
+  const trackedTimeFormattedLong = computed(() => {
+    return secondsToSummary(timerTrackedTime.value, true)
+  })
+  const trackedTimeFormattedShort = computed(() => {
+    return secondsToSummary(timerTrackedTime.value, false)
   })
 
   onMounted(() => {

@@ -23,6 +23,8 @@
           <UiButton
             v-if="entry.timerActive"
             @click="stopEntry(props.entry)"
+            variant="secondary"
+            size="sm"
             :class="timerButtonStyles({ state: 'running', complete: entry.complete })"
           >
             <Icon name="lucide:pause" data-testid="pause-icon" />
@@ -31,21 +33,34 @@
           <UiButton
             v-else-if="entry.timerTrackedTime > 0"
             @click="startEntry(props.entry)"
+            variant="secondary"
+            size="sm"
             :class="timerButtonStyles({ state: 'paused', complete: entry.complete })"
           >
             <Icon name="lucide:play" data-testid="play-icon" />
             {{ trackedTimeFormattedShort }} · {{ estimatedTimeFormatted }}
           </UiButton>
-          <UiButton v-else @click="startEntry(props.entry)" :class="timerButtonStyles({})">
+          <UiButton
+            v-else
+            @click="startEntry(props.entry)"
+            variant="secondary"
+            size="sm"
+            :class="timerButtonStyles({})"
+          >
             <Icon name="lucide:play" data-testid="play-icon" />
             {{ trackedTimeFormattedShort }} · {{ estimatedTimeFormatted }}
           </UiButton>
         </div>
         <div class="flex">
-          <UiButton v-if="entry.complete" size="icon" @click="restartEntry(props.entry)">
+          <UiButton
+            v-if="entry.complete"
+            variant="secondary"
+            size="icon-sm"
+            @click="restartEntry(props.entry)"
+          >
             <Icon name="lucide:undo-2" data-testid="undo-2-icon" />
           </UiButton>
-          <UiButton v-else size="icon" @click="completeEntry(props.entry)">
+          <UiButton v-else variant="secondary" size="icon-sm" @click="completeEntry(props.entry)">
             <Icon name="lucide:check" data-testid="check-icon" />
           </UiButton>
         </div>
@@ -77,15 +92,15 @@
     base: "w-full",
     variants: {
       state: {
-        running: "bg-orange-500 hover:bg-orange-600",
-        paused: "bg-yellow-500 hover:bg-yellow-600",
+        running: "text-orange-500",
+        paused: "text-yellow-500",
       },
     },
     compoundVariants: [
       {
         state: "paused",
         complete: true,
-        class: "bg-green-500 hover:bg-green-600",
+        class: "text-green-500",
       },
     ],
   })

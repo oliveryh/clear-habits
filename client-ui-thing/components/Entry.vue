@@ -19,37 +19,39 @@
         entry.description
       }}</UiCardDescription>
       <div class="flex space-x-2">
-        <div class="grow">
-          <UiButton
-            v-if="entry.timerActive"
-            @click="stopEntry(props.entry)"
-            variant="secondary"
-            size="sm"
-            :class="timerButtonStyles({ state: 'running', complete: entry.complete })"
-          >
-            <Icon name="lucide:pause" data-testid="pause-icon" />
-            {{ trackedTimeFormattedLong }} · {{ estimatedTimeFormatted }}
-          </UiButton>
-          <UiButton
-            v-else-if="entry.timerTrackedTime > 0"
-            @click="startEntry(props.entry)"
-            variant="secondary"
-            size="sm"
-            :class="timerButtonStyles({ state: 'paused', complete: entry.complete })"
-          >
-            <Icon name="lucide:play" data-testid="play-icon" />
-            {{ trackedTimeFormattedShort }} · {{ estimatedTimeFormatted }}
-          </UiButton>
-          <UiButton
-            v-else
-            @click="startEntry(props.entry)"
-            variant="secondary"
-            size="sm"
-            :class="timerButtonStyles({})"
-          >
-            <Icon name="lucide:play" data-testid="play-icon" />
-            {{ trackedTimeFormattedShort }} · {{ estimatedTimeFormatted }}
-          </UiButton>
+        <div class="relative grow">
+          <TransitionFade>
+            <UiButton
+              v-if="entry.timerActive"
+              @click="stopEntry(props.entry)"
+              variant="secondary"
+              size="sm"
+              :class="timerButtonStyles({ state: 'running', complete: entry.complete })"
+            >
+              <Icon name="lucide:pause" data-testid="pause-icon" />
+              {{ trackedTimeFormattedLong }} · {{ estimatedTimeFormatted }}
+            </UiButton>
+            <UiButton
+              v-else-if="entry.timerTrackedTime > 0"
+              @click="startEntry(props.entry)"
+              variant="secondary"
+              size="sm"
+              :class="timerButtonStyles({ state: 'paused', complete: entry.complete })"
+            >
+              <Icon name="lucide:play" data-testid="play-icon" />
+              {{ trackedTimeFormattedShort }} · {{ estimatedTimeFormatted }}
+            </UiButton>
+            <UiButton
+              v-else
+              @click="startEntry(props.entry)"
+              variant="secondary"
+              size="sm"
+              :class="timerButtonStyles({})"
+            >
+              <Icon name="lucide:play" data-testid="play-icon" />
+              {{ trackedTimeFormattedShort }} · {{ estimatedTimeFormatted }}
+            </UiButton>
+          </TransitionFade>
         </div>
         <div class="flex">
           <UiButton
@@ -89,7 +91,7 @@
   })
 
   const timerButtonStyles = tv({
-    base: "w-full",
+    base: "absolute w-full",
     variants: {
       state: {
         running: "text-orange-500",

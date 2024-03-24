@@ -1,22 +1,30 @@
 <template>
   <UiCard class="w-[360px] max-w-sm">
     <template #title>
-      <div class="mb-2">
-        <span
-          v-if="entry.task?.project?.category"
-          :class="projectCategoryStyles({ contrast: entry.task.project.category.colorContrast })"
-          :style="{ backgroundColor: entry.task.project.category.color }"
-        >
-          {{ entry.task.project.description }}
-        </span>
-      </div>
-      <UiCardTitle class="text-md" v-if="entry.task?.description">{{
-        entry.task.description
-      }}</UiCardTitle>
+      <UiCardTitle class="text-md" v-if="entry.task?.description">
+        <div class="mb-2 flex space-x-2">
+          <div>
+            <span
+              v-if="entry.task?.project?.category"
+              :class="
+                projectCategoryStyles({ contrast: entry.task.project.category.colorContrast })
+              "
+              :style="{ backgroundColor: entry.task.project.category.color }"
+            >
+              {{ entry.task.project.description }}
+            </span>
+          </div>
+          <div>
+            {{ entry.task.description }}
+          </div>
+        </div>
+      </UiCardTitle>
     </template>
     <template #description>
-      <UiCardDescription v-if="entry.description">{{ entry.description }}</UiCardDescription>
-      <div class="flex space-x-2 pt-2">
+      <UiCardDescription v-if="entry.description">
+        <div class="mb-2">{{ entry.description }}</div></UiCardDescription
+      >
+      <div class="flex space-x-2">
         <div class="relative grow">
           <TransitionFade>
             <UiButton
@@ -79,7 +87,7 @@
   }>()
 
   const projectCategoryStyles = tv({
-    base: "rounded-md px-2 py-1 text-sm",
+    base: "mr-1 rounded-md px-2 py-1 text-sm",
     variants: {
       contrast: {
         true: "text-black",

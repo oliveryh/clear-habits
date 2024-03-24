@@ -19,6 +19,6 @@
   );
 
   const styles = tv({
-    base: "flex flex-col space-y-1.5 p-6 [&+*]:pt-0",
   });
+    base: "flex flex-col space-y-1.5 p-4 [&+*]:pt-0",
 </script>

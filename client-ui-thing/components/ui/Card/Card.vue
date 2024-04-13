@@ -25,28 +25,28 @@
 </template>
 
 <script lang="ts" setup>
-  import { Primitive } from "radix-vue";
-  import type { PrimitiveProps } from "radix-vue";
+  import { Primitive } from "radix-vue"
+  import type { PrimitiveProps } from "radix-vue"
 
   const props = withDefaults(
     defineProps<
       PrimitiveProps & {
         /** Title that should be displayed. Passed to the `CardTitle` component */
-        title?: string;
+        title?: string
         /** Description that should be displayed. Passed to the `CardDescription` component */
-        description?: string;
+        description?: string
         /** Content that should be displayed. Passed to the `CardContent` component */
-        content?: string;
+        content?: string
         /** Custom class(es) to add to the element */
-        class?: any;
+        class?: any
       }
     >(),
     {
-      as: "div",
+      as: "button",
     }
-  );
+  )
 
   const styles = tv({
-    base: "rounded-lg border bg-card text-card-foreground shadow-sm",
-  });
+    base: "rounded-lg rounded-md border border border-input bg-background bg-card text-justify text-card-foreground shadow-sm ring-offset-background ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-2",
+  })
 </script>

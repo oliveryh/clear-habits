@@ -95,6 +95,25 @@
     }
   )
 
+  const onKeyDown = (e: KeyboardEvent) => {
+    // If the space key is pressed, start or stop the timer
+    if (e.key === " ") {
+      if (props.entry.timerActive) {
+        stopEntry(props.entry)
+      } else {
+        startEntry(props.entry)
+      }
+    }
+    // If the c key is pressed, toggle the entry completion
+    if (e.key === "c") {
+      if (props.entry.complete) {
+        restartEntry(props.entry)
+      } else {
+        completeEntry(props.entry)
+      }
+    }
+  }
+
   const projectCategoryStyles = tv({
     base: "mr-1 rounded-md px-2 py-1 text-sm",
     variants: {

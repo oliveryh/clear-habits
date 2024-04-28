@@ -1,5 +1,5 @@
 <template>
-  <UiCard class="w-[360px] max-w-sm" ref="entryRef" @keydown="onKeyDown">
+  <UiCardSelectable class="w-[360px] max-w-sm" ref="entryRef" @keydown="onKeyDown">
     <template #title>
       <div class="mb-1">
         <span
@@ -68,7 +68,7 @@
         </div>
       </div>
     </template>
-  </UiCard>
+  </UiCardSelectable>
 </template>
 
 <script lang="ts" setup>

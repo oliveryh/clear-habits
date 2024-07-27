@@ -3621,6 +3621,10 @@ export type Query = Node & {
    * which can only query top level fields if they are in a particular form.
    */
   query: Query;
+  /** Reads a set of `RecentTask`. */
+  recentTasks?: Maybe<Array<RecentTask>>;
+  /** Reads and enables pagination through a set of `RecentTask`. */
+  recentTasksConnection?: Maybe<RecentTasksConnection>;
   /** Reads a set of `Stat`. */
   stats?: Maybe<Array<Stat>>;
   /** Reads and enables pagination through a set of `Stat`. */
@@ -3788,6 +3792,29 @@ export type QueryProjectsConnectionArgs = {
 
 
 /** The root query type which gives access points into the data universe. */
+export type QueryRecentTasksArgs = {
+  condition?: InputMaybe<RecentTaskCondition>;
+  filter?: InputMaybe<RecentTaskFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<RecentTasksOrderBy>>;
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryRecentTasksConnectionArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<RecentTaskCondition>;
+  filter?: InputMaybe<RecentTaskFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<RecentTasksOrderBy>>;
+};
+
+
+/** The root query type which gives access points into the data universe. */
 export type QueryStatsArgs = {
   condition?: InputMaybe<StatCondition>;
   filter?: InputMaybe<StatFilter>;
@@ -3843,6 +3870,262 @@ export type QueryTasksConnectionArgs = {
   offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<Array<TasksOrderBy>>;
 };
+
+export type RecentTask = {
+  __typename?: 'RecentTask';
+  description?: Maybe<Scalars['String']['output']>;
+  latestMaxEntryTimerEstimatedTime?: Maybe<Scalars['Int']['output']>;
+  projectId?: Maybe<Scalars['Int']['output']>;
+};
+
+export type RecentTaskAggregates = {
+  __typename?: 'RecentTaskAggregates';
+  /** Mean average aggregates across the matching connection (ignoring before/after/first/last/offset) */
+  average?: Maybe<RecentTaskAverageAggregates>;
+  /** Distinct count aggregates across the matching connection (ignoring before/after/first/last/offset) */
+  distinctCount?: Maybe<RecentTaskDistinctCountAggregates>;
+  keys?: Maybe<Array<Scalars['String']['output']>>;
+  /** Maximum aggregates across the matching connection (ignoring before/after/first/last/offset) */
+  max?: Maybe<RecentTaskMaxAggregates>;
+  /** Minimum aggregates across the matching connection (ignoring before/after/first/last/offset) */
+  min?: Maybe<RecentTaskMinAggregates>;
+  /** Population standard deviation aggregates across the matching connection (ignoring before/after/first/last/offset) */
+  stddevPopulation?: Maybe<RecentTaskStddevPopulationAggregates>;
+  /** Sample standard deviation aggregates across the matching connection (ignoring before/after/first/last/offset) */
+  stddevSample?: Maybe<RecentTaskStddevSampleAggregates>;
+  /** Sum aggregates across the matching connection (ignoring before/after/first/last/offset) */
+  sum?: Maybe<RecentTaskSumAggregates>;
+  /** Population variance aggregates across the matching connection (ignoring before/after/first/last/offset) */
+  variancePopulation?: Maybe<RecentTaskVariancePopulationAggregates>;
+  /** Sample variance aggregates across the matching connection (ignoring before/after/first/last/offset) */
+  varianceSample?: Maybe<RecentTaskVarianceSampleAggregates>;
+};
+
+export type RecentTaskAverageAggregates = {
+  __typename?: 'RecentTaskAverageAggregates';
+  /** Mean average of latestMaxEntryTimerEstimatedTime across the matching connection */
+  latestMaxEntryTimerEstimatedTime?: Maybe<Scalars['BigFloat']['output']>;
+  /** Mean average of projectId across the matching connection */
+  projectId?: Maybe<Scalars['BigFloat']['output']>;
+};
+
+/**
+ * A condition to be used against `RecentTask` object types. All fields are tested
+ * for equality and combined with a logical ‘and.’
+ */
+export type RecentTaskCondition = {
+  /** Checks for equality with the object’s `description` field. */
+  description?: InputMaybe<Scalars['String']['input']>;
+  /** Checks for equality with the object’s `latestMaxEntryTimerEstimatedTime` field. */
+  latestMaxEntryTimerEstimatedTime?: InputMaybe<Scalars['Int']['input']>;
+  /** Checks for equality with the object’s `projectId` field. */
+  projectId?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type RecentTaskDistinctCountAggregates = {
+  __typename?: 'RecentTaskDistinctCountAggregates';
+  /** Distinct count of description across the matching connection */
+  description?: Maybe<Scalars['BigInt']['output']>;
+  /** Distinct count of latestMaxEntryTimerEstimatedTime across the matching connection */
+  latestMaxEntryTimerEstimatedTime?: Maybe<Scalars['BigInt']['output']>;
+  /** Distinct count of projectId across the matching connection */
+  projectId?: Maybe<Scalars['BigInt']['output']>;
+};
+
+/** A filter to be used against `RecentTask` object types. All fields are combined with a logical ‘and.’ */
+export type RecentTaskFilter = {
+  /** Checks for all expressions in this list. */
+  and?: InputMaybe<Array<RecentTaskFilter>>;
+  /** Filter by the object’s `description` field. */
+  description?: InputMaybe<StringFilter>;
+  /** Filter by the object’s `latestMaxEntryTimerEstimatedTime` field. */
+  latestMaxEntryTimerEstimatedTime?: InputMaybe<IntFilter>;
+  /** Negates the expression. */
+  not?: InputMaybe<RecentTaskFilter>;
+  /** Checks for any expressions in this list. */
+  or?: InputMaybe<Array<RecentTaskFilter>>;
+  /** Filter by the object’s `projectId` field. */
+  projectId?: InputMaybe<IntFilter>;
+};
+
+export type RecentTaskMaxAggregates = {
+  __typename?: 'RecentTaskMaxAggregates';
+  /** Maximum of latestMaxEntryTimerEstimatedTime across the matching connection */
+  latestMaxEntryTimerEstimatedTime?: Maybe<Scalars['Int']['output']>;
+  /** Maximum of projectId across the matching connection */
+  projectId?: Maybe<Scalars['Int']['output']>;
+};
+
+export type RecentTaskMinAggregates = {
+  __typename?: 'RecentTaskMinAggregates';
+  /** Minimum of latestMaxEntryTimerEstimatedTime across the matching connection */
+  latestMaxEntryTimerEstimatedTime?: Maybe<Scalars['Int']['output']>;
+  /** Minimum of projectId across the matching connection */
+  projectId?: Maybe<Scalars['Int']['output']>;
+};
+
+export type RecentTaskStddevPopulationAggregates = {
+  __typename?: 'RecentTaskStddevPopulationAggregates';
+  /** Population standard deviation of latestMaxEntryTimerEstimatedTime across the matching connection */
+  latestMaxEntryTimerEstimatedTime?: Maybe<Scalars['BigFloat']['output']>;
+  /** Population standard deviation of projectId across the matching connection */
+  projectId?: Maybe<Scalars['BigFloat']['output']>;
+};
+
+export type RecentTaskStddevSampleAggregates = {
+  __typename?: 'RecentTaskStddevSampleAggregates';
+  /** Sample standard deviation of latestMaxEntryTimerEstimatedTime across the matching connection */
+  latestMaxEntryTimerEstimatedTime?: Maybe<Scalars['BigFloat']['output']>;
+  /** Sample standard deviation of projectId across the matching connection */
+  projectId?: Maybe<Scalars['BigFloat']['output']>;
+};
+
+export type RecentTaskSumAggregates = {
+  __typename?: 'RecentTaskSumAggregates';
+  /** Sum of latestMaxEntryTimerEstimatedTime across the matching connection */
+  latestMaxEntryTimerEstimatedTime: Scalars['BigInt']['output'];
+  /** Sum of projectId across the matching connection */
+  projectId: Scalars['BigInt']['output'];
+};
+
+export type RecentTaskVariancePopulationAggregates = {
+  __typename?: 'RecentTaskVariancePopulationAggregates';
+  /** Population variance of latestMaxEntryTimerEstimatedTime across the matching connection */
+  latestMaxEntryTimerEstimatedTime?: Maybe<Scalars['BigFloat']['output']>;
+  /** Population variance of projectId across the matching connection */
+  projectId?: Maybe<Scalars['BigFloat']['output']>;
+};
+
+export type RecentTaskVarianceSampleAggregates = {
+  __typename?: 'RecentTaskVarianceSampleAggregates';
+  /** Sample variance of latestMaxEntryTimerEstimatedTime across the matching connection */
+  latestMaxEntryTimerEstimatedTime?: Maybe<Scalars['BigFloat']['output']>;
+  /** Sample variance of projectId across the matching connection */
+  projectId?: Maybe<Scalars['BigFloat']['output']>;
+};
+
+/** A connection to a list of `RecentTask` values. */
+export type RecentTasksConnection = {
+  __typename?: 'RecentTasksConnection';
+  /** Aggregates across the matching connection (ignoring before/after/first/last/offset) */
+  aggregates?: Maybe<RecentTaskAggregates>;
+  /** A list of edges which contains the `RecentTask` and cursor to aid in pagination. */
+  edges: Array<RecentTasksEdge>;
+  /** Grouped aggregates across the matching connection (ignoring before/after/first/last/offset) */
+  groupedAggregates?: Maybe<Array<RecentTaskAggregates>>;
+  /** A list of `RecentTask` objects. */
+  nodes: Array<Maybe<RecentTask>>;
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo;
+  /** The count of *all* `RecentTask` you could get from the connection. */
+  totalCount: Scalars['Int']['output'];
+};
+
+
+/** A connection to a list of `RecentTask` values. */
+export type RecentTasksConnectionGroupedAggregatesArgs = {
+  groupBy: Array<RecentTasksGroupBy>;
+  having?: InputMaybe<RecentTasksHavingInput>;
+};
+
+/** A `RecentTask` edge in the connection. */
+export type RecentTasksEdge = {
+  __typename?: 'RecentTasksEdge';
+  /** A cursor for use in pagination. */
+  cursor?: Maybe<Scalars['Cursor']['output']>;
+  /** The `RecentTask` at the end of the edge. */
+  node?: Maybe<RecentTask>;
+};
+
+/** Grouping methods for `RecentTask` for usage during aggregation. */
+export enum RecentTasksGroupBy {
+  Description = 'DESCRIPTION',
+  LatestMaxEntryTimerEstimatedTime = 'LATEST_MAX_ENTRY_TIMER_ESTIMATED_TIME',
+  ProjectId = 'PROJECT_ID'
+}
+
+export type RecentTasksHavingAverageInput = {
+  latestMaxEntryTimerEstimatedTime?: InputMaybe<HavingIntFilter>;
+  projectId?: InputMaybe<HavingIntFilter>;
+};
+
+export type RecentTasksHavingDistinctCountInput = {
+  latestMaxEntryTimerEstimatedTime?: InputMaybe<HavingIntFilter>;
+  projectId?: InputMaybe<HavingIntFilter>;
+};
+
+/** Conditions for `RecentTask` aggregates. */
+export type RecentTasksHavingInput = {
+  AND?: InputMaybe<Array<RecentTasksHavingInput>>;
+  OR?: InputMaybe<Array<RecentTasksHavingInput>>;
+  average?: InputMaybe<RecentTasksHavingAverageInput>;
+  distinctCount?: InputMaybe<RecentTasksHavingDistinctCountInput>;
+  max?: InputMaybe<RecentTasksHavingMaxInput>;
+  maxDate?: InputMaybe<RecentTasksHavingMaxDateInput>;
+  min?: InputMaybe<RecentTasksHavingMinInput>;
+  minDate?: InputMaybe<RecentTasksHavingMinDateInput>;
+  stddevPopulation?: InputMaybe<RecentTasksHavingStddevPopulationInput>;
+  stddevSample?: InputMaybe<RecentTasksHavingStddevSampleInput>;
+  sum?: InputMaybe<RecentTasksHavingSumInput>;
+  variancePopulation?: InputMaybe<RecentTasksHavingVariancePopulationInput>;
+  varianceSample?: InputMaybe<RecentTasksHavingVarianceSampleInput>;
+};
+
+export type RecentTasksHavingMaxDateInput = {
+  latestMaxEntryTimerEstimatedTime?: InputMaybe<HavingIntFilter>;
+  projectId?: InputMaybe<HavingIntFilter>;
+};
+
+export type RecentTasksHavingMaxInput = {
+  latestMaxEntryTimerEstimatedTime?: InputMaybe<HavingIntFilter>;
+  projectId?: InputMaybe<HavingIntFilter>;
+};
+
+export type RecentTasksHavingMinDateInput = {
+  latestMaxEntryTimerEstimatedTime?: InputMaybe<HavingIntFilter>;
+  projectId?: InputMaybe<HavingIntFilter>;
+};
+
+export type RecentTasksHavingMinInput = {
+  latestMaxEntryTimerEstimatedTime?: InputMaybe<HavingIntFilter>;
+  projectId?: InputMaybe<HavingIntFilter>;
+};
+
+export type RecentTasksHavingStddevPopulationInput = {
+  latestMaxEntryTimerEstimatedTime?: InputMaybe<HavingIntFilter>;
+  projectId?: InputMaybe<HavingIntFilter>;
+};
+
+export type RecentTasksHavingStddevSampleInput = {
+  latestMaxEntryTimerEstimatedTime?: InputMaybe<HavingIntFilter>;
+  projectId?: InputMaybe<HavingIntFilter>;
+};
+
+export type RecentTasksHavingSumInput = {
+  latestMaxEntryTimerEstimatedTime?: InputMaybe<HavingIntFilter>;
+  projectId?: InputMaybe<HavingIntFilter>;
+};
+
+export type RecentTasksHavingVariancePopulationInput = {
+  latestMaxEntryTimerEstimatedTime?: InputMaybe<HavingIntFilter>;
+  projectId?: InputMaybe<HavingIntFilter>;
+};
+
+export type RecentTasksHavingVarianceSampleInput = {
+  latestMaxEntryTimerEstimatedTime?: InputMaybe<HavingIntFilter>;
+  projectId?: InputMaybe<HavingIntFilter>;
+};
+
+/** Methods to use when ordering `RecentTask`. */
+export enum RecentTasksOrderBy {
+  DescriptionAsc = 'DESCRIPTION_ASC',
+  DescriptionDesc = 'DESCRIPTION_DESC',
+  LatestMaxEntryTimerEstimatedTimeAsc = 'LATEST_MAX_ENTRY_TIMER_ESTIMATED_TIME_ASC',
+  LatestMaxEntryTimerEstimatedTimeDesc = 'LATEST_MAX_ENTRY_TIMER_ESTIMATED_TIME_DESC',
+  Natural = 'NATURAL',
+  ProjectIdAsc = 'PROJECT_ID_ASC',
+  ProjectIdDesc = 'PROJECT_ID_DESC'
+}
 
 /** All input for the `reorderEntries` mutation. */
 export type ReorderEntriesInput = {
@@ -5545,6 +5828,26 @@ export type RestartEntryMutationVariables = Exact<{
 
 export type RestartEntryMutation = { __typename?: 'Mutation', Entry?: { __typename?: 'RestartEntryPayload', entry?: { __typename?: 'Entry', id: number, description?: string | null, complete: boolean, date: string, timerActive: boolean, timerTrackedTime: number, timerStartedAt?: any | null, timerEstimatedTime: number, listOrder?: number | null } | null } | null };
 
+export type CreateEntryWithTaskMutationVariables = Exact<{
+  date?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  projectId?: InputMaybe<Scalars['Int']['input']>;
+  timerEstimatedTime?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type CreateEntryWithTaskMutation = { __typename?: 'Mutation', createEntryWithTask?: { __typename?: 'CreateEntryWithTaskPayload', entry?: { __typename?: 'Entry', id: number, description?: string | null, complete: boolean, date: string, timerActive: boolean, timerTrackedTime: number, timerStartedAt?: any | null, timerEstimatedTime: number, listOrder?: number | null } | null } | null };
+
+export type CategoriesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CategoriesQuery = { __typename?: 'Query', categories?: Array<{ __typename?: 'Category', id: number, description: string, color?: string | null, colorContrast?: boolean | null }> | null };
+
+export type ProjectsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ProjectsQuery = { __typename?: 'Query', projects?: Array<{ __typename?: 'Project', id: number, description: string, category?: { __typename?: 'Category', id: number, color?: string | null, colorContrast?: boolean | null } | null }> | null };
+
 export type FilteredEntriesQueryVariables = Exact<{
   datesIn: Array<Scalars['String']['input']> | Scalars['String']['input'];
 }>;
@@ -5552,15 +5855,18 @@ export type FilteredEntriesQueryVariables = Exact<{
 
 export type FilteredEntriesQuery = { __typename?: 'Query', entries?: Array<{ __typename?: 'Entry', id: number, description?: string | null, complete: boolean, date: string, timerActive: boolean, timerTrackedTime: number, timerStartedAt?: any | null, timerEstimatedTime: number, listOrder?: number | null, task?: { __typename?: 'Task', id: number, description: string, project?: { __typename?: 'Project', id: number, description: string, category?: { __typename?: 'Category', id: number, color?: string | null, colorContrast?: boolean | null, description: string } | null } | null } | null }> | null };
 
-export type CategoriesQueryVariables = Exact<{ [key: string]: never; }>;
+export type RecentTasksQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type CategoriesQuery = { __typename?: 'Query', categories?: Array<{ __typename?: 'Category', id: number, description: string, color?: string | null, colorContrast?: boolean | null }> | null };
+export type RecentTasksQuery = { __typename?: 'Query', recentTasks?: Array<{ __typename?: 'RecentTask', projectId?: number | null, description?: string | null, latestMaxEntryTimerEstimatedTime?: number | null }> | null };
 
 
 export const StartEntryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"startEntry"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"Entry"},"name":{"kind":"Name","value":"startEntry"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"entry"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"complete"}},{"kind":"Field","name":{"kind":"Name","value":"date"}},{"kind":"Field","name":{"kind":"Name","value":"timerActive"}},{"kind":"Field","name":{"kind":"Name","value":"timerTrackedTime"}},{"kind":"Field","name":{"kind":"Name","value":"timerStartedAt"}},{"kind":"Field","name":{"kind":"Name","value":"timerEstimatedTime"}},{"kind":"Field","name":{"kind":"Name","value":"listOrder"}}]}}]}}]}}]} as unknown as DocumentNode<StartEntryMutation, StartEntryMutationVariables>;
 export const StopEntryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"stopEntry"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"Entry"},"name":{"kind":"Name","value":"stopEntry"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"entry"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"complete"}},{"kind":"Field","name":{"kind":"Name","value":"date"}},{"kind":"Field","name":{"kind":"Name","value":"timerActive"}},{"kind":"Field","name":{"kind":"Name","value":"timerTrackedTime"}},{"kind":"Field","name":{"kind":"Name","value":"timerStartedAt"}},{"kind":"Field","name":{"kind":"Name","value":"timerEstimatedTime"}},{"kind":"Field","name":{"kind":"Name","value":"listOrder"}}]}}]}}]}}]} as unknown as DocumentNode<StopEntryMutation, StopEntryMutationVariables>;
 export const CompleteEntryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"completeEntry"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"Entry"},"name":{"kind":"Name","value":"completeEntry"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"entry"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"complete"}},{"kind":"Field","name":{"kind":"Name","value":"date"}},{"kind":"Field","name":{"kind":"Name","value":"timerActive"}},{"kind":"Field","name":{"kind":"Name","value":"timerTrackedTime"}},{"kind":"Field","name":{"kind":"Name","value":"timerStartedAt"}},{"kind":"Field","name":{"kind":"Name","value":"timerEstimatedTime"}},{"kind":"Field","name":{"kind":"Name","value":"listOrder"}}]}}]}}]}}]} as unknown as DocumentNode<CompleteEntryMutation, CompleteEntryMutationVariables>;
 export const RestartEntryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"restartEntry"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"Entry"},"name":{"kind":"Name","value":"restartEntry"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"entry"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"complete"}},{"kind":"Field","name":{"kind":"Name","value":"date"}},{"kind":"Field","name":{"kind":"Name","value":"timerActive"}},{"kind":"Field","name":{"kind":"Name","value":"timerTrackedTime"}},{"kind":"Field","name":{"kind":"Name","value":"timerStartedAt"}},{"kind":"Field","name":{"kind":"Name","value":"timerEstimatedTime"}},{"kind":"Field","name":{"kind":"Name","value":"listOrder"}}]}}]}}]}}]} as unknown as DocumentNode<RestartEntryMutation, RestartEntryMutationVariables>;
-export const FilteredEntriesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"filteredEntries"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"datesIn"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"entries"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filter"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"date"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"in"},"value":{"kind":"Variable","name":{"kind":"Name","value":"datesIn"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"complete"}},{"kind":"Field","name":{"kind":"Name","value":"date"}},{"kind":"Field","name":{"kind":"Name","value":"timerActive"}},{"kind":"Field","name":{"kind":"Name","value":"timerTrackedTime"}},{"kind":"Field","name":{"kind":"Name","value":"timerStartedAt"}},{"kind":"Field","name":{"kind":"Name","value":"timerEstimatedTime"}},{"kind":"Field","name":{"kind":"Name","value":"listOrder"}},{"kind":"Field","name":{"kind":"Name","value":"task"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"project"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"category"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"color"}},{"kind":"Field","name":{"kind":"Name","value":"colorContrast"}},{"kind":"Field","name":{"kind":"Name","value":"description"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<FilteredEntriesQuery, FilteredEntriesQueryVariables>;
+export const CreateEntryWithTaskDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"createEntryWithTask"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"date"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}},"defaultValue":{"kind":"StringValue","value":"","block":false}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"description"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}},"defaultValue":{"kind":"StringValue","value":"","block":false}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"projectId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}},"defaultValue":{"kind":"IntValue","value":"10"}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"timerEstimatedTime"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}},"defaultValue":{"kind":"IntValue","value":"10"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createEntryWithTask"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"date"},"value":{"kind":"Variable","name":{"kind":"Name","value":"date"}}},{"kind":"ObjectField","name":{"kind":"Name","value":"description"},"value":{"kind":"Variable","name":{"kind":"Name","value":"description"}}},{"kind":"ObjectField","name":{"kind":"Name","value":"projectId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"projectId"}}},{"kind":"ObjectField","name":{"kind":"Name","value":"timerEstimatedTime"},"value":{"kind":"Variable","name":{"kind":"Name","value":"timerEstimatedTime"}}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"entry"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"complete"}},{"kind":"Field","name":{"kind":"Name","value":"date"}},{"kind":"Field","name":{"kind":"Name","value":"timerActive"}},{"kind":"Field","name":{"kind":"Name","value":"timerTrackedTime"}},{"kind":"Field","name":{"kind":"Name","value":"timerStartedAt"}},{"kind":"Field","name":{"kind":"Name","value":"timerEstimatedTime"}},{"kind":"Field","name":{"kind":"Name","value":"listOrder"}}]}}]}}]}}]} as unknown as DocumentNode<CreateEntryWithTaskMutation, CreateEntryWithTaskMutationVariables>;
 export const CategoriesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"categories"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"categories"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"color"}},{"kind":"Field","name":{"kind":"Name","value":"colorContrast"}}]}}]}}]} as unknown as DocumentNode<CategoriesQuery, CategoriesQueryVariables>;
+export const ProjectsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"projects"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"projects"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"category"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"color"}},{"kind":"Field","name":{"kind":"Name","value":"colorContrast"}}]}}]}}]}}]} as unknown as DocumentNode<ProjectsQuery, ProjectsQueryVariables>;
+export const FilteredEntriesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"filteredEntries"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"datesIn"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"entries"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filter"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"date"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"in"},"value":{"kind":"Variable","name":{"kind":"Name","value":"datesIn"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"complete"}},{"kind":"Field","name":{"kind":"Name","value":"date"}},{"kind":"Field","name":{"kind":"Name","value":"timerActive"}},{"kind":"Field","name":{"kind":"Name","value":"timerTrackedTime"}},{"kind":"Field","name":{"kind":"Name","value":"timerStartedAt"}},{"kind":"Field","name":{"kind":"Name","value":"timerEstimatedTime"}},{"kind":"Field","name":{"kind":"Name","value":"listOrder"}},{"kind":"Field","name":{"kind":"Name","value":"task"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"project"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"category"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"color"}},{"kind":"Field","name":{"kind":"Name","value":"colorContrast"}},{"kind":"Field","name":{"kind":"Name","value":"description"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<FilteredEntriesQuery, FilteredEntriesQueryVariables>;
+export const RecentTasksDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"recentTasks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"recentTasks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"projectId"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"latestMaxEntryTimerEstimatedTime"}}]}}]}}]} as unknown as DocumentNode<RecentTasksQuery, RecentTasksQueryVariables>;

@@ -16,6 +16,25 @@ export function useCategories() {
   return computed(() => result.value?.categories ?? [])
 }
 
+export function useProjects() {
+  const { result } = useQuery(
+    graphql(`
+      query projects {
+        projects {
+          id
+          description
+          category {
+            id
+            color
+            colorContrast
+          }
+        }
+      }
+    `)
+  )
+  return computed(() => result.value?.projects ?? [])
+}
+
 export function useFilteredEntries({ datesIn }) {
   const { result } = useQuery(
     graphql(`

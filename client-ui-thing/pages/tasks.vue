@@ -16,7 +16,7 @@
 <script lang="ts" setup>
   import CategoryFilter from "@/components/CategoryFilter.vue"
   import Entry from "@/components/Entry.vue"
-  import { graphql } from "@/gql/gql"
+  import { useFilteredEntries } from "@/queries"
 
   const selectedCategory = ref(null)
 
@@ -45,43 +45,13 @@
   }
 
   const today = new Date()
-  const entries = graphql(`
-    query filteredEntries($datesIn: [String!]!) {
-      entries(filter: { date: { in: $datesIn } }) {
-        id
-        description
-        complete
-        date
-        timerActive
-        timerTrackedTime
-        timerStartedAt
-        timerEstimatedTime
-        listOrder
-        task {
-          id
-          description
-          project {
-            id
-            description
-            category {
-              id
-              color
-              colorContrast
-              description
-            }
-          }
-        }
-      }
-    }
-  `)
   const selectedEntryIndex = ref(0)
   const showCompleted = ref(false)
-  const { result } = useQuery(entries, {
+  const entries = useFilteredEntries({
     datesIn: [today.toISOString().split("T")[0]],
   })
-  const allEntries = computed(() => result.value?.entries ?? [])
   const sortedEntries = computed(() =>
-    allEntries.value.slice().sort((a, b) => a.listOrder - b.listOrder)
+    entries.value.slice().sort((a, b) => a.listOrder - b.listOrder)
   )
   const filteredEntries = computed(() => {
     let entries = sortedEntries.value

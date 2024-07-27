@@ -59,17 +59,16 @@
 
   const model = defineModel()
 
-  const { data } = await useCategories()
-  const allCategories = computed(() => data.value?.categories ?? [])
+  const categories = useCategories()
 
   const open = ref(false)
 
   const selectedCategory = computed(
-    () => allCategories.value.find((category) => category.id === model?.value?.id)?.description
+    () => categories.value.find((category) => category.id === model?.value?.id)?.description
   )
 
   const sortedCategories = computed(() =>
-    allCategories.value.slice().sort((a, b) => a.description.localeCompare(b.description))
+    categories.value.slice().sort((a, b) => a.description.localeCompare(b.description))
   )
 
   const filterFunction = (list: typeof categories, search: string) =>

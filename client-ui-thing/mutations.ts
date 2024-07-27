@@ -1,5 +1,5 @@
 import { graphql } from "@/gql/gql"
-import type { Entry } from "@/gql/graphql"
+import type { CreateEntryWithTaskInput, Entry } from "@/gql/graphql"
 
 const startEntry = (entry: Entry) => {
   const startEntryMutation = graphql(`
@@ -107,4 +107,39 @@ const restartEntry = (entry: Entry) => {
   mutate()
 }
 
-export { startEntry, stopEntry, completeEntry, restartEntry }
+const createEntryWithTask = (entryWithTask: CreateEntryWithTaskInput) => {
+  const createEntryWithTaskMutation = graphql(`
+    mutation createEntryWithTask(
+      $date: String = ""
+      $description: String = ""
+      $projectId: Int = 10
+      $timerEstimatedTime: Int = 10
+    ) {
+      createEntryWithTask(
+        input: {
+          date: $date
+          description: $description
+          projectId: $projectId
+          timerEstimatedTime: $timerEstimatedTime
+        }
+      ) {
+        entry {
+          id
+          description
+          complete
+          date
+          timerActive
+          timerTrackedTime
+          timerStartedAt
+          timerEstimatedTime
+          listOrder
+        }
+      }
+    }
+  `)
+  return useMutation(createEntryWithTaskMutation, {
+    variables: entryWithTask,
+  })
+}
+
+export { createEntryWithTask, startEntry, stopEntry, completeEntry, restartEntry }

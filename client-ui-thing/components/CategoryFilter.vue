@@ -20,7 +20,7 @@
         <UiCommand :filter-function="filterFunction" v-model="model">
           <UiCommandInput :show-cancel="true" placeholder="Search category..." />
           <UiCommandList>
-            <UiCommandEmpty>No framework found.</UiCommandEmpty>
+            <UiCommandEmpty>No category found with that keyword.</UiCommandEmpty>
             <UiCommandGroup>
               <UiScrollArea class="h-72">
                 <UiCommandItem

@@ -55,7 +55,7 @@
   const today = new Date()
   const selectedEntryIndex = ref(0)
   const showCompleted = ref(false)
-  const entries = useFilteredEntries({
+  const { entries, refetch: refetchEntries } = useFilteredEntries({
     datesIn: [today.toISOString().split("T")[0]],
   })
   const sortedEntries = computed(() =>
@@ -72,4 +72,14 @@
   })
 
   const showQuickAddTaskModal = ref(false)
+
+  // Refetch entries when the quick add task modal is closed
+  watch(
+    () => showQuickAddTaskModal.value,
+    (value) => {
+      if (value === false) {
+        refetchEntries()
+      }
+    }
+  )
 </script>

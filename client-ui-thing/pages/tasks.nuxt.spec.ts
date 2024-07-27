@@ -23,7 +23,9 @@ describe("tasks page", () => {
   beforeEach(async () => {
     vi.mock("@/queries.ts", () => ({
       useCategories: () => computed(() => mockCategories),
-      useFilteredEntries: () => computed(() => []),
+      useFilteredEntries: () => {
+        return { entries: computed(() => []), refetch: vi.fn() }
+      },
       useRecentTasks: () => computed(() => []),
       useProjects: () => computed(() => []),
     }))

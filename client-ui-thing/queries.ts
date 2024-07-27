@@ -36,7 +36,7 @@ export function useProjects() {
 }
 
 export function useFilteredEntries({ datesIn }) {
-  const { result } = useQuery(
+  const { result, refetch } = useQuery(
     graphql(`
       query filteredEntries($datesIn: [String!]!) {
         entries(filter: { date: { in: $datesIn } }) {
@@ -70,7 +70,8 @@ export function useFilteredEntries({ datesIn }) {
       datesIn,
     }
   )
-  return computed(() => result.value?.entries ?? [])
+  const entries = computed(() => result.value?.entries ?? [])
+  return { entries, refetch }
 }
 
 export function useRecentTasks() {

@@ -76,4 +76,6 @@ export default defineNuxtConfig({
       setupFiles: ["tests/setup.ts"],
     },
   },
+
+  ignore: ["**/*.nuxt.spec.ts"],
 })

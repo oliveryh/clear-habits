@@ -21,14 +21,7 @@ const mockCategories = [
 describe("CategoryFilter", () => {
   beforeEach(async () => {
     vi.mock("@/queries.ts", () => ({
-      useCategories: () => ({
-        data: {
-          value: {
-            categories: mockCategories,
-          },
-        },
-        loading: false,
-      }),
+      useCategories: () => computed(() => mockCategories),
     }))
     await renderSuspended(CategoryFilter)
   })

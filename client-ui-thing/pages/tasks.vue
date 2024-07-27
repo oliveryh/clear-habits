@@ -1,9 +1,16 @@
 <template>
   <div class="flex grid items-center justify-center gap-4 pb-4 pt-4">
-    <div class="justify-right flex w-[360px]">
+    <QuickAddTask v-model="showQuickAddTaskModal" />
+    <div class="flex w-[360px] justify-between">
       <div class="flex items-center space-x-2">
         <UiSwitch id="show-completed" v-model:checked="showCompleted" />
         <UiLabel for="show-completed">Show Completed</UiLabel>
+      </div>
+      <div class="flex items-center space-x-2">
+        <UiButton variant="secondary" @click="() => (showQuickAddTaskModal = true)">
+          <Icon class="h-4 w-4" name="lucide:circle-check" />
+          Quick Add
+        </UiButton>
       </div>
     </div>
     <CategoryFilter class="flex-grow" v-model="selectedCategory" />
@@ -16,7 +23,8 @@
 <script lang="ts" setup>
   import CategoryFilter from "@/components/CategoryFilter.vue"
   import Entry from "@/components/Entry.vue"
-  import { graphql } from "@/gql/gql"
+  import QuickAddTask from "@/components/modal/QuickAddTask.vue"
+  import { useFilteredEntries } from "@/queries"
 
   const selectedCategory = ref(null)
 
@@ -45,43 +53,13 @@
   }
 
   const today = new Date()
-  const entries = graphql(`
-    query filteredEntries($datesIn: [String!]!) {
-      entries(filter: { date: { in: $datesIn } }) {
-        id
-        description
-        complete
-        date
-        timerActive
-        timerTrackedTime
-        timerStartedAt
-        timerEstimatedTime
-        listOrder
-        task {
-          id
-          description
-          project {
-            id
-            description
-            category {
-              id
-              color
-              colorContrast
-              description
-            }
-          }
-        }
-      }
-    }
-  `)
   const selectedEntryIndex = ref(0)
   const showCompleted = ref(false)
-  const { result } = useQuery(entries, {
+  const { entries, refetch: refetchEntries } = useFilteredEntries({
     datesIn: [today.toISOString().split("T")[0]],
   })
-  const allEntries = computed(() => result.value?.entries ?? [])
   const sortedEntries = computed(() =>
-    allEntries.value.slice().sort((a, b) => a.listOrder - b.listOrder)
+    entries.value.slice().sort((a, b) => a.listOrder - b.listOrder)
   )
   const filteredEntries = computed(() => {
     let entries = sortedEntries.value
@@ -92,4 +70,16 @@
       )
     return entries
   })
+
+  const showQuickAddTaskModal = ref(false)
+
+  // Refetch entries when the quick add task modal is closed
+  watch(
+    () => showQuickAddTaskModal.value,
+    (value) => {
+      if (value === false) {
+        refetchEntries()
+      }
+    }
+  )
 </script>

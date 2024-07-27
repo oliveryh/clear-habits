@@ -72,3 +72,18 @@ export function useFilteredEntries({ datesIn }) {
   )
   return computed(() => result.value?.entries ?? [])
 }
+
+export function useRecentTasks() {
+  const { result } = useQuery(
+    graphql(`
+      query recentTasks {
+        recentTasks {
+          projectId
+          description
+          latestMaxEntryTimerEstimatedTime
+        }
+      }
+    `)
+  )
+  return computed(() => result.value?.recentTasks ?? [])
+}

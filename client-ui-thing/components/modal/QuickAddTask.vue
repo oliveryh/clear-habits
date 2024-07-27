@@ -3,19 +3,19 @@
     <UiDialog v-model:open="model">
       <UiDialogContent
         hideClose
-        class="sm:max-w-[450px]"
+        class="w-11/12"
         title="Quick Add Task"
         description="Select from your most frequently added tasks."
       >
         <template #content>
           <UiPopover v-model:open="open">
-            <div class="flex justify-between">
+            <div class="flex flex-col justify-between sm:flex-row">
               <UiPopoverTrigger as-child>
                 <UiButton
                   variant="outline"
                   role="combobox"
                   :aria-expanded="open"
-                  class="mb-0 w-[350px] justify-between"
+                  class="mb-4 mr-0 flex-grow justify-between sm:mb-0 sm:mr-4"
                 >
                   <template v-if="value">
                     <span
@@ -41,11 +41,11 @@
                   />
                 </UiButton>
               </UiPopoverTrigger>
-              <UiButton class="ml-3 flex-grow" variant="secondary" size="sm" @click="createTask">
-                <Icon name="lucide:plus" data-testid="pause-icon" />
+              <UiButton class="max-w-32" variant="secondary" @click="createTask">
+                <Icon name="lucide:plus" data-testid="pause-icon" />Add Task
               </UiButton>
             </div>
-            <UiPopoverContent class="w-[350px] p-0">
+            <UiPopoverContent class="w-full p-0">
               <UiCommand :filter-function="filterFunction" v-model="value">
                 <UiCommandInput placeholder="Search framework..." />
                 <UiCommandList>
@@ -160,7 +160,7 @@
     const { mutate: createTask, onDone: announceUpdate } = createEntryWithTask(newEntryWithTask)
     createTask()
     announceUpdate(() => {
-      useSonner.success(`Task "${value.value.description}" added`)
+      useSonner.info(`${value.value.description} added successfully`, { position: "bottom-center" })
     })
   }
 </script>

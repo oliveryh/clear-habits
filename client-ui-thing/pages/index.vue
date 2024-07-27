@@ -48,7 +48,7 @@
       const router = useRouter()
       router.push("/tasks")
     } else {
-      useSonner.error("Invalid email or password")
+      useSonner.error("Invalid email or password", { position: "bottom-center" })
     }
   })
 </script>

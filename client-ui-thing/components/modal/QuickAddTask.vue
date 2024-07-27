@@ -160,7 +160,7 @@
     const { mutate: createTask, onDone: announceUpdate } = createEntryWithTask(newEntryWithTask)
     createTask()
     announceUpdate(() => {
-      useSonner.success(`Task "${value.value.description}" added`)
+      useSonner.info(`${value.value.description} added successfully`, { position: "bottom-center" })
     })
   }
 </script>

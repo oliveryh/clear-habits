@@ -1,5 +1,7 @@
 """Welcome to Reflex! This file outlines the steps to create a basic app."""
 
+from datetime import date
+
 import reflex as rx
 import sqlalchemy
 
@@ -9,12 +11,14 @@ from clearhabits.models import Entries
 class QueryEntries(rx.State):
     entries: list[Entries] = []
 
-    def get_entries(self, date) -> None:
+    def get_entries(self) -> None:
+        # today in the form of "YYYY-MM-DD"
+        today = date.today().isoformat()
         with rx.session() as session:
             self.entries = session.exec(
                 Entries.select()
                 .options(sqlalchemy.orm.selectinload(Entries.task))
-                .where(Entries.date == date)
+                .where(Entries.date == today)
             ).all()
 
 
@@ -26,7 +30,7 @@ def render_entry(entry: Entries) -> rx.Component:
     )
 
 
-@rx.page(on_load=QueryEntries.get_entries("2024-07-27"))
+@rx.page(on_load=QueryEntries.get_entries())
 def index() -> rx.Component:
     return rx.container(
         rx.color_mode.button(position="top-right"),

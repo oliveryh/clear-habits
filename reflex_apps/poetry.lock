@@ -611,6 +611,25 @@ perf = ["ipython"]
 test = ["flufl.flake8", "importlib-resources (>=1.3)", "jaraco.test (>=5.4)", "packaging", "pyfakefs", "pytest (>=6,!=8.1.*)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-mypy", "pytest-perf (>=0.9.2)", "pytest-ruff (>=0.2.1)"]
 
 [[package]]
+name = "inflect"
+version = "7.3.1"
+description = "Correctly generate plurals, singular nouns, ordinals, indefinite articles"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "inflect-7.3.1-py3-none-any.whl", hash = "sha256:bedbae76877b054ecf0597153725677ab618fdd69abf189cc82e0f7a6720669d"},
+    {file = "inflect-7.3.1.tar.gz", hash = "sha256:edd785148a673b0c6dfef1a7d80cc1bcb2dd6d041cdb313b60032e464fd4e808"},
+]
+
+[package.dependencies]
+more-itertools = ">=8.5.0"
+typeguard = ">=4.0.1"
+
+[package.extras]
+doc = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-lint"]
+test = ["pygments", "pytest (>=6,!=8.1.*)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-mypy", "pytest-ruff (>=0.2.1)"]
+
+[[package]]
 name = "jaraco-classes"
 version = "3.4.0"
 description = "Utility functions for Python class constructs"
@@ -999,6 +1018,28 @@ files = [
 test = ["enum34", "ipaddress", "mock", "pywin32", "wmi"]
 
 [[package]]
+name = "psycopg2"
+version = "2.9.9"
+description = "psycopg2 - Python-PostgreSQL Database Adapter"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "psycopg2-2.9.9-cp310-cp310-win32.whl", hash = "sha256:38a8dcc6856f569068b47de286b472b7c473ac7977243593a288ebce0dc89516"},
+    {file = "psycopg2-2.9.9-cp310-cp310-win_amd64.whl", hash = "sha256:426f9f29bde126913a20a96ff8ce7d73fd8a216cfb323b1f04da402d452853c3"},
+    {file = "psycopg2-2.9.9-cp311-cp311-win32.whl", hash = "sha256:ade01303ccf7ae12c356a5e10911c9e1c51136003a9a1d92f7aa9d010fb98372"},
+    {file = "psycopg2-2.9.9-cp311-cp311-win_amd64.whl", hash = "sha256:121081ea2e76729acfb0673ff33755e8703d45e926e416cb59bae3a86c6a4981"},
+    {file = "psycopg2-2.9.9-cp312-cp312-win32.whl", hash = "sha256:d735786acc7dd25815e89cc4ad529a43af779db2e25aa7c626de864127e5a024"},
+    {file = "psycopg2-2.9.9-cp312-cp312-win_amd64.whl", hash = "sha256:a7653d00b732afb6fc597e29c50ad28087dcb4fbfb28e86092277a559ae4e693"},
+    {file = "psycopg2-2.9.9-cp37-cp37m-win32.whl", hash = "sha256:5e0d98cade4f0e0304d7d6f25bbfbc5bd186e07b38eac65379309c4ca3193efa"},
+    {file = "psycopg2-2.9.9-cp37-cp37m-win_amd64.whl", hash = "sha256:7e2dacf8b009a1c1e843b5213a87f7c544b2b042476ed7755be813eaf4e8347a"},
+    {file = "psycopg2-2.9.9-cp38-cp38-win32.whl", hash = "sha256:ff432630e510709564c01dafdbe996cb552e0b9f3f065eb89bdce5bd31fabf4c"},
+    {file = "psycopg2-2.9.9-cp38-cp38-win_amd64.whl", hash = "sha256:bac58c024c9922c23550af2a581998624d6e02350f4ae9c5f0bc642c633a2d5e"},
+    {file = "psycopg2-2.9.9-cp39-cp39-win32.whl", hash = "sha256:c92811b2d4c9b6ea0285942b2e7cac98a59e166d59c588fe5cfe1eda58e72d59"},
+    {file = "psycopg2-2.9.9-cp39-cp39-win_amd64.whl", hash = "sha256:de80739447af31525feddeb8effd640782cf5998e1a4e9192ebdf829717e3913"},
+    {file = "psycopg2-2.9.9.tar.gz", hash = "sha256:d1454bde93fb1e224166811694d600e746430c006fbb031ea06ecc2ea41bf156"},
+]
+
+[[package]]
 name = "pycparser"
 version = "2.22"
 description = "C parser in Python"
@@ -1170,6 +1211,20 @@ files = [
 
 [package.dependencies]
 six = ">=1.5"
+
+[[package]]
+name = "python-dotenv"
+version = "1.0.1"
+description = "Read key-value pairs from a .env file and set them as environment variables"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "python-dotenv-1.0.1.tar.gz", hash = "sha256:e324ee90a023d808f1959c46bcbc04446a10ced277783dc6ee09987c37ec10ca"},
+    {file = "python_dotenv-1.0.1-py3-none-any.whl", hash = "sha256:f7b63ef50f1b690dddf550d03497b66d609393b40b564ed0d674909a68ebf16a"},
+]
+
+[package.extras]
+cli = ["click (>=5.0)"]
 
 [[package]]
 name = "python-engineio"
@@ -1490,6 +1545,28 @@ files = [
 ]
 
 [[package]]
+name = "sqlacodegen"
+version = "3.0.0rc5"
+description = "Automatic model code generator for SQLAlchemy"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "sqlacodegen-3.0.0rc5-py3-none-any.whl", hash = "sha256:1fd84a6fc4bff701f396016b5d639a2cdf264ff433ac7a37755909e13d2240d5"},
+    {file = "sqlacodegen-3.0.0rc5.tar.gz", hash = "sha256:7dbc0e4c6e1cdc91d016192942d66eb8922bc4080a76d6e03866ba4ef8eb56f6"},
+]
+
+[package.dependencies]
+inflect = ">=4.0.0"
+SQLAlchemy = ">=2.0.23"
+
+[package.extras]
+citext = ["sqlalchemy-citext (>=1.7.0)"]
+geoalchemy2 = ["geoalchemy2 (>=0.11.1)"]
+pgvector = ["pgvector (>=0.2.4)"]
+sqlmodel = ["sqlmodel (>=0.0.12)"]
+test = ["coverage (>=7)", "mysql-connector-python", "psycopg2-binary", "pytest (>=7.4)"]
+
+[[package]]
 name = "sqlalchemy"
 version = "2.0.31"
 description = "Database Abstraction Library"
@@ -1688,6 +1765,24 @@ requests-toolbelt = ">=0.8.0,<0.9.0 || >0.9.0"
 rfc3986 = ">=1.4.0"
 rich = ">=12.0.0"
 urllib3 = ">=1.26.0"
+
+[[package]]
+name = "typeguard"
+version = "4.3.0"
+description = "Run-time type checker for Python"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "typeguard-4.3.0-py3-none-any.whl", hash = "sha256:4d24c5b39a117f8a895b9da7a9b3114f04eb63bade45a4492de49b175b6f7dfa"},
+    {file = "typeguard-4.3.0.tar.gz", hash = "sha256:92ee6a0aec9135181eae6067ebd617fd9de8d75d714fb548728a4933b1dea651"},
+]
+
+[package.dependencies]
+typing-extensions = ">=4.10.0"
+
+[package.extras]
+doc = ["Sphinx (>=7)", "packaging", "sphinx-autodoc-typehints (>=1.2.0)", "sphinx-rtd-theme (>=1.3.0)"]
+test = ["coverage[toml] (>=7)", "mypy (>=1.2.0)", "pytest (>=7)"]
 
 [[package]]
 name = "typer"
@@ -2090,4 +2185,4 @@ test = ["big-O", "importlib-resources", "jaraco.functools", "jaraco.itertools", 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "3ff2518e123156ff4dd703652702e07761e4ea8b20aaafb6894ee3857fd2e0be"
+content-hash = "b067436e82ec17f55f94f4337dce6cbe60e8fb4aada9e7d2989dad21c0139c27"

@@ -96,10 +96,101 @@ def render_entry(entry: Entries) -> rx.Component:
         rx.text(entry.task.description, font_weight="bold"),
         rx.text(entry.description),
         rx.text(entry.date),
+
+
+def login() -> rx.Component:
+    def form_field(label: str, placeholder: str, type: str, name: str) -> rx.Component:
+        return rx.form.field(
+            rx.flex(
+                rx.form.label(label),
+                rx.form.control(
+                    rx.input(placeholder=placeholder, type=type),
+                    as_child=True,
+                ),
+                direction="column",
+                spacing="1",
+            ),
+            name=name,
+            width="100%",
+        )
+
+    return rx.card(
+        rx.flex(
+            rx.hstack(
+                rx.badge(
+                    rx.icon(tag="mail-plus", size=32),
+                    color_scheme="blue",
+                    radius="full",
+                    padding="0.65rem",
+                ),
+                rx.vstack(
+                    rx.heading(
+                        "Login",
+                        size="4",
+                        weight="bold",
+                    ),
+                    rx.text(
+                        "Enter your credentials to use the app",
+                        size="2",
+                    ),
+                    spacing="1",
+                    height="100%",
+                ),
+                height="100%",
+                spacing="4",
+                align_items="center",
+                width="100%",
+            ),
+            rx.form.root(
+                rx.flex(
+                    rx.flex(
+                        form_field(
+                            "Email",
+                            "user@reflex.dev",
+                            "email",
+                            "email",
+                        ),
+                        form_field("Password", "Password", "password", "password"),
+                        spacing="3",
+                        flex_direction=[
+                            "column",
+                            "row",
+                            "row",
+                        ],
+                    ),
+                    rx.form.submit(
+                        rx.button("Submit"),
+                        as_child=True,
+                    ),
+                    direction="column",
+                    spacing="2",
+                    width="100%",
+                ),
+                on_submit=lambda form_data: Auth.check_password(form_data),
+                reset_on_submit=False,
+            ),
+            width="100%",
+            direction="column",
+            spacing="4",
+        ),
+        size="3",
     )
 
 
+def require_auth(page) -> rx.Component:
+    @functools.wraps(page)
+    def _auth_wrapper() -> rx.Component:
+        return rx.cond(
+            Auth.is_hydrated,
+            rx.cond(Auth.token_is_valid, page(), login()),
+            rx.spinner(),
+        )
+
+    return _auth_wrapper
+
+
 @rx.page(on_load=QueryEntries.get_entries())
+@require_auth
 def index() -> rx.Component:
     return rx.container(
         rx.color_mode.button(position="top-right"),
@@ -113,3 +204,4 @@ def index() -> rx.Component:
 
 app = rx.App()
 app.add_page(index)
+app.add_page(login)

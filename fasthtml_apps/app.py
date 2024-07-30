@@ -32,6 +32,12 @@ headers = (
 
 
 DB_URL = os.getenv("DB_URL")
+SUB_PATH = os.getenv("SUB_PATH")
+
+
+def get_path(original_path: str) -> str:
+    return f"/{SUB_PATH}{original_path}"
+
 
 engine = create_engine(DB_URL)
 
@@ -135,7 +141,7 @@ def entry_component(entry: Entries):
                         entry.timer_summary,
                         cls="btn btn-sm",
                     ),
-                    hx_put=f"/entries/toggle-timer/{entry.id}",
+                    hx_put=get_path(f"/entries/toggle-timer/{entry.id}"),
                     hx_swap="outerHTML",
                     target_id=f"entry-{entry.id}",
                 ),
@@ -146,7 +152,7 @@ def entry_component(entry: Entries):
                         else I(data_lucide="check"),
                         cls="btn btn-sm",
                     ),
-                    hx_put=f"/entries/toggle-completition/{entry.id}",
+                    hx_put=get_path(f"/entries/toggle-completition/{entry.id}"),
                     hx_swap="outerHTML",
                     target_id=f"entry-{entry.id}",
                 ),

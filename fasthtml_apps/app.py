@@ -8,11 +8,11 @@ from models import Entries, Tasks
 
 load_dotenv()
 
-import logging
+# import logging
 
-logging.basicConfig()
-logger = logging.getLogger("sqlalchemy.engine")
-logger.setLevel(logging.DEBUG)
+# logging.basicConfig()
+# logger = logging.getLogger("sqlalchemy.engine")
+# logger.setLevel(logging.DEBUG)
 
 
 import os

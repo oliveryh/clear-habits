@@ -183,7 +183,7 @@ def get():
     )
     todolist = Div(
         *[entry_component(entry) for _, entry in entries().items()],
-        cls="grid grid-cols-1 gap-4 max-w-lg mx-auto",
+        cls="grid grid-cols-1 gap-4 max-w-lg mx-auto mb-4",
     )
     contents = Main(navbar, todolist)
     icon_script = Script(

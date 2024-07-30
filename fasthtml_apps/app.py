@@ -8,16 +8,16 @@ from models import Entries, Tasks
 
 load_dotenv()
 
-import logging
+# import logging
 
-logging.basicConfig()
-logger = logging.getLogger("sqlalchemy.engine")
-logger.setLevel(logging.DEBUG)
+# logging.basicConfig()
+# logger = logging.getLogger("sqlalchemy.engine")
+# logger.setLevel(logging.DEBUG)
 
 
 import os
 
-CHOSEN_USER_ID = 2
+CHOSEN_USER_ID = os.getenv("CHOSEN_USER_ID")
 
 headers = (
     Script(src="https://cdn.tailwindcss.com"),
@@ -49,6 +49,7 @@ def entries():
                 )
                 .order_by(Entries.id)
                 .where(Entries.person_id == CHOSEN_USER_ID)
+                .where(Entries.date == str(datetime.now().date()))
             ).all()
         }
 

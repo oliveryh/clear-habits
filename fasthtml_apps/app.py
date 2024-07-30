@@ -125,7 +125,7 @@ def entry_component(entry: Entries):
         Div(
             Div(entry.task.project.description, cls="badge"),
             Div(entry.task.description, cls="font-bold"),
-            Div(entry.task.description),
+            Div(entry.description, cls="text-sm"),
             Div(
                 Form(
                     Button(

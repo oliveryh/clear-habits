@@ -49,6 +49,7 @@ def entries():
                 )
                 .order_by(Entries.id)
                 .where(Entries.person_id == CHOSEN_USER_ID)
+                .where(Entries.date == str(datetime.now().date()))
             ).all()
         }
 

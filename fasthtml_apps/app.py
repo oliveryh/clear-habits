@@ -17,7 +17,7 @@ load_dotenv()
 
 import os
 
-CHOSEN_USER_ID = 2
+CHOSEN_USER_ID = os.getenv("CHOSEN_USER_ID")
 
 headers = (
     Script(src="https://cdn.tailwindcss.com"),

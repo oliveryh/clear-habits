@@ -1,10 +1,9 @@
 import sqlalchemy
-import uvicorn
 from dotenv import load_dotenv
 from fasthtml.common import *
-from sqlmodel import Field, Session, SQLModel, create_engine, select, update
+from sqlmodel import Session, create_engine, select
 
-from models import Entries, Tasks
+from models import Entries, Tasks, Projects, Categories
 
 load_dotenv()
 
@@ -37,6 +36,7 @@ SUB_PATH = os.getenv("SUB_PATH")
 if SUB_PATH is None:
     raise ValueError("SUB_PATH is not set")
 
+
 def get_path(original_path: str) -> str:
     if SUB_PATH == "":
         return original_path
@@ -48,31 +48,37 @@ engine = create_engine(DB_URL)
 global stored_entries
 
 
-def entries():
+def entries(category_id=None):
     with Session(engine) as session:
-        stored_entries = {
-            entry.id: entry
-            for entry in session.exec(
-                select(Entries)
-                .options(
-                    sqlalchemy.orm.joinedload(Entries.task)
-                    .joinedload(Tasks.project)
-                    .joinedload(Projects.category)
-                )
-                .order_by(Entries.id)
-                .where(Entries.person_id == CHOSEN_USER_ID)
-                .where(Entries.date == str(datetime.now().date()))
-            ).all()
-        }
+        entries = session.exec(
+            select(Entries)
+            .options(
+                sqlalchemy.orm.joinedload(Entries.task)
+                .joinedload(Tasks.project)
+                .joinedload(Projects.category)
+            )
+            .order_by(Entries.id)
+            .where(Entries.person_id == CHOSEN_USER_ID)
+            .where(Entries.date == str(datetime.now().date()))
+        ).all()
+        if category_id:
+            return {
+                entry.id: entry
+                for entry in entries
+                if entry.task.project.category.id == category_id
+            }
+        return {entry.id: entry for entry in entries}
 
-        return stored_entries
 
-
-def projects():
+def categories():
     with Session(engine) as session:
         return {
             project.id: project
-            for project in session.exec(select(Projects).order_by(Projects.id)).all()
+            for project in session.exec(
+                select(Categories)
+                .order_by(Categories.description)
+                .where(Categories.person_id == CHOSEN_USER_ID)
+            ).all()
         }
 
 
@@ -201,6 +207,16 @@ async def put(id: int):
 async def put(id: int):
     return toggle_complete(id)
 
+@rt("/entries")
+async def post(filter_category: int):
+    return Div(
+        *[
+            entry_component(entry)
+            for _, entry in entries(category_id=filter_category).items()
+        ],
+        id="entries",
+        cls="grid grid-cols-1 gap-4 max-w-lg mx-auto mb-4",
+    )
 
 @rt("/")
 def get():
@@ -208,11 +224,32 @@ def get():
         A("ClearHabits", cls="btn btn-ghost text-xl"),
         cls="navbar bg-base-100 ",
     )
+    dropdown = Div(
+        Form(
+            Select(
+                *(
+                    [Option("All", value="")]
+                    + [
+                        Option(category.description, value=category.id)
+                        for category in categories().values()
+                    ]
+                ),
+                id="filter_category",
+                cls="select select-bordered w-full max-w-xs",
+                hx_post=get_path("/entries"),
+                hx_trigger="change",
+                hx_target="#entries",
+                hx_swap="outerHTML",
+            ),
+            cls="grid grid-cols-1 gap-4 max-w-lg mx-auto mb-4",
+        ),
+    )
     todolist = Div(
         *[entry_component(entry) for _, entry in entries().items()],
         cls="grid grid-cols-1 gap-4 max-w-lg mx-auto mb-4",
+        id="entries",
     )
-    contents = Main(navbar, todolist)
+    contents = Main(navbar, dropdown, todolist)
     icon_script = Script(
         """
         lucide.createIcons();

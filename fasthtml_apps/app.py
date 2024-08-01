@@ -55,7 +55,9 @@ def entries():
             for entry in session.exec(
                 select(Entries)
                 .options(
-                    sqlalchemy.orm.joinedload(Entries.task).joinedload(Tasks.project)
+                    sqlalchemy.orm.joinedload(Entries.task)
+                    .joinedload(Tasks.project)
+                    .joinedload(Projects.category)
                 )
                 .order_by(Entries.id)
                 .where(Entries.person_id == CHOSEN_USER_ID)
@@ -93,7 +95,11 @@ def toggle_timer(id):
         authenticate_session(session)
         statement = (
             select(Entries)
-            .options(sqlalchemy.orm.joinedload(Entries.task).joinedload(Tasks.project))
+            .options(
+                sqlalchemy.orm.joinedload(Entries.task)
+                .joinedload(Tasks.project)
+                .joinedload(Projects.category)
+            )
             .where(Entries.id == id)
         )
         new_entry = session.exec(statement).one()
@@ -119,7 +125,11 @@ def toggle_complete(id):
         authenticate_session(session)
         statement = (
             select(Entries)
-            .options(sqlalchemy.orm.joinedload(Entries.task).joinedload(Tasks.project))
+            .options(
+                sqlalchemy.orm.joinedload(Entries.task)
+                .joinedload(Tasks.project)
+                .joinedload(Projects.category)
+            )
             .where(Entries.id == id)
         )
         new_entry = session.exec(statement).one()
@@ -133,7 +143,20 @@ def toggle_complete(id):
 def entry_component(entry: Entries):
     return Div(
         Div(
-            Div(entry.task.project.description, cls="badge"),
+            Div(
+                Div(
+                    Ul(
+                        Li(
+                            entry.task.project.category.description,
+                        ),
+                        Li(
+                            entry.task.project.description,
+                        ),
+                    ),
+                    cls="breadcrumbs",
+                ),
+                cls="badge",
+            ),
             Div(entry.task.description, cls="font-bold"),
             Div(entry.description, cls="text-sm"),
             Div(

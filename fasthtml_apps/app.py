@@ -34,8 +34,12 @@ headers = (
 DB_URL = os.getenv("DB_URL")
 SUB_PATH = os.getenv("SUB_PATH")
 
+if SUB_PATH is None:
+    raise ValueError("SUB_PATH is not set")
 
 def get_path(original_path: str) -> str:
+    if SUB_PATH == "":
+        return original_path
     return f"/{SUB_PATH}{original_path}"
 
 

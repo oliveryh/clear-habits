@@ -4,6 +4,7 @@ from fasthtml.common import *
 from sqlmodel import Session, create_engine, select
 
 from models import Entries, Tasks, Projects, Categories
+from alpine_assets import alpine_scripts, get_dynamic_dropdown
 
 load_dotenv()
 
@@ -243,6 +244,13 @@ def get():
             ),
             cls="grid grid-cols-1 gap-4 max-w-lg mx-auto mb-4",
         ),
+    )
+    # Altenative Alpine.js dropdown that doesn't work
+    dropdown_section = get_dynamic_dropdown(
+        [
+            {"label": category.description, "value": category.id}
+            for category in categories().values()
+        ]
     )
     todolist = Div(
         *[entry_component(entry) for _, entry in entries().items()],

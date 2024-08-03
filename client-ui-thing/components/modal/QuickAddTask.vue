@@ -18,23 +18,31 @@
                   class="mb-4 mr-0 flex-grow justify-between sm:mb-0 sm:mr-4"
                 >
                   <template v-if="value">
-                    <span
-                      :class="
-                        projectCategoryStyles({
-                          contrast: value.project.category.colorContrast,
-                        })
-                      "
-                      :style="{ backgroundColor: value.project.category.color }"
-                    >
-                      {{ value.project.description }}
-                    </span>
-                    {{ value.description }}
-                    <UiBadge variant="secondary">
-                      <Icon name="lucide:clock" class="mr-1 h-4 w-4" />
-                      {{ secondsToSummary(value.latestMaxEntryTimerEstimatedTime) }}</UiBadge
-                    ></template
-                  >
-                  <template v-else>Select a task...</template>
+                    <div class="flex flex-grow flex-row gap-2">
+                      <div class="basis-1/4">
+                        <span
+                          :class="
+                            projectCategoryStyles({
+                              contrast: value.project.category.colorContrast,
+                            })
+                          "
+                          :style="{ backgroundColor: value.project.category.color }"
+                        >
+                          {{ value.project.description }}
+                        </span>
+                      </div>
+                      <div class="line-clamp-1 basis-1/2 text-left">
+                        {{ value.description }}
+                      </div>
+                      <div class="basis-1/4">
+                        <UiBadge variant="secondary">
+                          <Icon name="lucide:clock" class="mr-1 h-4 w-4" />
+                          {{ secondsToSummary(value.latestMaxEntryTimerEstimatedTime) }}</UiBadge
+                        >
+                      </div>
+                    </div>
+                  </template>
+                  <template v-else>Select a task....</template>
                   <Icon
                     name="lucide:chevrons-up-down"
                     class="ml-auto h-4 w-4 shrink-0 opacity-50"
@@ -51,40 +59,54 @@
                 <UiCommandList>
                   <UiCommandEmpty>No tasks found.</UiCommandEmpty>
                   <UiCommandGroup>
-                    <UiCommandItem
-                      v-for="task in recentTasksWithProject"
-                      :key="task.projectId + task.description"
-                      :value="task"
-                      @select="open = false"
-                    >
-                      <Icon
-                        name="lucide:check"
-                        :class="[
-                          'mr-2 h-4 w-4',
-                          value
-                            ? value.projectId === task.projectId &&
-                              value.description === task.description
-                              ? 'opacity-100'
-                              : 'opacity-0'
-                            : 'opacity-0',
-                        ]"
-                      />
-                      <span
-                        :class="
-                          projectCategoryStyles({
-                            contrast: task.project.category.colorContrast,
-                          })
-                        "
-                        :style="{ backgroundColor: task.project.category.color }"
+                    <UiScrollArea class="h-40">
+                      <UiCommandItem
+                        v-for="task in recentTasksWithProject"
+                        :key="task.projectId + task.description"
+                        :value="task"
+                        @select="open = false"
                       >
-                        {{ task.project.description }}
-                      </span>
-                      {{ task.description }}
-                      <UiBadge variant="secondary">
-                        <Icon name="lucide:clock" class="mr-1 h-4 w-4" />
-                        {{ secondsToSummary(task.latestMaxEntryTimerEstimatedTime) }}</UiBadge
-                      >
-                    </UiCommandItem>
+                        <div class="flex grow flex-row">
+                          <Icon
+                            name="lucide:check"
+                            :class="[
+                              'm-1 mr-3 h-4 w-4',
+                              value
+                                ? value.projectId === task.projectId &&
+                                  value.description === task.description
+                                  ? 'opacity-100'
+                                  : 'opacity-0'
+                                : 'opacity-0',
+                            ]"
+                          />
+                          <div class="flex flex-grow flex-row gap-2">
+                            <div class="basis-1/4">
+                              <span
+                                :class="
+                                  projectCategoryStyles({
+                                    contrast: task.project.category.colorContrast,
+                                  })
+                                "
+                                :style="{ backgroundColor: task.project.category.color }"
+                              >
+                                {{ task.project.description }}
+                              </span>
+                            </div>
+                            <div class="line-clamp-1 basis-1/2 text-left">
+                              {{ task.description }}
+                            </div>
+                            <div class="basis-1/4">
+                              <UiBadge variant="secondary">
+                                <Icon name="lucide:clock" class="mr-1 h-4 w-4" />
+                                {{
+                                  secondsToSummary(task.latestMaxEntryTimerEstimatedTime)
+                                }}</UiBadge
+                              >
+                            </div>
+                          </div>
+                        </div>
+                      </UiCommandItem>
+                    </UiScrollArea>
                   </UiCommandGroup>
                 </UiCommandList>
               </UiCommand>
@@ -123,7 +145,7 @@
   const open = ref(false)
 
   const projectCategoryStyles = tv({
-    base: "mr-1 rounded-md px-2 py-1 text-sm",
+    base: "mr-1 line-clamp-1 rounded-md px-2 align-middle text-sm",
     variants: {
       contrast: {
         true: "text-black",

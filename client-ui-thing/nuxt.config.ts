@@ -62,7 +62,7 @@ export default defineNuxtConfig({
         httpEndpoint: process.env.GRAPHQL_URL || "http://localhost:3000/graphql",
         tokenStorage: "cookie",
         httpLinkOptions: {
-          credentials: "include",
+          credentials: process.env.NODE_ENV === "production" ? "include" : "omit",
         },
         cookieAttributes: {
           secure: false,

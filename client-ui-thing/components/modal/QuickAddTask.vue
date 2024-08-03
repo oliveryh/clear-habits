@@ -45,7 +45,7 @@
                 <Icon name="lucide:plus" data-testid="pause-icon" />Add Task
               </UiButton>
             </div>
-            <UiPopoverContent class="w-full p-0">
+            <UiPopoverContent class="p-0">
               <UiCommand :filter-function="filterFunction" v-model="value">
                 <UiCommandInput placeholder="Search framework..." />
                 <UiCommandList>

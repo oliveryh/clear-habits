@@ -47,7 +47,7 @@
             </div>
             <UiPopoverContent class="p-0">
               <UiCommand :filter-function="filterFunction" v-model="value">
-                <UiCommandInput placeholder="Search framework..." />
+                <UiCommandInput placeholder="Search for a task..." />
                 <UiCommandList>
                   <UiCommandEmpty>No tasks found.</UiCommandEmpty>
                   <UiCommandGroup>

@@ -145,7 +145,7 @@
   const open = ref(false)
 
   const projectCategoryStyles = tv({
-    base: "mr-1 line-clamp-1 rounded-md px-2 align-middle text-sm",
+    base: "h-1em mr-1 line-clamp-1 rounded-md px-2 align-middle text-sm",
     variants: {
       contrast: {
         true: "text-black",

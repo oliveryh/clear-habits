@@ -66,21 +66,21 @@
                         :value="task"
                         @select="open = false"
                       >
-                        <div class="flex grow flex-row">
-                          <Icon
-                            name="lucide:check"
-                            :class="[
-                              'm-1 mr-3 h-4 w-4',
-                              value
-                                ? value.projectId === task.projectId &&
-                                  value.description === task.description
-                                  ? 'opacity-100'
-                                  : 'opacity-0'
-                                : 'opacity-0',
-                            ]"
-                          />
-                          <div class="flex flex-grow flex-row gap-2">
-                            <div class="basis-1/4">
+                        <Icon
+                          name="lucide:check"
+                          :class="[
+                            'mx-2 my-auto h-4 w-4',
+                            value
+                              ? value.projectId === task.projectId &&
+                                value.description === task.description
+                                ? 'opacity-100'
+                                : 'opacity-0'
+                              : 'opacity-0',
+                          ]"
+                        />
+                        <div class="my-1 flex grow flex-col px-1">
+                          <div class="flow-root gap-1">
+                            <div class="float-left">
                               <span
                                 :class="
                                   projectCategoryStyles({
@@ -92,10 +92,7 @@
                                 {{ task.project.description }}
                               </span>
                             </div>
-                            <div class="line-clamp-1 basis-1/2 text-left">
-                              {{ task.description }}
-                            </div>
-                            <div class="basis-1/4">
+                            <div class="float-right">
                               <UiBadge variant="secondary">
                                 <Icon name="lucide:clock" class="mr-1 h-4 w-4" />
                                 {{
@@ -103,6 +100,9 @@
                                 }}</UiBadge
                               >
                             </div>
+                          </div>
+                          <div class="my-1 line-clamp-1 text-left">
+                            {{ task.description }}
                           </div>
                         </div>
                       </UiCommandItem>

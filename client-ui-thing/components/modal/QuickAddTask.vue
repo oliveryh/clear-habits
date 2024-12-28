@@ -49,7 +49,7 @@
                   />
                 </UiButton>
               </UiPopoverTrigger>
-              <UiButton class="max-w-32" variant="secondary" @click="createTask">
+              <UiButton class="min-w-32" variant="secondary" @click="createTask">
                 <Icon name="lucide:plus" data-testid="pause-icon" />Add Task
               </UiButton>
             </div>

@@ -1,3 +1,6 @@
+> [!NOTE]
+> Archived as I am not actively working on this project.
+
 # Clear Habits
 
 A task manager where tasks can be broken down into subtasks and time can be recorded against each entry. Keyboard driven where possible, and with a minimal UI.
